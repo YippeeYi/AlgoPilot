@@ -1,0 +1,93 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-sidebar: var(--sidebar);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  --radius: 0.65rem;
+  --background: #f7f8fa;
+  --foreground: #202734;
+  --card: #ffffff;
+  --card-foreground: #202734;
+  --popover: #ffffff;
+  --popover-foreground: #202734;
+  --primary: #3a685b;
+  --primary-foreground: #ffffff;
+  --secondary: #eef1f4;
+  --secondary-foreground: #344054;
+  --muted: #eff2f5;
+  --muted-foreground: #626e7d;
+  --accent: #e7efeb;
+  --accent-foreground: #2e5c4e;
+  --destructive: #be3535;
+  --border: #e1e5ea;
+  --input: #d6dce3;
+  --ring: #3a685b;
+  --sidebar: #ffffff;
+}
+
+.dark {
+  --background: #11161c;
+  --foreground: #e6ebf0;
+  --card: #191f27;
+  --card-foreground: #e6ebf0;
+  --popover: #191f27;
+  --popover-foreground: #e6ebf0;
+  --primary: #93c6ae;
+  --primary-foreground: #17271f;
+  --secondary: #262e39;
+  --secondary-foreground: #e6ebf0;
+  --muted: #252d37;
+  --muted-foreground: #a1aebd;
+  --accent: #263a32;
+  --accent-foreground: #b7dec9;
+  --destructive: #f08080;
+  --border: #303a46;
+  --input: #394553;
+  --ring: #93c6ae;
+  --sidebar: #171d24;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+  }
+  button,
+  input,
+  textarea {
+    font: inherit;
+  }
+  ::selection {
+    @apply bg-primary/20;
+  }
+}
