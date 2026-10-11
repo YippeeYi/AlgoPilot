@@ -40,7 +40,7 @@ export default async function DashboardPage() {
             </Link>
             <p className="mt-3 text-xs text-muted-foreground">
               {context
-                ? "私人训练已接入；AI 教练将在 M2 接入"
+                ? "私人训练已接入；AI 教练需服务端配置后启用"
                 : "布局预览，不会创建训练或调用 AI"}
             </p>
           </CardContent>

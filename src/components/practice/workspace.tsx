@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { TutorPanel } from "@/components/practice/workspace-preview";
+import { TutorConversation } from "@/components/practice/tutor-conversation";
 import { requestJson } from "@/lib/api-client";
 import type { TrainingSession, Problem, Thought } from "@/lib/validation/m1";
 import { DraftQueue } from "@/features/sessions/draft-queue";
@@ -539,7 +539,15 @@ export function Workspace({
           forceMount
           className="data-[state=inactive]:hidden lg:data-[state=inactive]:block"
         >
-          <TutorPanel idPrefix="live" preview={false} />
+          <TutorConversation
+            key={session.id}
+            sessionId={session.id}
+            mode={session.mode}
+            completed={session.status === "completed"}
+            prepare={async () => {
+              await Promise.all([thoughtQueue.flush(), codeQueue.flush()]);
+            }}
+          />
         </TabsContent>
       </Tabs>
     </>

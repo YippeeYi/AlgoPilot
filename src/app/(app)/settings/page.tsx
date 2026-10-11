@@ -3,12 +3,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { readTutorConfig } from "@/server/tutor/config";
 import { getConfigurationStatus } from "@/server/config";
 
 export const dynamic = "force-dynamic";
 
 export default function SettingsPage() {
   const status = getConfigurationStatus();
+  const tutorConfigured = Boolean(readTutorConfig());
   const labels = {
     missing: "未配置",
     incomplete: "配置不完整",
@@ -50,11 +52,17 @@ export default function SettingsPage() {
             </div>
             <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
               <span>LLM 模型</span>
-              <Badge variant="secondary">{labels[status.llm]}</Badge>
+              <Badge variant="secondary">
+                {tutorConfigured
+                  ? "AI 运行配置已填写 · 未验证连接"
+                  : status.llm === "configured"
+                    ? "AI 运行配置不完整"
+                    : labels[status.llm]}
+              </Badge>
             </div>
             <p className="text-xs leading-6 text-muted-foreground">
-              这里仅检查环境配置是否完整；连接与账户验证由认证流程执行。模型调用将在
-              M2 接入。
+              这里只检查配置是否完整，不代表连接成功。AI
+              还需匹配的数据库签名配置；真实调用和用量在训练工作台按权限记录。
             </p>
           </CardContent>
         </Card>

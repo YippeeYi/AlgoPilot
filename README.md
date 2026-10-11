@@ -2,7 +2,7 @@
 
 面向 Codeforces / XCPC 个人选手的算法竞赛训练助手，以独立思考、苏格拉底式引导和可追溯复盘为核心。
 
-**当前交付：M1 认证、数据库与训练工作台持久化。** 实现邮箱账户、私人题目、训练会话、服务端计时、思路草稿与历史版本、C++ 草稿和刷新恢复。保留 M0 主题及响应式布局；AI、CF 同步、自动复盘和统计仍未接入，不生成伪数据。托管 Supabase 尚待隔离项目验收，详细证据见 [M1 验收记录](docs/M1_VERIFICATION.md) 和 [里程碑](docs/MILESTONES.md)。
+**当前交付：M2 AI 思维教练。** 保留 M0/M1 的邮箱认证、私人题目、计时、Monaco C++ 与思路历史；增量接入服务端 OpenAI-compatible Provider、分级苏格拉底式引导、持久对话、L5 二次确认、可信用量、额度与并发控制。CF 同步、自动复盘、推荐和代码执行未实现。没有 API Key 时明确禁用，不生成假回复；真实 Provider 和托管 Supabase 尚未验证，证据见 [M2 验收](docs/M2_VERIFICATION.md) 与 [里程碑](docs/MILESTONES.md)。
 
 ## 运行
 
@@ -14,7 +14,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-打开 http://localhost:3000。填入 Supabase 项目 URL、publishable key 和实际站点 `APP_URL`，并先应用迁移，才可真实认证和保存。详细步骤见 [Supabase 配置指南](docs/SUPABASE_SETUP.md)。没有配置时可浏览无数据页面壳与 `/practice/preview`，不会伪造登录或启用保存。
+打开 http://localhost:3000。填入 Supabase 项目 URL、publishable key 和实际站点 `APP_URL`，并先应用迁移，才可真实认证和保存。详细步骤见 [Supabase 配置指南](docs/SUPABASE_SETUP.md)。AI 还须应用 M2 迁移，配置 Provider 和独立签名密钥，见 [M2 配置指南](docs/M2_SETUP.md)。没有配置时可浏览无数据页面壳与 `/practice/preview`，不会伪造登录或启用保存。
 
 ```bash
 npm run lint
@@ -31,7 +31,7 @@ npm run start
 - `/login`、`/register`：邮箱密码登录、注册、验证回调；登录恢复安全的原访问目标，登出和失效会话提示。
 - `/dashboard`、`/problems`、`/sessions`、`/reviews`、`/analytics`、`/settings`、真实 `/practice/[sessionId]`：配置完整时均要求服务端验证身份。没有配置时只提供明确标注的无数据壳。
 - `/problems`：私人自定义题目创建和分页列表；共享 CF 元数据结构已预留，尚不进行导入或同步。
-- `/sessions`：创建自主训练、个人分页列表和重新打开。比赛模式也能计时、写草稿；AI 始终禁用。
+- `/sessions`：创建自主训练、个人分页列表和重新打开。比赛模式也能计时、写草稿；服务端强制禁止题目相关 AI。
 - `/practice/[sessionId]`：桌面三栏/移动标签；私人题面快照、Monaco C++、草稿自动/手动保存、追加思路历史与恢复、暂停/继续/完成。
 - `/practice/preview`：独立公开入口，不初始化 Auth、不读取私人数据、不保存或调用 AI；尚未接入操作禁用。
 - 复盘、学习统计和 CF 设置保留真实空状态，后续阶段接入。
@@ -44,7 +44,7 @@ npm run start
 
 正式迁移：[202610110001_m1_training.sql](supabase/migrations/202610110001_m1_training.sql)。四表：`profiles`（关联 Auth）、`problems`（公开元数据或私人自建）、`training_sessions`（唯一用户）、`thought_snapshots`（父会话归属，仅追加）。公共 CF 记录不能含私人题面；用户提供的题面放在私人会话快照中。
 
-HTTP 请求与状态字段见 [M1 API 契约](docs/M1_API.md)。
+HTTP 请求与状态字段见 [M1 API 契约](docs/M1_API.md) 和 [M2 AI/API 契约](docs/M2_API.md)。
 
 所有表启用 RLS；私人 SELECT 按 `auth.uid()`，子表通过父会话验证。客户端不获表 DML 权限；算法 tags 不授予直接 SELECT。用户 JWT 可调用有限 RPC，函数显式核验身份/归属、固定空 search_path、事务行锁、revision CAS 与幂等键，数据库生成可信时间和 owner。内部锁函数不开放调用。M1 不使用 service-role key。
 
@@ -57,11 +57,24 @@ Next proxy 刷新 Cookie；页面和 API 使用服务端 `getUser()` 验证，�
 | `NEXT_PUBLIC_SUPABASE_URL`                        | 项目 HTTPS URL（本地可 localhost）       | 是         |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`            | publishable/anon key，绝不能填管理员 key | 是         |
 | `APP_URL`                                         | 实际站点 origin 与验证回调               | 无需发送   |
-| `SUPABASE_SERVICE_ROLE_KEY`                       | 后续可信服务任务预留，M1 不使用          | 否         |
-| `LLM_*`                                           | M2 服务端 Provider、预算与限额预留       | 否         |
+| `SUPABASE_SERVICE_ROLE_KEY`                       | 后续可信服务任务预留，M1/M2 不使用       | 否         |
+| `LLM_*`                                           | M2 服务端 Provider、预算与限额           | 否         |
+| `TUTOR_RPC_SIGNING_SECRET`                        | 服务端与 private DB 的独立 HMAC 签名密钥 | 否         |
+| `M2_ALLOW_DATABASE_TESTS`、`M2_TEST_DATABASE_URL` | M2 隔离数据库 SQL smoke                  | 否         |
 | `M1_ALLOW_DATABASE_TESTS`、`M1_TEST_DATABASE_URL` | 只供隔离数据库 SQL 测试                  | 否         |
 
-默认 L0、L5 双确认、比赛模式的服务端 AI 拦截将在 M2 完成；M1 没有任何模型调用路径。题面安全展示为纯文本；安全 Markdown/KaTeX 在内容阶段实现。官方 AC、用户自报、AI 推测保持不同来源。CF API 不保证完整题面；M1 不调用外部 CF 或任意用户 URL。
+## M2 功能与权限
+
+- 真实工作台右栏持久对话，六类操作 + chat，提示等级/升级、L5 两次弹窗确认、分析/错误/重试与每日额度。桌面三栏和移动标签保持不变；公开 preview 不读私人数据、不调用 AI。
+- 单 Tutor Orchestrator：验证身份/归属/模式/状态/权限 → 最小上下文与版本化 Prompt → Provider → 输出审核 → 原子保存消息/事件/usage。debug 仅静态阅读 C++，不执行任何代码。
+- L0 已有思路提问；L1 条件/边界/复杂度引导；L2 性质探索；L3 算法类别；L4 伪代码/局部指导；L5 完整解析。聊天不能升级，授权与已查看分开，最高已查看单调。L5 挑战绑定用户/会话/请求、5 分钟有效且防重放。
+- L0/L1 限制模型为结构化 focus/原文引用，服务器用审核过的模板提问；L2 以上允许受等级约束的 Markdown/LaTeX。安全渲染禁 raw HTML/远程图片，KaTeX trust:false。自动规则不能形式化保证不剧透或算法判断正确。
+- 新 [M2 迁移](supabase/migrations/202610110002_m2_tutor.sql) 增加授权、请求、消息、提示事件和用量；RLS/只读表授权 + 用户 JWT/HMAC 受控 RPC，浏览器不能伪造 assistant、事件或费用，内部上下文/nonce/签名不公开，不新增 service-role 使用。
+- UTC 每日用户额度、跨会话单用户并发租约、幂等请求与有界重试；usage 使用真实响应字段，缺失为 NULL。可选价格仅估算，超时/未知用量和进程崩溃不能证明没有费用，不设假账单。
+
+没有内部题解/隐藏观察读取路径；只把用户题面、相关草稿、少量思路版本及可见历史送模型。授权未获得内容不增已查看。调用后完成训练/租约过期会丢弃可见结果，仍结算已取得的真实 usage。详见 [接口与失败语义](docs/M2_API.md)。
+
+[原创 12 题教学审核集](docs/tutor/teaching-review-dataset.json) 用于固定输出回归和后续真实模型人工验收，当前没有实测教学评分。官方 AC、用户自报、AI 推测保持不同来源；CF API 不保证完整题面，本轮不调用 CF 或用户任意 URL。
 
 ## 测试
 
@@ -75,9 +88,9 @@ npx playwright install chromium
 npm run test:e2e
 ```
 
-`npm run test` 包含原 M0 单测、输入/权限/保存队列、Route Handler/SDK 替身测试，以及 PGlite 临时 PostgreSQL 执行正式迁移与 [完整 SQL/RLS 断言](supabase/tests/m1_rls.sql)。PGlite 是实际 SQL/RLS 引擎；Auth uid/JWT 环境是替身，单连接竞争测试不能替代多连接数据库并发验收。
+`npm run test` 包含原 M0 单测、输入/权限/保存队列、Route Handler/SDK 替身测试，以及 PGlite 临时 PostgreSQL + pgcrypto 执行 M1/M2 正式迁移、HMAC、权限/额度/租约及 [M1 SQL/RLS 断言](supabase/tests/m1_rls.sql)、[M2 SQL smoke](supabase/tests/m2_rls.sql)。PGlite 是实际 SQL/RLS 引擎；Auth uid/JWT 环境是替身，单连接竞争测试不能替代多连接数据库并发验收。
 
-Playwright 在 3100 启动无 Supabase 配置的生产构建（保留 M0 的全部 10 项断言），在 3101 使用 54001 本地 Supabase HTTP 契约替身测试 M1。没有生产 Auth 绕过开关；应用实际经过 Supabase SDK、Cookie、proxy 与 API。注册/验证不发送真实邮件，这些结果不能宣称托管 Supabase 联通。
+Playwright 在 3100 启动无 Supabase 配置的生产构建（保留 M0 的全部 10 项断言），在 3101 使用 54001 本地 Supabase HTTP 契约替身测试 M1。M2 另在 3102 使用 54002 本地 Chat Completions HTTP Mock（明确标注 MOCK），验证真实应用调用、刷新、升级、错误重试及移动端。没有生产 Auth 绕过或 Mock 回复开关；应用实际经过 Supabase SDK、Cookie、proxy 与 API。注册/验证不发送真实邮件，这些结果不能宣称托管 Supabase 联通。
 
 如需在已迁移的专用隔离 Supabase/本地 PostgreSQL 库运行同一 SQL 文件，安装 `psql` 后显式设置：
 
@@ -89,12 +102,12 @@ npm run test:rls
 
 **禁止使用生产数据库。** 脚本没有配置会拒绝运行；夹具位于事务内，最终回滚。真实 Supabase 邮件、Cookie 刷新、PostgREST、双用户隔离与多连接并发仍需按指南人工验收。
 
-生产依赖审计 0 告警；开发链 `@next/eslint-plugin-next → fast-glob → micromatch → braces` 仍有 4 HIGH 告警。未执行强制降级或未知兼容性覆盖。Monaco 的 DOMPurify 使用官方 3.4.16 修复版本，由 ESM 构建生效；没有引入不明许可证代码。
+M2 生产依赖审计结果见验收记录；开发链 `@next/eslint-plugin-next → fast-glob → micromatch → braces` 仍有 4 HIGH 告警。未执行强制降级或未知兼容性覆盖。Monaco 的 DOMPurify 使用官方 3.4.16 修复版本，由 ESM 构建生效；新增 KaTeX 统一使用官方 0.19.0 修复版本（传递依赖覆盖），已验证公式/危险资源渲染；没有引入不明许可证代码。
 
 ## 部署与范围
 
 可导入 Vercel，配置相同公开 Supabase 信息和 `APP_URL`，执行 `npm ci`/`npm run build`，先应用迁移并设置 Auth Site URL/Redirect URLs。也可部署到 Node.js 主机执行 build/start。部署时把 lint/typecheck/test/e2e 作为独立门禁，build 不自动替代它们。
 
-M1 是可配置运行的基础训练版本，尚未完成生产验收。Supabase Auth 自带配额需在项目中核对；跨实例写入限频、导出/删除、生产 CSP、LLM 权限/额度、CF 同步及复盘在后续里程碑完成。不会为了缺少账户权限而自行创建外部项目或执行生产测试。
+M2 是可配置运行的思维教练版本，尚未完成真实 Provider 教学质量和生产验收。Supabase Auth 自带配额需在项目中核对；跨实例写入限频、导出/删除、生产 CSP、CF 同步、复盘及生产硬预算/多连接验收在后续里程碑完成。不会为了缺少账户权限而自行创建外部项目或执行生产测试。
 
 工程总需求保留于 `AGENTS.md`、`DEVELOPMENT_PLAN.md`、`CODEX_PROMPT.md`。官方参考：[Supabase SSR](https://supabase.com/docs/guides/auth/server-side/creating-a-client)、[Next.js proxy](https://nextjs.org/docs/app/api-reference/file-conventions/proxy)、[Supabase RLS](https://supabase.com/docs/guides/database/postgres/row-level-security)、[数据库函数权限](https://supabase.com/docs/guides/database/functions)、[Monaco React npm 加载](https://github.com/suren-atoyan/monaco-react#use-monaco-editor-as-an-npm-package)。

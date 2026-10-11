@@ -1,11 +1,16 @@
+import type { TutorAction, TutorMessage } from "@/lib/validation/m2";
 import type { TrainingSession, Problem, Thought } from "@/lib/validation/m1";
 
-// 与 M1 migration 对齐；应用响应仍经过 Zod 与显式字段选择。
+// 与 M1/M2 migrations 对齐；应用响应仍经过 Zod 与显式字段选择。
 type Table<Row> = {
   Row: Row;
   Insert: Partial<Row>;
   Update: Partial<Row>;
   Relationships: [];
+};
+type ReadTable<Row> = Omit<Table<Row>, "Insert" | "Update"> & {
+  Insert: never;
+  Update: never;
 };
 type SessionRow = TrainingSession & {
   max_hint_seen: number;
@@ -33,9 +38,72 @@ export type Database = {
       problems: Table<ProblemRow>;
       training_sessions: Table<SessionRow>;
       thought_snapshots: Table<Thought & { request_id: string }>;
+      tutor_messages: ReadTable<TutorMessage>;
+      tutor_authorizations: ReadTable<{
+        session_id: string;
+        allowed_level: number;
+        revision: number;
+        updated_at: string;
+      }>;
+      hint_events: ReadTable<{
+        id: string;
+        session_id: string;
+        request_id: string;
+        kind: "authorization" | "l5_challenge" | "disclosure" | "full_reveal";
+        level: number;
+        created_at: string;
+      }>;
+      llm_usage: ReadTable<{
+        id: string;
+        request_id: string;
+        attempt: number;
+        provider: "openai-compatible";
+        model: string;
+        input_tokens: number | null;
+        output_tokens: number | null;
+        total_tokens: number | null;
+        duration_ms: number;
+        status: "success" | "rejected" | "timeout" | "error";
+        cost_usd: number | null;
+        created_at: string;
+      }>;
+      tutor_requests: ReadTable<{
+        id: string;
+        user_id: string;
+        session_id: string;
+        fingerprint: string;
+        context_evidence: Record<string, unknown>;
+        action: TutorAction;
+        allowed_level: number;
+        status: "pending" | "completed" | "failed";
+        lease_nonce: string;
+        lease_until: string;
+        error_code: string | null;
+        created_at: string;
+        finished_at: string | null;
+      }>;
     };
     Views: Record<string, never>;
     Functions: {
+      tutor_state: { Args: { p_id: string }; Returns: unknown };
+      tutor_hint: {
+        Args: {
+          p_id: string;
+          p_operation: string;
+          p_revision: number;
+          p_request_id: string;
+          p_challenge: string | null;
+        };
+        Returns: unknown;
+      };
+      tutor_reserve: {
+        Args: { p_payload: string; p_signature: string };
+        Returns: unknown;
+      };
+      tutor_finish: {
+        Args: { p_payload: string; p_signature: string };
+        Returns: unknown;
+      };
       create_custom_problem: {
         Args: { p_title: string; p_statement: string; p_request_id: string };
         Returns: ProblemRow[];

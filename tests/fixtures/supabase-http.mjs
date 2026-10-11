@@ -1,7 +1,7 @@
 // E2E 专用 HTTP 契约替身。没有真实邮件、Supabase JWT 验签或数据库 RLS。
 // 生产应用完全不包含此脚本；真实 SQL/RLS 由独立 PostgreSQL 测试覆盖。
 import { createServer } from "node:http";
-import { randomUUID } from "node:crypto";
+import { randomUUID, createHmac } from "node:crypto";
 
 const users = new Map();
 const tokens = new Map();
@@ -9,6 +9,11 @@ const sessions = new Map();
 const problems = new Map();
 const thoughts = new Map();
 const metrics = { auth: 0, data: 0 };
+const tutorStates = new Map();
+const tutorMessages = new Map();
+const tutorRequests = new Map();
+const challenges = new Map();
+const fixtureSigningSecret = "ab".repeat(32);
 const now = () => new Date().toISOString();
 function user(email) {
   const entry = {
@@ -57,6 +62,140 @@ function owned(id, uid) {
   return row;
 }
 function rpc(name, p, uid) {
+  if (name === "tutor_reserve" || name === "tutor_finish") {
+    if (
+      createHmac("sha256", fixtureSigningSecret)
+        .update(p.p_payload)
+        .digest("hex") !== p.p_signature
+    )
+      failure("42501");
+    const v = JSON.parse(p.p_payload);
+    if (v.userId !== uid || Date.parse(v.expiresAt) < Date.now())
+      failure("42501");
+    const row = owned(v.sessionId, uid);
+    const state = tutorStates.get(row.id) ?? {
+      allowedLevel: 0,
+      maxSeenLevel: 0,
+      revision: 0,
+    };
+    tutorStates.set(row.id, state);
+    if (name === "tutor_reserve") {
+      if (row.mode === "contest") failure("AP001");
+      if (row.status === "completed") failure("AP002");
+      const old = tutorRequests.get(v.requestId);
+      if (old) {
+        if (old.fingerprint !== v.fingerprint) failure("40001");
+        if (old.status === "completed")
+          return { cached: true, requestId: v.requestId };
+        failure(old.status === "pending" ? "AP004" : "AP006");
+      }
+      const requests = [...tutorRequests.values()].filter(
+        (r) => r.userId === uid,
+      );
+      if (requests.some((r) => r.status === "pending")) failure("AP004");
+      if (requests.length >= v.dailyLimit) failure("AP003");
+      if (v.action === "explain" && state.allowedLevel !== 5) failure("AP007");
+      const r = {
+        ...v,
+        leaseNonce: randomUUID(),
+        allowedLevel: state.allowedLevel,
+        status: "pending",
+      };
+      tutorRequests.set(v.requestId, r);
+      return {
+        cached: false,
+        requestId: v.requestId,
+        leaseNonce: r.leaseNonce,
+        allowedLevel: r.allowedLevel,
+      };
+    }
+    const r = tutorRequests.get(v.requestId);
+    if (!r || r.leaseNonce !== v.leaseNonce) failure("42501");
+    if (r.status === "completed") return { accepted: true };
+    const accepted =
+      v.success && row.status !== "completed" && row.mode !== "contest";
+    if (accepted) {
+      for (const role of ["user", "assistant"]) {
+        const id = randomUUID();
+        tutorMessages.set(id, {
+          id,
+          session_id: row.id,
+          request_id: v.requestId,
+          role,
+          ordinal:
+            [...tutorMessages.values()].filter((m) => m.session_id === row.id)
+              .length + 1,
+          action: r.action,
+          content: role === "user" ? v.userMessage : v.content,
+          disclosure_level: role === "user" ? 0 : v.disclosureLevel,
+          verification:
+            role === "assistant" && r.action === "counterexample"
+              ? "unverified_candidate"
+              : "not_applicable",
+          prompt_version: v.promptVersion,
+          thought_revision: v.thoughtRevision,
+          code_revision: v.codeRevision,
+          created_at: now(),
+        });
+      }
+      state.maxSeenLevel = Math.max(state.maxSeenLevel, v.disclosureLevel);
+    }
+    r.status = accepted ? "completed" : "failed";
+    return { accepted };
+  }
+  if (name === "tutor_state" || name === "tutor_hint") {
+    const row = owned(p.p_id, uid);
+    const state = tutorStates.get(row.id) ?? {
+      allowedLevel: 0,
+      maxSeenLevel: 0,
+      revision: 0,
+    };
+    tutorStates.set(row.id, state);
+    if (name === "tutor_state")
+      return {
+        ...state,
+        used: [...tutorRequests.values()].filter((r) => r.userId === uid)
+          .length,
+      };
+    if (row.mode === "contest") failure("AP001");
+    if (row.status === "completed") failure("AP002");
+    if (state.revision !== p.p_revision) failure("40001");
+    if (p.p_operation === "upgrade" && state.allowedLevel < 4) {
+      state.allowedLevel++;
+      state.revision++;
+      return state;
+    }
+    if (p.p_operation === "begin_l5" && state.allowedLevel === 4) {
+      const id = randomUUID();
+      const c = {
+        id,
+        userId: uid,
+        sessionId: row.id,
+        requestId: p.p_request_id,
+        expiresAt: new Date(Date.now() + 300000).toISOString(),
+        consumed: false,
+      };
+      challenges.set(id, c);
+      return { ...state, challengeId: id, expiresAt: c.expiresAt };
+    }
+    if (p.p_operation === "confirm_l5" && state.allowedLevel === 4) {
+      const c = challenges.get(p.p_challenge);
+      if (
+        !c ||
+        c.userId !== uid ||
+        c.sessionId !== row.id ||
+        c.requestId !== p.p_request_id ||
+        c.consumed ||
+        Date.parse(c.expiresAt) < Date.now()
+      )
+        failure("AP005");
+      c.consumed = true;
+      state.allowedLevel = 5;
+      state.revision++;
+      return state;
+    }
+    failure("23514");
+  }
   if (name === "create_custom_problem") {
     const old = [...problems.values()].find(
       (row) => row.owner_id === uid && row.request_id === p.p_request_id,
@@ -193,16 +332,24 @@ function select(url, uid) {
       ? [...sessions.values()].filter((row) => row.user_id === uid)
       : table === "problems"
         ? [...problems.values()].filter((row) => row.owner_id === uid)
-        : [...thoughts.values()].filter(
-            (row) => sessions.get(row.session_id)?.user_id === uid,
-          );
+        : table === "tutor_messages"
+          ? [...tutorMessages.values()].filter(
+              (row) => sessions.get(row.session_id)?.user_id === uid,
+            )
+          : [...thoughts.values()].filter(
+              (row) => sessions.get(row.session_id)?.user_id === uid,
+            );
   for (const [key, value] of url.searchParams)
-    if (value.startsWith("eq."))
+    if (value.startsWith("lt."))
+      rows = rows.filter((row) => row[key] < value.slice(3));
+    else if (value.startsWith("eq."))
       rows = rows.filter((row) => row[key] === value.slice(3));
   rows.sort((a, b) =>
-    table === "thought_snapshots"
-      ? b.version - a.version
-      : b.created_at.localeCompare(a.created_at) || a.id.localeCompare(b.id),
+    table === "tutor_messages"
+      ? b.ordinal - a.ordinal
+      : table === "thought_snapshots"
+        ? b.version - a.version
+        : b.created_at.localeCompare(a.created_at) || a.id.localeCompare(b.id),
   );
   rows = rows.slice(
     Number(url.searchParams.get("offset") ?? 0),

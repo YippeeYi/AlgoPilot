@@ -1,6 +1,6 @@
 # AlgoPilot 实施状态
 
-范围以 DEVELOPMENT_PLAN.md 的 M0–M4 为主；CODEX_PROMPT.md 中拆出的复盘/稳定化项目将在对应阶段验收，M5 稳定性要求保留为最终检查清单。当前执行用户明确要求的 M1，基于 M0 提交 `91bfd6ae36de521a409c89a52db4d252bde7a3c8` 增量实现。
+范围以 DEVELOPMENT_PLAN.md 的 M0–M4 为主；CODEX_PROMPT.md 中拆出的复盘/稳定化项目将在对应阶段验收，M5 稳定性要求保留为最终检查清单。当前执行 M2，基于实际 main HEAD `e52257cd69b37f1282e59cca8694d88d29f36622` 增量实现；M0/M1 历史验收和用户的类型导入修正保留。
 
 ## M0：脚手架与设计系统
 
@@ -38,12 +38,28 @@
 
 代码与本地检查状态详见 [M1_VERIFICATION.md](M1_VERIFICATION.md)。真实服务验收单独列出，不能把本地替身结果当作完成线上认证/RLS 集成。
 
+## M2：AI 思维教练
+
+- [x] server-only 统一 Provider、OpenAI-compatible HTTP、超时/取消、有限退避、响应/usage/输出校验；运行时无假 Provider。
+- [x] 单 Orchestrator、七种 action、版本化中文策略、少量历史/版本上下文、静态代码分析，绝不执行 C++。
+- [x] L0–L5 数据库授权、独立升级、L5 两次明确确认与绑定/过期/防重放；授权和实际披露分开、max_seen 单调。
+- [x] contest/已完成会话双层阻止调用，晚到结果不展示；实时 CF 比赛识别留 M3。
+- [x] 新正式迁移/RLS/GRANT、用户 JWT + 服务端 HMAC 可信记录；不用 service-role，普通用户不能伪造 assistant/事件/费用。
+- [x] UTC 每日额度、跨会话用户并发租约/幂等、真实 usage 与缺失 NULL、明确重试/费用未知语义。
+- [x] 工作台右栏真实对话、刷新/历史加载、操作/等级/确认/错误重试/额度；保留三栏/移动标签/preview 隔离。
+- [x] 安全 Markdown/KaTeX、完整响应审核、L0/L1 服务端模板、L2+ 保守输出规则和明显完整程序 L5 记录。
+- [x] 保留全部 M0/M1 断言；新增 API/Mock/渲染/教学夹具、本地 PostgreSQL HMAC/RLS/额度测试、桌面/移动 E2E。
+- [x] 原创 12 题教学审核集、人工验收规范、API/配置/费用与验证文档。
+- [ ] 真实 Provider 调用/费用核对和教学人工验收（当前无 Key）。
+- [ ] 托管 Supabase M2 迁移/PostgREST/签名集成与独立多连接并发验收。
+
+完整执行结果与限制见 [M2_VERIFICATION.md](M2_VERIFICATION.md)。
+
 ## 后续阶段（本轮未实现）
 
-- M2：仅服务端 Provider、L0–L5 权限、L5 双确认、比赛拦截、输出验证、调用额度与日志。安全 Markdown/KaTeX 在真实内容接入时实现。
 - M3：官方 CF 元数据、Handle、提交/Rating 增量同步、外部 AC 证据及复盘/复习。
 - M4/稳定化：真实统计、隐私导出/删除、跨实例限频、完整 E2E/安全测试、手工题集审核、生产部署。
 
 ## 尚未验证
 
-M1 发现本机已有 Supabase 公开配置，但没有可用于破坏性测试的隔离数据库/专用用户，也没有 psql、Docker 或 Supabase CLI。未用该配置访问账户或写入数据库，未发送真实邮件。没有执行模型/CF 调用。环境变量填写完整不表示服务已连通。
+M1 发现本机已有 Supabase 公开配置，但没有可用于破坏性测试的隔离数据库/专用用户，也没有 psql、Docker 或 Supabase CLI。未用该配置访问账户或写入数据库，未发送真实邮件。M2 同样没有 LLM Key/隔离数据库工具，未执行真实模型/CF 调用；本地 HTTP Mock 不能当作服务联通。环境变量填写完整不表示服务已连通。

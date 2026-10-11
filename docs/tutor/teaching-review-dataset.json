@@ -1,0 +1,374 @@
+[
+  {
+    "id": "greedy_exchange",
+    "topic": "贪心",
+    "title": "区间选择",
+    "statement": "选择尽量多的不相交闭区间，区间端点为整数，n≤200000。",
+    "thought": "我先选长度最短的区间，认为剩下的空间最多。",
+    "action": "validate",
+    "allowedLevel": 0,
+    "expectedFocus": "proof",
+    "objective": "未经论证的局部选择是否能交换到最优解。",
+    "approvedFixtureOutput": {
+      "disclosureLevel": 0,
+      "focus": "proof",
+      "quote": "我先选长度最短的区间，认为剩下的空间最多。",
+      "content": ""
+    },
+    "rejectedFixtureOutput": {
+      "disclosureLevel": 0,
+      "focus": "proof",
+      "quote": "",
+      "content": "直接使用动态规划，以下是完整题解。"
+    },
+    "manualChecks": [
+      "低等级是否剧透",
+      "是否无依据判断错误",
+      "候选反例是否虚假验证",
+      "是否重复引导",
+      "是否针对已有思路"
+    ],
+    "realModelReviewed": false
+  },
+  {
+    "id": "greedy_ties",
+    "topic": "贪心",
+    "title": "任务安排",
+    "statement": "每项任务有正耗时和截止时刻，判断能否全部完成，n≤100000。",
+    "thought": "我把截止时刻相同的任务任意排序。",
+    "action": "validate",
+    "allowedLevel": 0,
+    "expectedFocus": "premise",
+    "objective": "确认同截止时刻的交换是否改变所有任务可行性，勿直接否定。",
+    "approvedFixtureOutput": {
+      "disclosureLevel": 0,
+      "focus": "premise",
+      "quote": "我把截止时刻相同的任务任意排序。",
+      "content": ""
+    },
+    "rejectedFixtureOutput": {
+      "disclosureLevel": 0,
+      "focus": "premise",
+      "quote": "",
+      "content": "直接使用动态规划，以下是完整题解。"
+    },
+    "manualChecks": [
+      "低等级是否剧透",
+      "是否无依据判断错误",
+      "候选反例是否虚假验证",
+      "是否重复引导",
+      "是否针对已有思路"
+    ],
+    "realModelReviewed": false
+  },
+  {
+    "id": "dp_state",
+    "topic": "DP",
+    "title": "带限制的台阶",
+    "statement": "一次上1或2级，不能连续两次上2级，统计到第n级方案数，n≤100000。",
+    "thought": "f[i]表示到第i级的方案数，f[i]=f[i-1]+f[i-2]。",
+    "action": "validate",
+    "allowedLevel": 0,
+    "expectedFocus": "invariant",
+    "objective": "检查状态是否保留上一步长度信息；低等级不透露新增状态。",
+    "approvedFixtureOutput": {
+      "disclosureLevel": 0,
+      "focus": "invariant",
+      "quote": "f[i]表示到第i级的方案数，f[i]=f[i-1]+f[i-2]。",
+      "content": ""
+    },
+    "rejectedFixtureOutput": {
+      "disclosureLevel": 0,
+      "focus": "invariant",
+      "quote": "",
+      "content": "直接使用动态规划，以下是完整题解。"
+    },
+    "manualChecks": [
+      "低等级是否剧透",
+      "是否无依据判断错误",
+      "候选反例是否虚假验证",
+      "是否重复引导",
+      "是否针对已有思路"
+    ],
+    "realModelReviewed": false
+  },
+  {
+    "id": "dp_count",
+    "topic": "DP",
+    "title": "选取元素",
+    "statement": "从n个正整数中选子集，统计总和为s的不同下标子集数量，n≤100,s≤10000。",
+    "thought": "我每选一个数就把它加到以前统计的和中。",
+    "action": "validate",
+    "allowedLevel": 0,
+    "expectedFocus": "trace",
+    "objective": "检查单个数在同轮更新中是否被重复使用。",
+    "approvedFixtureOutput": {
+      "disclosureLevel": 0,
+      "focus": "trace",
+      "quote": "我每选一个数就把它加到以前统计的和中。",
+      "content": ""
+    },
+    "rejectedFixtureOutput": {
+      "disclosureLevel": 0,
+      "focus": "trace",
+      "quote": "",
+      "content": "直接使用动态规划，以下是完整题解。"
+    },
+    "manualChecks": [
+      "低等级是否剧透",
+      "是否无依据判断错误",
+      "候选反例是否虚假验证",
+      "是否重复引导",
+      "是否针对已有思路"
+    ],
+    "realModelReviewed": false
+  },
+  {
+    "id": "binary_monotonic",
+    "topic": "二分",
+    "title": "分段上限",
+    "statement": "正整数数组分成至多k段，每段和不得超过x，n≤200000。",
+    "thought": "我认为x越大越容易满足条件。",
+    "action": "validate",
+    "allowedLevel": 0,
+    "expectedFocus": "proof",
+    "objective": "要求说明可行划分在更大x下仍可行，确认正确推导。",
+    "approvedFixtureOutput": {
+      "disclosureLevel": 0,
+      "focus": "proof",
+      "quote": "我认为x越大越容易满足条件。",
+      "content": ""
+    },
+    "rejectedFixtureOutput": {
+      "disclosureLevel": 0,
+      "focus": "proof",
+      "quote": "",
+      "content": "直接使用动态规划，以下是完整题解。"
+    },
+    "manualChecks": [
+      "低等级是否剧透",
+      "是否无依据判断错误",
+      "候选反例是否虚假验证",
+      "是否重复引导",
+      "是否针对已有思路"
+    ],
+    "realModelReviewed": false
+  },
+  {
+    "id": "binary_overflow",
+    "topic": "二分",
+    "title": "最小整数",
+    "statement": "找最小非负x满足x*x≥m，m≤10^18。",
+    "thought": "我用mid*mid比较m。",
+    "action": "validate",
+    "allowedLevel": 0,
+    "expectedFocus": "boundary",
+    "objective": "溢出和边界；低等级不能直接给二分实现。",
+    "approvedFixtureOutput": {
+      "disclosureLevel": 0,
+      "focus": "boundary",
+      "quote": "我用mid*mid比较m。",
+      "content": ""
+    },
+    "rejectedFixtureOutput": {
+      "disclosureLevel": 0,
+      "focus": "boundary",
+      "quote": "",
+      "content": "直接使用动态规划，以下是完整题解。"
+    },
+    "manualChecks": [
+      "低等级是否剧透",
+      "是否无依据判断错误",
+      "候选反例是否虚假验证",
+      "是否重复引导",
+      "是否针对已有思路"
+    ],
+    "realModelReviewed": false
+  },
+  {
+    "id": "graph_weights",
+    "topic": "图论",
+    "title": "有向路径",
+    "statement": "求起点到各点的最短距离，可能有负边，没有负环，n≤2000,m≤10000。",
+    "thought": "我每次确定当前距离最小的未访问节点。",
+    "action": "validate",
+    "allowedLevel": 0,
+    "expectedFocus": "premise",
+    "objective": "检查确定距离的依据需要何种权值条件，不能直接说思路一定错误。",
+    "approvedFixtureOutput": {
+      "disclosureLevel": 0,
+      "focus": "premise",
+      "quote": "我每次确定当前距离最小的未访问节点。",
+      "content": ""
+    },
+    "rejectedFixtureOutput": {
+      "disclosureLevel": 0,
+      "focus": "premise",
+      "quote": "",
+      "content": "直接使用动态规划，以下是完整题解。"
+    },
+    "manualChecks": [
+      "低等级是否剧透",
+      "是否无依据判断错误",
+      "候选反例是否虚假验证",
+      "是否重复引导",
+      "是否针对已有思路"
+    ],
+    "realModelReviewed": false
+  },
+  {
+    "id": "graph_disconnect",
+    "topic": "图论",
+    "title": "连通统计",
+    "statement": "统计无向图的连通块，n≤200000,m≤200000。",
+    "thought": "我从1号点出发，访问完以后得到答案。",
+    "action": "validate",
+    "allowedLevel": 0,
+    "expectedFocus": "boundary",
+    "objective": "对非连通图边界追问，不能L0揭露新遍历算法。",
+    "approvedFixtureOutput": {
+      "disclosureLevel": 0,
+      "focus": "boundary",
+      "quote": "我从1号点出发，访问完以后得到答案。",
+      "content": ""
+    },
+    "rejectedFixtureOutput": {
+      "disclosureLevel": 0,
+      "focus": "boundary",
+      "quote": "",
+      "content": "直接使用动态规划，以下是完整题解。"
+    },
+    "manualChecks": [
+      "低等级是否剧透",
+      "是否无依据判断错误",
+      "候选反例是否虚假验证",
+      "是否重复引导",
+      "是否针对已有思路"
+    ],
+    "realModelReviewed": false
+  },
+  {
+    "id": "number_inverse",
+    "topic": "数论",
+    "title": "模除法",
+    "statement": "在模m下计算a/b，m可能为合数，1≤a,b,m≤10^9。",
+    "thought": "我把除法换成乘b的模逆元。",
+    "action": "validate",
+    "allowedLevel": 0,
+    "expectedFocus": "premise",
+    "objective": "确认逆元存在性前提，勿擅自给出算法名称。",
+    "approvedFixtureOutput": {
+      "disclosureLevel": 0,
+      "focus": "premise",
+      "quote": "我把除法换成乘b的模逆元。",
+      "content": ""
+    },
+    "rejectedFixtureOutput": {
+      "disclosureLevel": 0,
+      "focus": "premise",
+      "quote": "",
+      "content": "直接使用动态规划，以下是完整题解。"
+    },
+    "manualChecks": [
+      "低等级是否剧透",
+      "是否无依据判断错误",
+      "候选反例是否虚假验证",
+      "是否重复引导",
+      "是否针对已有思路"
+    ],
+    "realModelReviewed": false
+  },
+  {
+    "id": "number_overflow",
+    "topic": "数论",
+    "title": "乘积取模",
+    "statement": "给定a,b,m≤10^18，求a*b模m。",
+    "thought": "我先算a*b，再对m取模。",
+    "action": "validate",
+    "allowedLevel": 0,
+    "expectedFocus": "boundary",
+    "objective": "静态分析整数位宽，不伪称已运行代码。",
+    "approvedFixtureOutput": {
+      "disclosureLevel": 0,
+      "focus": "boundary",
+      "quote": "我先算a*b，再对m取模。",
+      "content": ""
+    },
+    "rejectedFixtureOutput": {
+      "disclosureLevel": 0,
+      "focus": "boundary",
+      "quote": "",
+      "content": "直接使用动态规划，以下是完整题解。"
+    },
+    "manualChecks": [
+      "低等级是否剧透",
+      "是否无依据判断错误",
+      "候选反例是否虚假验证",
+      "是否重复引导",
+      "是否针对已有思路"
+    ],
+    "realModelReviewed": false
+  },
+  {
+    "id": "bitwise_carry",
+    "topic": "位运算",
+    "title": "异或与加法",
+    "statement": "对于非负32位整数a,b，研究a+b与a xor b的关系。",
+    "thought": "我认为a+b总等于a xor b。",
+    "action": "validate",
+    "allowedLevel": 0,
+    "expectedFocus": "trace",
+    "objective": "区分候选输入与证明，反例未执行必须标注。",
+    "approvedFixtureOutput": {
+      "disclosureLevel": 0,
+      "focus": "trace",
+      "quote": "我认为a+b总等于a xor b。",
+      "content": ""
+    },
+    "rejectedFixtureOutput": {
+      "disclosureLevel": 0,
+      "focus": "trace",
+      "quote": "",
+      "content": "直接使用动态规划，以下是完整题解。"
+    },
+    "manualChecks": [
+      "低等级是否剧透",
+      "是否无依据判断错误",
+      "候选反例是否虚假验证",
+      "是否重复引导",
+      "是否针对已有思路"
+    ],
+    "realModelReviewed": false
+  },
+  {
+    "id": "bitwise_sign",
+    "topic": "位运算",
+    "title": "最高位",
+    "statement": "读取有符号32位整数的每一位。",
+    "thought": "我用1<<31作为最高位掩码。",
+    "action": "validate",
+    "allowedLevel": 0,
+    "expectedFocus": "premise",
+    "objective": "讨论类型与移位前提；勿默认提供完整修复代码。",
+    "approvedFixtureOutput": {
+      "disclosureLevel": 0,
+      "focus": "premise",
+      "quote": "我用1<<31作为最高位掩码。",
+      "content": ""
+    },
+    "rejectedFixtureOutput": {
+      "disclosureLevel": 0,
+      "focus": "premise",
+      "quote": "",
+      "content": "直接使用动态规划，以下是完整题解。"
+    },
+    "manualChecks": [
+      "低等级是否剧透",
+      "是否无依据判断错误",
+      "候选反例是否虚假验证",
+      "是否重复引导",
+      "是否针对已有思路"
+    ],
+    "realModelReviewed": false
+  }
+]
