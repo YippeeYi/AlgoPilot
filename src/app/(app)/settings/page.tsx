@@ -53,7 +53,8 @@ export default function SettingsPage() {
               <Badge variant="secondary">{labels[status.llm]}</Badge>
             </div>
             <p className="text-xs leading-6 text-muted-foreground">
-              M0 仅检查环境配置是否完整，不执行外部连接。模型调用将在 M2 接入。
+              这里仅检查环境配置是否完整；连接与账户验证由认证流程执行。模型调用将在
+              M2 接入。
             </p>
           </CardContent>
         </Card>
@@ -65,7 +66,7 @@ export default function SettingsPage() {
             <p>默认提示等级：L0</p>
             <p>训练中算法标签：隐藏</p>
             <p className="text-xs leading-6 text-muted-foreground">
-              偏好持久化将在账户接入后启用。深浅主题可通过顶部按钮切换，并保存在本机。
+              本阶段保留默认训练偏好。深浅主题可通过顶部按钮切换，并保存在本机。
             </p>
           </CardContent>
         </Card>
@@ -75,7 +76,8 @@ export default function SettingsPage() {
           </CardHeader>
           <CardContent>
             <p className="mb-5 text-sm leading-6 text-muted-foreground">
-              当前预览不保存训练或个人账户数据。数据导出与删除将在数据层完成后接入。
+              真实训练与思路版本已按账户保存。公开预览不保存数据；数据导出与删除将在
+              M4 接入。
             </p>
             <div className="flex gap-3">
               <Button variant="outline" disabled>

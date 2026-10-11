@@ -1,18 +1,34 @@
 import { notFound } from "next/navigation";
-import { WorkspacePreview } from "@/components/practice/workspace-preview";
-
-// M0 仅允许预览路径；在进入真实会话数据层前，未知 ID 由路由层返回 404。
-export const dynamicParams = false;
-export function generateStaticParams() {
-  return [{ sessionId: "preview" }];
-}
+import { Workspace } from "@/components/practice/workspace";
+import { idSchema } from "@/lib/validation/m1";
+import { pageContext } from "@/server/auth";
+import { trainingRepository } from "@/server/db/training";
+import { ApiError } from "@/server/http";
 
 export default async function PracticePage({
   params,
 }: {
   params: Promise<{ sessionId: string }>;
 }) {
-  const { sessionId } = await params;
-  if (sessionId !== "preview") notFound();
-  return <WorkspacePreview />;
+  const parsed = idSchema.safeParse((await params).sessionId);
+  if (!parsed.success) notFound();
+  const context = await pageContext();
+  if (!context)
+    return <p>Supabase 未配置，无法打开或保存真实训练。请使用公开预览。</p>;
+  const repo = trainingRepository(context.client, context.user.id);
+  const session = await repo.get(parsed.data).catch((error: unknown) => {
+    if (error instanceof ApiError && error.status === 404) notFound();
+    throw error;
+  });
+  const problem = session.problem_id
+    ? await repo.problem(session.problem_id)
+    : null;
+  return (
+    <Workspace
+      key={session.id}
+      initialSession={session}
+      problem={problem}
+      serverNow={new Date().toISOString()}
+    />
+  );
 }

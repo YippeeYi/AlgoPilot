@@ -106,7 +106,13 @@ function ThoughtPanel({ idPrefix }: { idPrefix: string }) {
   );
 }
 
-function TutorPanel({ idPrefix }: { idPrefix: string }) {
+export function TutorPanel({
+  idPrefix,
+  preview = true,
+}: {
+  idPrefix: string;
+  preview?: boolean;
+}) {
   return (
     <Card className="h-full shadow-none">
       <CardHeader className="border-b">
@@ -126,7 +132,9 @@ function TutorPanel({ idPrefix }: { idPrefix: string }) {
           </p>
         </div>
         <p role="status" className="text-xs leading-6 text-muted-foreground">
-          模型未接入。当前预览不会调用 AI，也不会生成模拟回答。
+          {preview
+            ? "模型未接入。当前预览不会调用 AI，也不会生成模拟回答。"
+            : "AI 教练将在 M2 接入。当前训练不会调用模型，也不生成模拟回答。"}
         </p>
         <div className="grid grid-cols-2 gap-2">
           {[

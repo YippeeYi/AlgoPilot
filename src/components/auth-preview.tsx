@@ -61,7 +61,8 @@ export function AuthPreview({ register = false }: { register?: boolean }) {
                 role="status"
                 className="rounded-lg bg-muted p-3 text-xs leading-6 text-muted-foreground"
               >
-                账户服务尚未接入（M1）。当前为布局预览，不会提交或保存邮箱与密码。
+                Supabase
+                未配置或配置不完整。当前仅提供布局预览，不会提交或保存邮箱与密码。
               </p>
               <Button className="w-full" disabled>
                 {register ? "注册" : "登录"}

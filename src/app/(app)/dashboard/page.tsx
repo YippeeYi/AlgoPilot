@@ -4,8 +4,11 @@ import { PageHeading } from "@/components/page-heading";
 import { EmptyState } from "@/components/empty-state";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { pageContext } from "@/server/auth";
+import { SessionList } from "@/components/sessions/session-list";
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const context = await pageContext();
   return (
     <>
       <PageHeading
@@ -29,14 +32,16 @@ export default function DashboardPage() {
               L0，只围绕你已有的思考提问；更多提示需要主动解锁。
             </p>
             <Link
-              href="/practice/preview"
+              href={context ? "/sessions" : "/practice/preview"}
               className="mt-7 inline-flex items-center gap-3 rounded-lg bg-primary px-5 py-3 text-sm font-medium text-primary-foreground"
             >
-              查看训练工作台
+              {context ? "开始或继续训练" : "查看训练工作台"}
               <ArrowRight className="size-4" />
             </Link>
             <p className="mt-3 text-xs text-muted-foreground">
-              布局预览，不会创建训练或调用 AI
+              {context
+                ? "私人训练已接入；AI 教练将在 M2 接入"
+                : "布局预览，不会创建训练或调用 AI"}
             </p>
           </CardContent>
         </Card>
@@ -85,12 +90,16 @@ export default function DashboardPage() {
       <div className="grid gap-6 xl:grid-cols-2">
         <section>
           <h2 className="mb-4 text-base font-semibold">最近训练</h2>
-          <EmptyState
-            title="还没有训练记录"
-            description="接入账户后，你的训练用时、思路版本和代码草稿将保存在这里。"
-            href="/problems"
-            action="浏览题库页面"
-          />
+          {context ? (
+            <SessionList />
+          ) : (
+            <EmptyState
+              title="还没有训练记录"
+              description="接入账户后，你的训练用时、思路版本和代码草稿将保存在这里。"
+              href="/problems"
+              action="浏览题库页面"
+            />
+          )}
         </section>
         <section>
           <h2 className="mb-4 text-base font-semibold">待复习</h2>

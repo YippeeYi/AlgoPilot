@@ -1,5 +1,6 @@
 import "server-only";
 import { z } from "zod";
+import { getSupabaseConfig } from "@/lib/supabase/config";
 
 type ConfigurationState = "missing" | "incomplete" | "configured";
 const httpsUrl = z.url({ protocol: /^https$/ });
@@ -24,7 +25,7 @@ export function getConfigurationStatus(
   return {
     supabase: state(
       [supabaseUrl, supabaseKey],
-      httpsUrl.safeParse(supabaseUrl).success && Boolean(supabaseKey?.trim()),
+      Boolean(getSupabaseConfig(env)),
     ),
     llm: state(
       [llmUrl, llmKey, llmModel],

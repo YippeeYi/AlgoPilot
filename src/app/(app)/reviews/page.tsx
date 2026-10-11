@@ -11,7 +11,7 @@ export default function ReviewsPage() {
       />
       <EmptyState
         title="还没有复盘与复习安排"
-        description="结束真实训练后可以保存并编辑复盘。官方事实、用户自报和 AI 推测会分别标记。"
+        description="复盘将在后续阶段接入；本轮结束训练只记录用户自报结果。官方事实、用户自报和 AI 推测将分别标记。"
       />
     </>
   );

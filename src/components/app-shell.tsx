@@ -15,6 +15,7 @@ import {
 import { navigation } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { LogoutButton } from "@/components/logout-button";
 
 const icons = {
   dashboard: LayoutDashboard,
@@ -25,7 +26,22 @@ const icons = {
   settings: Settings,
 };
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+function guardNavigation(event: React.MouseEvent<HTMLAnchorElement>) {
+  if (
+    !window.dispatchEvent(
+      new Event("algopilot-before-navigate", { cancelable: true }),
+    )
+  )
+    event.preventDefault();
+}
+
+export function AppShell({
+  children,
+  authenticated = false,
+}: {
+  children: React.ReactNode;
+  authenticated?: boolean;
+}) {
   const pathname = usePathname();
   return (
     <div className="min-h-screen lg:grid lg:grid-cols-[224px_1fr]">
@@ -38,6 +54,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <aside className="border-b border-border bg-sidebar lg:sticky lg:top-0 lg:flex lg:h-screen lg:flex-col lg:border-r lg:border-b-0">
         <Link
           href="/dashboard"
+          prefetch={pathname === "/practice/preview" ? false : undefined}
+          onClick={guardNavigation}
           className="flex items-center gap-3 px-6 py-7"
           aria-label="AlgoPilot 首页"
         >
@@ -62,6 +80,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <Link
                 key={href}
                 href={href}
+                prefetch={pathname === "/practice/preview" ? false : undefined}
+                onClick={guardNavigation}
                 aria-current={active ? "page" : undefined}
                 className={cn(
                   "flex shrink-0 items-center gap-3 rounded-lg px-3 py-3 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
@@ -82,7 +102,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             记录你的推论和卡点，让每次训练留下可复习的证据。
           </div>
           <p className="mt-5 text-xs text-muted-foreground">
-            个人训练 · M0 布局预览
+            {authenticated ? "个人训练 · M1" : "个人训练 · 布局预览"}
           </p>
         </div>
       </aside>
@@ -90,17 +110,25 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <header className="flex min-h-20 flex-wrap items-center justify-between gap-3 border-b px-5 py-4 lg:px-9">
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <span className="size-2 rounded-full bg-amber-500" />
-            布局预览 · 尚未接入账户与数据
+            {authenticated
+              ? "账户已验证 · 私人训练空间"
+              : "布局预览 · 当前未登录"}
           </div>
           <div className="flex items-center gap-3">
             <ThemeToggle />
-            <Link
-              href="/login"
-              className="flex items-center gap-1 text-sm font-medium"
-            >
-              登录
-              <ArrowUpRight className="size-4" />
-            </Link>
+            {authenticated ? (
+              <LogoutButton />
+            ) : (
+              <Link
+                href="/login"
+                prefetch={pathname === "/practice/preview" ? false : undefined}
+                onClick={guardNavigation}
+                className="flex items-center gap-1 text-sm font-medium"
+              >
+                登录
+                <ArrowUpRight className="size-4" />
+              </Link>
+            )}
           </div>
         </header>
         <main
