@@ -1,6 +1,6 @@
 # M2 Supabase 与 Provider 配置
 
-先完成 [M1 Supabase 设置](SUPABASE_SETUP.md)。本指南需要项目管理员手工配置，开发代理本轮未连接或修改现有托管项目。不要在生产数据库运行测试夹具。
+先完成 [M1 Supabase 设置](SUPABASE_SETUP.md)。本指南需要项目管理员配置。2026-10-11 的 Gemini 后续验收已获得用户明确授权并在托管项目应用 `202610110003_gemini_usage.sql`；实际结果见 [Gemini 验收记录](GEMINI_VERIFICATION.md)。不要在生产数据库运行测试夹具。
 
 ## 迁移与签名
 
@@ -61,7 +61,7 @@ Key 和签名仍沿用前述服务端变量。仅官方 HTTPS `/v1beta/openai` �
 
 reasoning_effort 是上限而非提示权限：L0/L1 及 chat/hint 始终 low；允许更高等级且配置上限至少 medium 时 validate/complexity 可 medium。counterexample/explain 在上限 high、至少 4096 输出预算且服务端等级允许时可 high，其他情况下降为 medium/low。默认 low，避免免费额度、延迟与预算消耗；提高等级不会自动提高配置上限。一次 L0 验收不能证明 medium/high 教学质量。
 
-JSON schema 从现有严格 Zod 输出契约生成，仍须通过 `auditOutput`。不发送 include_thoughts，不返回 thought_signature、reasoning_content 或原始响应。非流式，完成审核后才展示。思考与可见输出可能共用生成预算；建议 4096 起，按实际需求调整到最多 8000，截断仍拒绝展示而非绕过审核。
+JSON schema 从现有严格 Zod 输出契约生成，仍须通过 `auditOutput`。L0/L1 的 schema 额外限制空正文与服务端实际授权等级上限；服务端思路草稿为空时，引用字段也限定为空，不能从聊天中捏造草稿引用。这是生成格式约束，不替代审核，也不证明真实模型会满足教学要求。不发送 include_thoughts，不返回 thought_signature、reasoning_content 或原始响应。非流式，完成审核后才展示。思考与可见输出可能共用生成预算；建议 4096 起，按实际需求调整到最多 8000，截断仍拒绝展示而非绕过审核。
 
 usage 接受有界非负整数，要求 `total_tokens >= prompt_tokens + completion_tokens`，保留供应商原始三项计数。例 9/62/710 的差额 639 自动保存为 `unclassified_tokens`；不是已验证 reasoning_tokens。计数缺失时 NULL，负数、小数、字符串、矛盾或超过一亿拒绝。普通用户不能改写计数或生成差额。
 

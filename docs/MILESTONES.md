@@ -51,8 +51,10 @@
 - [x] 保留全部 M0/M1 断言；新增 API/Mock/渲染/教学夹具、本地 PostgreSQL HMAC/RLS/额度测试、桌面/移动 E2E。
 - [x] 原创 12 题教学审核集、人工验收规范、API/配置/费用与验证文档。
 - [x] Gemini 非加和 usage 的 Provider/SQL 回归、未归类差额、保守 NULL 费用；可配置 reasoning/JSON schema/超时与共享预算。
-- [ ] 真实 Provider 调用/费用核对和教学人工验收（已有 Key；仍需真实登录会话与新迁移）。
-- [ ] 托管 Supabase M2 迁移/PostgREST/签名集成与独立多连接并发验收。
+- [x] 用户授权后应用托管 Gemini usage 迁移；只读核对生成列、旧约束移除、RLS 与普通用户 INSERT 撤销。
+- [x] 真实已登录自主训练发起一次 Gemini L0；数据库记录单次 60,004 ms 超时及 NULL usage，未伪造消息或自动重试。
+- [ ] 真实 Provider 成功响应、结构化输出、消息刷新恢复、非加和 usage 与费用核对、教学人工验收；本次实际调用超时。
+- [ ] 托管 Supabase 双用户隔离、独立多连接并发与全部提示权限验收。
 
 原 M2 执行结果见 [M2_VERIFICATION.md](M2_VERIFICATION.md)；独立兼容修复与真实验收边界见 [GEMINI_VERIFICATION.md](GEMINI_VERIFICATION.md)。
 
@@ -63,4 +65,4 @@
 
 ## 尚未验证
 
-M1/M2 原交付时无隔离数据库/专用用户，未完成托管服务测试。Gemini 修复时已有 Provider Key 和格式有效的签名密钥，但配置存在不证明数据库签名匹配、新迁移已应用或账户已授权；真实调用状态见独立验收记录。本地 HTTP Mock 不能当作服务联通，CF 尚未接入。
+M1/M2 原交付时未完成托管服务测试。Gemini 后续验收已应用获授权的增量迁移，真实用户 JWT/HMAC 入场与失败结算已执行，但模型请求超时，尚未证明成功输出与消息持久化链路。真实调用与剩余边界见独立验收记录。本地 HTTP Mock 不能当作服务联通，CF 尚未接入。

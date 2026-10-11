@@ -6,6 +6,7 @@ import { modelOutputSchema, type TutorAction } from "@/lib/validation/m2";
 export type CompletionOptions = {
   action: TutorAction;
   allowedLevel: number;
+  hasThought?: boolean;
   // Absolute route deadline; leave time for authenticated database settlement.
   deadlineAt?: number;
 };
@@ -114,6 +115,22 @@ export function reasoningEffort(
     return "medium";
   return "low";
 }
+function responseSchema(options?: CompletionOptions) {
+  const schema = z.toJSONSchema(modelOutputSchema);
+  if (options && options.allowedLevel <= 1) {
+    // Constrain formatting at generation as well as checking it in auditOutput.
+    // No model prose is authorized at L0/L1; blank drafts cannot supply a quote.
+    schema.properties!.content = { type: "string", enum: [""] };
+    schema.properties!.disclosureLevel = {
+      type: "integer",
+      minimum: 0,
+      maximum: options.allowedLevel,
+    };
+    if (options.hasThought === false)
+      schema.properties!.quote = { type: "string", enum: [""] };
+  }
+  return schema;
+}
 export class OpenAICompatibleProvider implements LLMProvider {
   constructor(
     private config: TutorConfig,
@@ -210,7 +227,7 @@ export class OpenAICompatibleProvider implements LLMProvider {
                       json_schema: {
                         name: "tutor_response",
                         strict: true,
-                        schema: z.toJSONSchema(modelOutputSchema),
+                        schema: responseSchema(options),
                       },
                     },
                   }

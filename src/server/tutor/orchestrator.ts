@@ -112,7 +112,12 @@ export async function runTutor(
     const result = await provider.complete(
       buildPrompt(context, config.maxInputChars),
       signal,
-      { action: input.action, allowedLevel: reserved.allowedLevel, deadlineAt },
+      {
+        action: input.action,
+        allowedLevel: reserved.allowedLevel,
+        hasThought: Boolean(session.thought_draft.trim()),
+        deadlineAt,
+      },
     );
     usage = result.usage;
     const audited = auditOutput(result.text, {

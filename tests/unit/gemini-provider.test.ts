@@ -41,6 +41,38 @@ function response(tokens: unknown = usage, content = text) {
   );
 }
 describe("Gemini compatibility (HTTP fixtures, no real provider)", () => {
+  it("low-level JSON schema enforces empty prose, authorization ceiling and empty-draft quote without relaxing audit", async () => {
+    const fetcher = vi
+      .fn<typeof fetch>()
+      .mockImplementation(async () => response());
+    const provider = new OpenAICompatibleProvider(config, fetcher);
+    for (const level of [0, 1, 2]) {
+      await provider.complete(messages, undefined, {
+        action: "chat",
+        allowedLevel: level,
+        hasThought: false,
+      });
+      const body = JSON.parse(String(fetcher.mock.calls.at(-1)![1]!.body));
+      const fields = body.response_format.json_schema.schema.properties;
+      if (level <= 1) {
+        expect(fields.content).toEqual({ type: "string", enum: [""] });
+        expect(fields.quote).toEqual({ type: "string", enum: [""] });
+        expect(fields.disclosureLevel.maximum).toBe(level);
+      } else {
+        expect(fields.content).not.toHaveProperty("enum");
+        expect(fields.quote).not.toHaveProperty("enum");
+      }
+    }
+    await provider.complete(messages, undefined, {
+      action: "chat",
+      allowedLevel: 0,
+      hasThought: true,
+    });
+    const body = JSON.parse(String(fetcher.mock.calls.at(-1)![1]!.body));
+    expect(
+      body.response_format.json_schema.schema.properties.quote,
+    ).not.toHaveProperty("enum");
+  });
   it("rejects Gemini combined generation beyond the configured budget while retaining raw usage", async () => {
     await expect(
       new OpenAICompatibleProvider(
