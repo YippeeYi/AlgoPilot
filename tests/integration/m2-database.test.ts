@@ -17,6 +17,7 @@ beforeAll(async () => {
   for (const name of [
     "202610110001_m1_training.sql",
     "202610110002_m2_tutor.sql",
+    "202610110003_gemini_usage.sql",
   ])
     await db.exec(await readFile(`supabase/migrations/${name}`, "utf8"));
   await db.query(
@@ -138,6 +139,120 @@ async function state(id: string, uid = alice) {
   ).rows[0]!.result;
 }
 describe("M2 实际 SQL/RLS 和事务边界（本地 PostgreSQL）", () => {
+  it("Gemini 9/62/710 is persisted exactly through signed finish; extra 639 is unclassified and owner-isolated", async () => {
+    const id = await session();
+    const requestId = randomUUID();
+    const admitted = (await reserve(id, requestId)).rows[0]!.result;
+    const result = await signed("finish", {
+      sessionId: id,
+      requestId,
+      leaseNonce: admitted.leaseNonce,
+      success: true,
+      disclosureLevel: 0,
+      userMessage: "已有思路",
+      content: "能说明这一步的依据吗？",
+      promptVersion: "2.0.0",
+      thoughtRevision: 0,
+      codeRevision: 0,
+      usage: [
+        {
+          attempt: 1,
+          model: "gemini-3.8-flash",
+          inputTokens: 9,
+          outputTokens: 62,
+          totalTokens: 710,
+          durationMs: 100,
+          status: "success",
+          costUsd: null,
+        },
+      ],
+    });
+    expect(result.rows[0]!.result.accepted).toBe(true);
+    const select =
+      "select input_tokens,output_tokens,total_tokens,unclassified_tokens,cost_usd from public.llm_usage where request_id=$1";
+    expect(
+      (await asUser(alice, (tx) => tx.query(select, [requestId]))).rows,
+    ).toEqual([
+      {
+        input_tokens: 9,
+        output_tokens: 62,
+        total_tokens: 710,
+        unclassified_tokens: 639,
+        cost_usd: null,
+      },
+    ]);
+    expect(
+      (await asUser(bob, (tx) => tx.query(select, [requestId]))).rows,
+    ).toEqual([]);
+    expect(
+      (
+        await asUser(alice, (tx) =>
+          tx.query(
+            "select role,disclosure_level from public.tutor_messages where request_id=$1 order by ordinal",
+            [requestId],
+          ),
+        )
+      ).rows,
+    ).toEqual([
+      { role: "user", disclosure_level: 0 },
+      { role: "assistant", disclosure_level: 0 },
+    ]);
+    await expect(
+      asUser(alice, (tx) =>
+        tx.query(
+          "update public.llm_usage set total_tokens=1 where request_id=$1",
+          [requestId],
+        ),
+      ),
+    ).rejects.toMatchObject({ code: "42501" });
+  });
+  it("usage constraints reject contradictory/partial/negative/huge counts even in trusted SQL", async () => {
+    const id = await session();
+    const requestId = randomUUID();
+    const admitted = (await reserve(id, requestId)).rows[0]!.result;
+    for (const counts of [
+      [9, 62, 70],
+      [null, 62, 710],
+      [9, 62, null],
+      [-1, 62, 710],
+      [9, 62, 100000001],
+    ]) {
+      await expect(
+        db.query(
+          `insert into public.llm_usage(request_id,attempt,provider,model,input_tokens,output_tokens,total_tokens,duration_ms,status)
+        values($1,1,'openai-compatible','fixture',$2,$3,$4,0,'error')`,
+          [requestId, ...counts],
+        ),
+      ).rejects.toMatchObject({ code: "23514" });
+    }
+    await db.query(
+      `insert into public.llm_usage(request_id,attempt,provider,model,duration_ms,status)
+      values($1,1,'openai-compatible','fixture',0,'timeout')`,
+      [requestId],
+    );
+    expect(
+      (
+        await db.query(
+          "select total_tokens,unclassified_tokens from public.llm_usage where request_id=$1",
+          [requestId],
+        )
+      ).rows,
+    ).toEqual([{ total_tokens: null, unclassified_tokens: null }]);
+    await expect(
+      db.query(
+        "update public.llm_usage set unclassified_tokens=1 where request_id=$1",
+        [requestId],
+      ),
+    ).rejects.toMatchObject({ code: "428C9" });
+    await signed("finish", {
+      sessionId: id,
+      requestId,
+      leaseNonce: admitted.leaseNonce,
+      success: false,
+      errorCode: "FIXTURE_TIMEOUT",
+      usage: [],
+    });
+  });
   it("可独立运行的匿名/双用户 RLS 脚本", async () => {
     await db.exec(await readFile("supabase/tests/m2_rls.sql", "utf8"));
   });

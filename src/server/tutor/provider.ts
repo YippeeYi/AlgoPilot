@@ -2,6 +2,13 @@ import "server-only";
 import { z } from "zod";
 import { ApiError } from "@/server/http";
 import type { TutorConfig } from "./config";
+import { modelOutputSchema, type TutorAction } from "@/lib/validation/m2";
+export type CompletionOptions = {
+  action: TutorAction;
+  allowedLevel: number;
+  // Absolute route deadline; leave time for authenticated database settlement.
+  deadlineAt?: number;
+};
 export type LLMMessage = {
   role: "system" | "user" | "assistant";
   content: string;
@@ -18,7 +25,11 @@ export type UsageAttempt = {
 };
 export type LLMResult = { text: string; usage: UsageAttempt[] };
 export interface LLMProvider {
-  complete(messages: LLMMessage[], signal?: AbortSignal): Promise<LLMResult>;
+  complete(
+    messages: LLMMessage[],
+    signal?: AbortSignal,
+    options?: CompletionOptions,
+  ): Promise<LLMResult>;
 }
 export class ProviderError extends ApiError {
   constructor(
@@ -50,7 +61,7 @@ const envelope = z.object({
       completion_tokens: tokenCount,
       total_tokens: tokenCount,
     })
-    .refine((u) => u.total_tokens === u.prompt_tokens + u.completion_tokens)
+    .refine((u) => u.total_tokens >= u.prompt_tokens + u.completion_tokens)
     .optional(),
 });
 async function boundedBody(response: Response) {
@@ -76,11 +87,38 @@ async function boundedBody(response: Response) {
   }
   return JSON.parse(new TextDecoder().decode(buffer)) as unknown;
 }
+/** Configured effort is a ceiling, never permission to disclose more information. */
+export function reasoningEffort(
+  config: TutorConfig,
+  options?: CompletionOptions,
+) {
+  const ceiling = config.reasoningEffort ?? "low";
+  if (
+    !options ||
+    options.allowedLevel <= 1 ||
+    ["chat", "hint"].includes(options.action)
+  )
+    return "low";
+  if (
+    ceiling === "high" &&
+    config.maxOutputTokens >= 4096 &&
+    ["counterexample", "explain"].includes(options.action)
+  )
+    return "high";
+  if (
+    ceiling !== "low" &&
+    ["validate", "complexity", "counterexample", "explain"].includes(
+      options.action,
+    )
+  )
+    return "medium";
+  return "low";
+}
 export class OpenAICompatibleProvider implements LLMProvider {
   constructor(
     private config: TutorConfig,
     private fetcher: typeof fetch = fetch,
-    private timeoutMs = 45_000,
+    private timeoutMs = config.timeoutMs ?? 45_000,
     private pause: (ms: number, signal?: AbortSignal) => Promise<void> = (
       ms,
       signal,
@@ -104,6 +142,7 @@ export class OpenAICompatibleProvider implements LLMProvider {
   async complete(
     messages: LLMMessage[],
     signal?: AbortSignal,
+    options?: CompletionOptions,
   ): Promise<LLMResult> {
     if (
       !messages.length ||
@@ -116,10 +155,23 @@ export class OpenAICompatibleProvider implements LLMProvider {
         "上下文超过输入限制，请缩短题面或草稿。",
       );
     const usage: UsageAttempt[] = [];
+    // Both attempts and backoff share one budget. DB lease is 180s; route is 180s.
+    const remaining = Math.min(
+      120000,
+      (options?.deadlineAt ?? Infinity) - Date.now() - 50000,
+    );
+    if (remaining <= 0 || signal?.aborted)
+      throw new ProviderError(
+        "LLM_TIMEOUT",
+        "模型请求已取消或超时，请稍后重试。",
+        usage,
+      );
+    const budget = AbortSignal.timeout(Math.floor(remaining));
+    const lifetime = signal ? AbortSignal.any([signal, budget]) : budget;
     for (let attempt = 1; attempt <= 2; attempt++) {
       const started = Date.now();
       const timeout = AbortSignal.timeout(this.timeoutMs);
-      const combined = signal ? AbortSignal.any([signal, timeout]) : timeout;
+      const combined = AbortSignal.any([lifetime, timeout]);
       let record: UsageAttempt = {
         attempt,
         model: this.config.model,
@@ -131,6 +183,7 @@ export class OpenAICompatibleProvider implements LLMProvider {
         costUsd: null,
       };
       try {
+        combined.throwIfAborted();
         const response = await this.fetcher(
           `${this.config.baseUrl.replace(/\/$/, "")}/chat/completions`,
           {
@@ -147,6 +200,21 @@ export class OpenAICompatibleProvider implements LLMProvider {
               messages,
               stream: false,
               [this.config.tokenParameter]: this.config.maxOutputTokens,
+              ...(this.config.apiProfile === "gemini"
+                ? { reasoning_effort: reasoningEffort(this.config, options) }
+                : {}),
+              ...(this.config.responseFormat === "json_schema"
+                ? {
+                    response_format: {
+                      type: "json_schema",
+                      json_schema: {
+                        name: "tutor_response",
+                        strict: true,
+                        schema: z.toJSONSchema(modelOutputSchema),
+                      },
+                    },
+                  }
+                : {}),
             }),
           },
         );
@@ -155,7 +223,7 @@ export class OpenAICompatibleProvider implements LLMProvider {
           record.durationMs = Date.now() - started;
           usage.push(record);
           if ([429, 503].includes(response.status) && attempt === 1) {
-            await this.pause(350, signal);
+            await this.pause(350, lifetime);
             continue;
           }
           throw new ProviderError(
@@ -187,6 +255,10 @@ export class OpenAICompatibleProvider implements LLMProvider {
           status: "success",
           costUsd:
             tokens &&
+            // Extra unclassified usage may be billable thinking. Never underprice it.
+            tokens.total_tokens ===
+              tokens.prompt_tokens + tokens.completion_tokens &&
+            this.config.apiProfile !== "gemini" &&
             this.config.inputPrice !== undefined &&
             this.config.outputPrice !== undefined
               ? (tokens.prompt_tokens * this.config.inputPrice +
@@ -199,6 +271,10 @@ export class OpenAICompatibleProvider implements LLMProvider {
         if (
           record.model === "redacted-provider-model" ||
           (tokens && tokens.completion_tokens > this.config.maxOutputTokens) ||
+          (tokens &&
+            this.config.apiProfile === "gemini" &&
+            tokens.total_tokens - tokens.prompt_tokens >
+              this.config.maxOutputTokens) ||
           choice.finish_reason !== "stop" ||
           !choice.message.content ||
           choice.message.content.length > 24_000
@@ -206,7 +282,7 @@ export class OpenAICompatibleProvider implements LLMProvider {
           record.status = "rejected";
           throw new ProviderError(
             "LLM_INVALID_RESPONSE",
-            "模型输出不完整或过长，已拒绝展示。",
+            "模型输出不完整或过长，已拒绝展示。请检查输出预算；思考 token 可能占用预算。",
             usage,
           );
         }

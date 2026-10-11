@@ -20,6 +20,7 @@ export async function runTutor(
   input: { action: TutorAction; message: string; requestId: string },
   signal?: AbortSignal,
   provider: LLMProvider = new OpenAICompatibleProvider(config),
+  deadlineAt?: number,
 ) {
   const session = await repo.getSession(id);
   if (session.mode === "contest")
@@ -111,6 +112,7 @@ export async function runTutor(
     const result = await provider.complete(
       buildPrompt(context, config.maxInputChars),
       signal,
+      { action: input.action, allowedLevel: reserved.allowedLevel, deadlineAt },
     );
     usage = result.usage;
     const audited = auditOutput(result.text, {
@@ -132,9 +134,13 @@ export async function runTutor(
         "TUTOR_RESPONSE_DISCARDED",
         "训练状态已改变或请求过期，分析结果未展示。模型可能已经产生用量。",
       );
+    const [messages, currentState] = await Promise.all([
+      repo.history(id),
+      repo.state(id),
+    ]);
     return {
-      messages: await repo.history(id),
-      state: await repo.state(id),
+      messages,
+      state: currentState,
       cached: false,
     };
   } catch (error) {

@@ -7,7 +7,7 @@ import { tutorRepository } from "@/server/tutor/repository";
 import { readTutorConfig, requireTutorConfig } from "@/server/tutor/config";
 import { runTutor } from "@/server/tutor/orchestrator";
 export const runtime = "nodejs";
-export const maxDuration = 120;
+export const maxDuration = 180;
 type Context = { params: Promise<{ id: string }> };
 export function GET(request: Request, context: Context) {
   return handle(async () => {
@@ -40,6 +40,7 @@ export function GET(request: Request, context: Context) {
   });
 }
 export function POST(request: Request, context: Context) {
+  const deadlineAt = Date.now() + 150000;
   return handle(async () => {
     const { client, user } = await requireContext();
     const id = await routeId(context);
@@ -62,7 +63,15 @@ export function POST(request: Request, context: Context) {
     if (input.action === "explain" && (await repo.state(id)).allowedLevel !== 5)
       throw new ApiError(403, "L5_REQUIRED", "完整解析需要 L5 二次明确确认。");
     const config = requireTutorConfig();
-    const result = await runTutor(repo, config, id, input, request.signal);
+    const result = await runTutor(
+      repo,
+      config,
+      id,
+      input,
+      request.signal,
+      undefined,
+      deadlineAt,
+    );
     return json({
       ...result,
       state: {

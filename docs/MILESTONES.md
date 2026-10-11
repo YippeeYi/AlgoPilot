@@ -1,6 +1,6 @@
 # AlgoPilot 实施状态
 
-范围以 DEVELOPMENT_PLAN.md 的 M0–M4 为主；CODEX_PROMPT.md 中拆出的复盘/稳定化项目将在对应阶段验收，M5 稳定性要求保留为最终检查清单。当前执行 M2，基于实际 main HEAD `e52257cd69b37f1282e59cca8694d88d29f36622` 增量实现；M0/M1 历史验收和用户的类型导入修正保留。
+范围以 DEVELOPMENT_PLAN.md 的 M0–M4 为主；CODEX_PROMPT.md 中拆出的复盘/稳定化项目将在对应阶段验收，M5 稳定性要求保留为最终检查清单。M2 已提交；当前以 `77d58e7e98165b9909e2fcf953ce07c022dfab1b` 为基线修复 Gemini 兼容性。M0–M2 功能、历史测试和用户的类型导入约定保留。
 
 ## M0：脚手架与设计系统
 
@@ -50,10 +50,11 @@
 - [x] 安全 Markdown/KaTeX、完整响应审核、L0/L1 服务端模板、L2+ 保守输出规则和明显完整程序 L5 记录。
 - [x] 保留全部 M0/M1 断言；新增 API/Mock/渲染/教学夹具、本地 PostgreSQL HMAC/RLS/额度测试、桌面/移动 E2E。
 - [x] 原创 12 题教学审核集、人工验收规范、API/配置/费用与验证文档。
-- [ ] 真实 Provider 调用/费用核对和教学人工验收（当前无 Key）。
+- [x] Gemini 非加和 usage 的 Provider/SQL 回归、未归类差额、保守 NULL 费用；可配置 reasoning/JSON schema/超时与共享预算。
+- [ ] 真实 Provider 调用/费用核对和教学人工验收（已有 Key；仍需真实登录会话与新迁移）。
 - [ ] 托管 Supabase M2 迁移/PostgREST/签名集成与独立多连接并发验收。
 
-完整执行结果与限制见 [M2_VERIFICATION.md](M2_VERIFICATION.md)。
+原 M2 执行结果见 [M2_VERIFICATION.md](M2_VERIFICATION.md)；独立兼容修复与真实验收边界见 [GEMINI_VERIFICATION.md](GEMINI_VERIFICATION.md)。
 
 ## 后续阶段（本轮未实现）
 
@@ -62,4 +63,4 @@
 
 ## 尚未验证
 
-M1 发现本机已有 Supabase 公开配置，但没有可用于破坏性测试的隔离数据库/专用用户，也没有 psql、Docker 或 Supabase CLI。未用该配置访问账户或写入数据库，未发送真实邮件。M2 同样没有 LLM Key/隔离数据库工具，未执行真实模型/CF 调用；本地 HTTP Mock 不能当作服务联通。环境变量填写完整不表示服务已连通。
+M1/M2 原交付时无隔离数据库/专用用户，未完成托管服务测试。Gemini 修复时已有 Provider Key 和格式有效的签名密钥，但配置存在不证明数据库签名匹配、新迁移已应用或账户已授权；真实调用状态见独立验收记录。本地 HTTP Mock 不能当作服务联通，CF 尚未接入。

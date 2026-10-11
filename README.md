@@ -65,6 +65,8 @@ Next proxy 刷新 Cookie；页面和 API 使用服务端 `getUser()` 验证，�
 
 ## M2 功能与权限
 
+Gemini 兼容修复增加 [usage 增量迁移](supabase/migrations/202610110003_gemini_usage.sql)，保留供应商原始总数，差额记为未归类用量；Gemini 费用保持 NULL。配置 reasoning/JSON schema/超时与预算见 [M2 设置](docs/M2_SETUP.md)，实际测试与真实调用边界见 [Gemini 验收](docs/GEMINI_VERIFICATION.md)。旧 M2 数据库也需应用新增迁移。
+
 - 真实工作台右栏持久对话，六类操作 + chat，提示等级/升级、L5 两次弹窗确认、分析/错误/重试与每日额度。桌面三栏和移动标签保持不变；公开 preview 不读私人数据、不调用 AI。
 - 单 Tutor Orchestrator：验证身份/归属/模式/状态/权限 → 最小上下文与版本化 Prompt → Provider → 输出审核 → 原子保存消息/事件/usage。debug 仅静态阅读 C++，不执行任何代码。
 - L0 已有思路提问；L1 条件/边界/复杂度引导；L2 性质探索；L3 算法类别；L4 伪代码/局部指导；L5 完整解析。聊天不能升级，授权与已查看分开，最高已查看单调。L5 挑战绑定用户/会话/请求、5 分钟有效且防重放。

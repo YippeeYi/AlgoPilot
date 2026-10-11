@@ -38,7 +38,7 @@ M2 增量迁移不修改 M1 文件。新增 tutor_authorizations、tutor_request
 
 ## Provider 和审核
 
-45 秒/次超时，Request AbortSignal 取消；仅 HTTP 429/503 重试一次、350ms 退避，最多两次。其他失败和超时不自动重试。拒绝 HTTP 重定向、限制响应体 2MB，模型正文最多 24000 字符；输出 JSON 正文最多 16000。usage 只从响应的 prompt_tokens/completion_tokens/total_tokens 读取并验证，缺失/未知为 NULL；错误正文丢弃。模型字段含密钥时脱敏并拒绝。输出超预算或截断保留真实 usage 但拒绝展示。
+单次超时由 LLM_TIMEOUT_MS 配置，两个尝试与 350ms 退避共用最多 120 秒预算；Route 总预算和数据库结算余量进一步收紧，Next maxDuration 180 秒与数据库 180 秒租约配合，见 [配置边界](M2_SETUP.md)。Request AbortSignal 取消；仅 HTTP 429/503 重试一次，其他失败和超时不自动重试。拒绝 HTTP 重定向、响应体限制 2MB，模型正文最多 24000 字符，JSON content 最多 16000。usage 保留原始 prompt_tokens/completion_tokens/total_tokens，允许总数大于两者之和；差额是生成列 unclassified_tokens，不猜测为 reasoning。负数、非整数、矛盾或超过一亿拒绝，缺失为 NULL。Gemini 或未归类差额的费用 NULL；错误正文丢弃。模型字段含密钥时脱敏并拒绝。输出超预算或截断保留真实 usage 但拒绝展示。Gemini profile 可发送 reasoning_effort 和 JSON schema；不改变提示权限或 Zod/auditOutput 审核。
 
 版本化教学 Prompt 只包含私人题面、当前必要草稿、最多三份历史思路及最多 12 条可见对话。输入上限不足时先丢旧历史/版本；不默默截断当前题面/代码，仍超长就 413。debug/complexity 才带 C++。运行时仅支持 openai-compatible，MockProvider 只通过测试依赖注入。
 

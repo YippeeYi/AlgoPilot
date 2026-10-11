@@ -27,6 +27,10 @@ const schema = z
       .default("max_completion_tokens"),
     inputPrice: z.coerce.number().min(0).max(1000).optional(),
     outputPrice: z.coerce.number().min(0).max(1000).optional(),
+    apiProfile: z.enum(["generic", "gemini"]).optional(),
+    reasoningEffort: z.enum(["low", "medium", "high"]).optional(),
+    responseFormat: z.enum(["none", "json_schema"]).optional(),
+    timeoutMs: z.coerce.number().int().min(1000).max(120000).optional(),
   })
   .refine(
     (c) => !c.model.includes(c.apiKey) && !c.model.includes(c.signingSecret),
@@ -35,6 +39,19 @@ export type TutorConfig = z.infer<typeof schema>;
 export function readTutorConfig(
   env: Readonly<Record<string, string | undefined>> = process.env,
 ): TutorConfig | null {
+  // Only Google's documented endpoint is auto-detected. Gateways opt in explicitly.
+  let gemini = false;
+  try {
+    const url = new URL(env.LLM_BASE_URL ?? "");
+    gemini =
+      url.protocol === "https:" &&
+      url.hostname === "generativelanguage.googleapis.com" &&
+      url.pathname.replace(/\/$/, "") === "/v1beta/openai" &&
+      Boolean(env.LLM_MODEL?.startsWith("gemini-"));
+  } catch {
+    /* Invalid URLs are rejected below without logging input. */
+  }
+  const profile = env.LLM_API_PROFILE || (gemini ? "gemini" : "generic");
   const r = schema.safeParse({
     provider: env.LLM_PROVIDER,
     baseUrl: env.LLM_BASE_URL,
@@ -43,10 +60,19 @@ export function readTutorConfig(
     signingSecret: env.TUTOR_RPC_SIGNING_SECRET,
     dailyLimit: env.LLM_DAILY_REQUEST_LIMIT || undefined,
     maxInputChars: env.LLM_MAX_INPUT_CHARS || undefined,
-    maxOutputTokens: env.LLM_MAX_OUTPUT_TOKENS || undefined,
-    tokenParameter: env.LLM_TOKEN_PARAMETER || undefined,
+    maxOutputTokens:
+      env.LLM_MAX_OUTPUT_TOKENS || (profile === "gemini" ? 4096 : undefined),
+    tokenParameter:
+      env.LLM_TOKEN_PARAMETER ||
+      (profile === "gemini" ? "max_tokens" : undefined),
     inputPrice: env.LLM_INPUT_USD_PER_MILLION_TOKENS || undefined,
     outputPrice: env.LLM_OUTPUT_USD_PER_MILLION_TOKENS || undefined,
+    apiProfile: profile,
+    reasoningEffort: env.LLM_REASONING_EFFORT || "low",
+    responseFormat:
+      env.LLM_RESPONSE_FORMAT ||
+      (profile === "gemini" ? "json_schema" : "none"),
+    timeoutMs: env.LLM_TIMEOUT_MS || (profile === "gemini" ? 60000 : 45000),
   });
   return r.success ? r.data : null;
 }

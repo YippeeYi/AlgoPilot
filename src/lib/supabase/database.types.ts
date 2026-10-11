@@ -62,6 +62,7 @@ export type Database = {
         input_tokens: number | null;
         output_tokens: number | null;
         total_tokens: number | null;
+        unclassified_tokens: number | null;
         duration_ms: number;
         status: "success" | "rejected" | "timeout" | "error";
         cost_usd: number | null;
