@@ -22,6 +22,7 @@ export function isPrivatePath(path: string) {
   return [
     "/dashboard",
     "/problems",
+    "/plans",
     "/sessions",
     "/reviews",
     "/analytics",

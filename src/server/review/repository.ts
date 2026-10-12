@@ -47,8 +47,8 @@ export function reviewRepository(client: SupabaseClient<Database>, userId: strin
             check(error);
             return z.array(reviewResultSchema).parse(data);
         },
-        async create(input: z.infer<typeof createReviewSchema>) {
-            const { data, error } = await client.rpc("create_code_review", { p_input: input });
+        async create(input: z.infer<typeof createReviewSchema>, problemId?: string) {
+            const { data, error } = problemId ? await client.rpc("create_cf_review", {p_problem_id:problemId,p_input:input}) : await client.rpc("create_code_review", { p_input: input });
             check(error);
             return this.get(z.uuid().parse(data));
         },

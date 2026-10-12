@@ -29,6 +29,7 @@ type ProblemRow = Problem & {
 export type Database = {
   public: {
     Tables: {
+      training_plans: ReadTable<import("@/lib/validation/m3").TrainingPlan & {user_id:string}>;
       code_reviews: ReadTable<CodeReview>;
       review_requests: ReadTable<{id:string;review_id:string;question:string;analysis:unknown;model:string|null;prompt_version:string|null;created_at:string;status:string}>;
       profiles: Table<{
@@ -89,6 +90,13 @@ export type Database = {
     };
     Views: Record<string, never>;
     Functions: {
+      cf_catalog: {Args:{p_query:unknown};Returns:unknown};
+      cf_sync: {Args:{p_payload:string;p_signature:string};Returns:unknown};
+      plan_write: {Args:{p_id:string;p_input:unknown};Returns:unknown};
+      plan_detail: {Args:{p_id:string};Returns:unknown};
+      start_cf_session: {Args:{p_input:unknown};Returns:SessionRow[]};
+      supplement_cf_context: {Args:{p_id:string;p_content:string;p_revision:number;p_request_id:string};Returns:unknown};
+      create_cf_review: {Args:{p_problem_id:string;p_input:unknown};Returns:unknown};
       create_code_review: {Args:{p_input: import("zod").infer<typeof import("@/lib/validation/review").createReviewSchema>};Returns:unknown};
       edit_code_review: {Args:{p_id:string;p_revision:number;p_notes:string};Returns:unknown};
       review_reserve: {Args:{p_payload:string;p_signature:string};Returns:unknown};

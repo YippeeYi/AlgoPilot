@@ -1,18 +1,7 @@
-import { createProblemSchema } from "@/lib/validation/m1";
-import { repository, pagination, pageResult } from "@/server/api";
-import { handle, json, readJson } from "@/server/http";
-
-export async function GET(request: Request) {
-  return handle(async () => {
-    const repo = await repository();
-    const { offset, limit } = pagination(request);
-    return json(pageResult(await repo.problems(offset, limit), offset, limit));
-  });
-}
-export async function POST(request: Request) {
-  return handle(async () => {
-    const repo = await repository();
-    const input = await readJson(request, createProblemSchema);
-    return json({ problem: await repo.createProblem(input) }, 201);
-  });
-}
+import { requireContext } from "@/server/auth";
+import { cfRepository } from "@/server/codeforces/repository";
+import { catalog } from "@/server/codeforces/catalog";
+import { catalogQuerySchema } from "@/lib/validation/m3";
+import { handle, json, ApiError, assertSameOrigin } from "@/server/http";
+export function GET(request: Request) { return handle(async () => { const { client, user } = await requireContext(); const query = catalogQuerySchema.parse(Object.fromEntries(new URL(request.url).searchParams)); return json(await catalog(cfRepository(client, user.id), query)); }); }
+export function POST(request: Request) { return handle(async () => { await requireContext(); assertSameOrigin(request); throw new ApiError(410, "CUSTOM_PROBLEMS_RETIRED", "新题目请从 Codeforces 题库选择。已有私人题目保留在训练历史中。"); }); }

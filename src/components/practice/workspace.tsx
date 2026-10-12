@@ -46,14 +46,19 @@ export function Workspace({
   initialSession,
   problem,
   serverNow,
+  planId,
 }: {
   initialSession: TrainingSession;
   problem: Problem | null;
   serverNow: string;
+  planId?:string;
 }) {
   const [session, setSession] = useState(initialSession);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [contextText,setContextText]=useState("");
+  const [contextSaved,setContextSaved]=useState(false);
+  const contextAttempt=useRef<{content:string;revision:number;requestId:string}|null>(null);
   const [versions, setVersions] = useState<Thought[]>([]);
   const [nextOffset, setNextOffset] = useState<number | null>(0);
   const [historyError, setHistoryError] = useState("");
@@ -100,7 +105,7 @@ export function Workspace({
   const thought = useDraft(thoughtQueue, !completed && !busy);
   const code = useDraft(codeQueue, !completed && !busy);
   const dirty =
-    thought.value !== thought.savedValue || code.value !== code.savedValue;
+    thought.value !== thought.savedValue || code.value !== code.savedValue || Boolean(contextText);
   useEffect(() => {
     receiptClock.current = performance.now();
     const interval = setInterval(
@@ -115,7 +120,7 @@ export function Workspace({
       if (
         thoughtQueue.getSnapshot().value !==
           thoughtQueue.getSnapshot().savedValue ||
-        codeQueue.getSnapshot().value !== codeQueue.getSnapshot().savedValue
+        codeQueue.getSnapshot().value !== codeQueue.getSnapshot().savedValue || Boolean(contextText)
       ) {
         event.preventDefault();
         event.returnValue = "";
@@ -135,7 +140,7 @@ export function Workspace({
       window.removeEventListener("beforeunload", warn);
       window.removeEventListener("algopilot-before-navigate", guard);
     };
-  }, [dirty, thoughtQueue, codeQueue]);
+  }, [dirty, thoughtQueue, codeQueue, contextText]);
   async function history(offset: number, append = false) {
     setHistoryError("");
     try {
@@ -238,6 +243,16 @@ export function Workspace({
       setBusy(false);
     }
   }
+  async function supplement() {
+    setBusy(true);setError("");setContextSaved(false);
+    try {
+      await thoughtQueue.flush();
+      const revision=thoughtQueue.getSnapshot().revision;
+      if(contextAttempt.current?.content!==contextText)contextAttempt.current={content:contextText,revision,requestId:crypto.randomUUID()};
+      const r=await requestJson<{session:TrainingSession;thought:Thought}>(`/api/v1/sessions/${session.id}/context`,{method:"POST",body:{content:contextText,expectedRevision:contextAttempt.current.revision,requestId:contextAttempt.current.requestId}});
+      setSession(r.session);thoughtQueue.setValue(r.session.thought_draft);thoughtQueue.acceptVersion(r.session.thought_draft,r.session.thought_revision);setVersions(old=>[r.thought,...old.filter(t=>t.id!==r.thought.id)]);setContextText("");contextAttempt.current=null;setContextSaved(true);
+    }catch(e){setError(e instanceof Error?e.message:"题面上下文保存失败。");}finally{setBusy(false);}
+  }
   return (
     <>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
@@ -246,8 +261,10 @@ export function Workspace({
             PRACTICE WORKSPACE
           </p>
           <h1 className="text-2xl font-semibold">
-            {problem?.title ?? "自主训练"}
+            {problem?.title ?? "历史自主训练"}
           </h1>
+          {problem?.platform==="codeforces"&&<p className="mt-2 text-sm">{problem.contest_id}{problem.problem_index} · Rating {problem.rating??"未定级"} · <a className="underline" href={problem.canonical_url??undefined} target="_blank" rel="noreferrer">在 Codeforces 打开</a></p>}
+          <Link className="mt-2 block text-xs underline" href={planId?`/plans/${planId}`:"/plans"}>返回我的计划</Link>
           <p className="mt-2 text-xs text-muted-foreground">
             {session.mode === "contest" ? "比赛模式 · AI 禁用" : "独立训练"} ·{" "}
             {completed
@@ -368,11 +385,10 @@ export function Workspace({
               </Badge>
               <p className="whitespace-pre-wrap break-words text-sm leading-7">
                 {session.statement_snapshot ||
-                  "尚未提供题面。本轮保留该快照，后续可创建新训练补充题面。"}
+                  "尚未提供题面。请在 Codeforces 阅读，或为当前题目补充上下文供 AI 使用。"}
               </p>
-              <p className="text-xs text-muted-foreground">
-                算法标签默认隐藏。题面以纯文本安全展示。
-              </p>
+              <p className="text-xs text-muted-foreground">算法标签默认隐藏。题面以纯文本安全展示。</p>
+              {problem?.platform==="codeforces"&&!completed&&<div className="space-y-3"><label htmlFor="cf-context" className="text-sm">补充当前题目的题面、约束与样例</label><Textarea id="cf-context" value={contextText} maxLength={63000} onChange={e=>setContextText(e.target.value)} disabled={busy}/><p className="text-xs text-muted-foreground">保存为思路历史版本，保留已有笔记；随后请求 AI 时作为用户提供的上下文。不会创建题目。</p><Button variant="outline" disabled={busy||!contextText.trim()} onClick={()=>void supplement()}>保存题面上下文</Button>{contextSaved&&<p role="status" className="text-xs">题面上下文已保存为笔记版本。</p>}</div>}
             </CardContent>
           </Card>
         </TabsContent>

@@ -16,7 +16,7 @@ export const createProblemSchema = z
   .strict();
 export const createSessionSchema = z
   .object({
-    problemId: idSchema.optional(),
+    problemId: idSchema,
     statementSnapshot: z.string().max(64_000).optional(),
     timerEnabled: z.boolean().optional(),
     mode: z.enum(["practice", "contest"]).default("practice"),
@@ -80,6 +80,9 @@ export const sessionSchema = z.object({
 });
 export const problemSchema = z.object({
   id: idSchema,
+  contest_id: z.number().nullable().optional(),
+  problem_index: z.string().nullable().optional(),
+  canonical_url: z.string().nullable().optional(),
   platform: z.enum(["custom", "codeforces"]),
   title: z.string(),
   statement: z.string().nullable(),

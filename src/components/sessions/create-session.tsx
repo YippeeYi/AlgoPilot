@@ -1,5 +1,7 @@
 "use client";
 
+import { ProblemPicker } from "@/components/problems/problem-picker";
+import {cfKey,type CatalogProblem} from "@/lib/validation/m3";
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,6 +12,7 @@ import type { TrainingSession } from "@/lib/validation/m1";
 
 export function CreateSession() {
   const router = useRouter();
+  const [problem,setProblem]=useState<CatalogProblem|null>(null);
   const [statement, setStatement] = useState("");
   const [timerEnabled, setTimerEnabled] = useState(false);
   const [mode, setMode] = useState("practice");
@@ -18,9 +21,10 @@ export function CreateSession() {
   const attempt = useRef<{ payload: string; requestId: string } | null>(null);
   async function create(event: React.FormEvent) {
     event.preventDefault();
+    if(!problem)return;
     setPending(true);
     setError("");
-    const payload = JSON.stringify({ statementSnapshot: statement, mode, timerEnabled });
+    const payload = JSON.stringify({problemId:problem.id, statementSnapshot: statement, mode, timerEnabled });
     if (attempt.current?.payload !== payload)
       attempt.current = { payload, requestId: crypto.randomUUID() };
     try {
@@ -29,6 +33,7 @@ export function CreateSession() {
         {
           method: "POST",
           body: {
+            problemId:problem.id,
             statementSnapshot: statement,
             mode,
             timerEnabled,
@@ -48,10 +53,12 @@ export function CreateSession() {
   return (
     <Card className="mb-6 shadow-none">
       <CardHeader>
-        <CardTitle className="text-base">新建自主训练</CardTitle>
+        <CardTitle className="text-base">选择 CF 题目开始训练</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={create} className="space-y-4">
+          <ProblemPicker onSelect={setProblem} disabled={pending}/>
+          {problem&&<p>当前选题：{cfKey(problem.contestId,problem.index)} · {problem.name}</p>}
           <label htmlFor="new-statement" className="block text-sm">
             题面与约束（仅自己可见）
           </label>
@@ -61,7 +68,7 @@ export function CreateSession() {
             onChange={(event) => setStatement(event.target.value)}
             maxLength={64000}
             className="min-h-28"
-            placeholder="粘贴你准备练习的题面；也可以先创建空白训练。"
+            placeholder="为当前 CF 题目补充题面、约束与样例（可选）。"
             disabled={pending}
           />
           <label className="block text-sm" htmlFor="training-mode">
@@ -85,7 +92,7 @@ export function CreateSession() {
             </p>
           )}
           <div>
-            <Button disabled={pending}>
+            <Button disabled={pending||!problem}>
               {pending ? "正在创建…" : "开始训练"}
             </Button>
           </div>

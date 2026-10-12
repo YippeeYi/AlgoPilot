@@ -54,7 +54,7 @@ export default async function DashboardPage() {
               {
                 icon: BookOpen,
                 title: "选择一道题",
-                text: "从题库出发，或提供自己的题面。",
+                text: "从 Codeforces 题库选题，单题训练或批量加入计划。",
               },
               {
                 icon: Brain,

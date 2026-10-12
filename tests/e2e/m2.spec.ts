@@ -13,6 +13,7 @@ async function createSession(page: Page, mode = "practice") {
   await expect(page).toHaveURL(/\/sessions$/);
   const response = await page.request.post("/api/v1/sessions", {
     data: {
+      problemId:"50000000-0000-4000-8000-000000000001",
       statementSnapshot: "给定 n 个整数，n <= 10000。请检查自己的推导。",
       mode,
       requestId: randomUUID(),

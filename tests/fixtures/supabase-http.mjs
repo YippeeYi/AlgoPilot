@@ -1,5 +1,6 @@
 // E2E 专用 HTTP 契约替身。没有真实邮件、Supabase JWT 验签或数据库 RLS。
 // 生产应用完全不包含此脚本；真实 SQL/RLS 由独立 PostgreSQL 测试覆盖。
+import {readFileSync} from "node:fs";
 import { createServer } from "node:http";
 import { randomUUID, createHmac, createHash } from "node:crypto";
 
@@ -63,7 +64,48 @@ function owned(id, uid) {
   if (!row || row.user_id !== uid) failure("P0002");
   return row;
 }
+const plans=new Map(),planItems=new Map(),planReceipts=new Map(),planSessions=new Set();
+const cfFixture=JSON.parse(readFileSync(new URL('./cf-problemset.json',import.meta.url),'utf8'));
+cfFixture.result.problems.forEach((p,n)=>{const id=`50000000-0000-4000-8000-${String(n+1).padStart(12,'0')}`;const stat=cfFixture.result.problemStatistics.find(s=>s.contestId===p.contestId&&s.index===p.index);problems.set(id,{id,owner_id:null,platform:'codeforces',contest_id:p.contestId,problem_index:p.index,title:p.name,rating:p.rating??null,tags:p.tags??[],statement:null,canonical_url:`https://codeforces.com/problemset/problem/${p.contestId}/${p.index}`,solved_count:stat?.solvedCount??null,metadata_synced_at:'2026-10-12T05:22:10.562Z',created_at:'2026-10-12T05:22:10.562Z'});});
+function cfProblem(r){return {id:r.id,contestId:r.contest_id,index:r.problem_index,name:r.title,rating:r.rating,tags:r.tags,solvedCount:r.solved_count};}
 function rpc(name, p, uid) {
+  if(name==='cf_catalog'){
+    const q=p.p_query;let rows=[...problems.values()].filter(r=>r.platform==='codeforces');const tags=(q.tags??'').split(';').filter(Boolean);
+    const keys=new Set(rows.flatMap(r=>r.tags));rows=rows.filter(r=>(!q.q || (/^[1-9]\d*[A-Z][A-Z0-9]*$/i.test(q.q)?`${r.contest_id}${r.problem_index}`.toUpperCase()===q.q.toUpperCase():r.title.toLowerCase().includes(q.q.toLowerCase())))&&(q.min===undefined || (r.rating!==null&&r.rating>=q.min))&&(q.max===undefined || (r.rating!==null&&r.rating<=q.max))&&tags.every(t=>r.tags.includes(t)));
+    rows.sort((a,b)=>q.sort==='solved_desc'?(b.solved_count??-1)-(a.solved_count??-1):q.sort==='solved_asc'?(a.solved_count??Infinity)-(b.solved_count??Infinity):b.contest_id-a.contest_id||a.problem_index.localeCompare(b.problem_index));
+    return {items:rows.slice(q.offset??0,(q.offset??0)+(q.limit??30)).map(cfProblem),total:rows.length,syncedAt:'2026-10-12T05:22:10.562Z',stale:false,tags:[...keys].sort()};
+  }
+  if(name==='cf_sync')return {acquired:false};
+  if(name==='plan_detail'){
+    const plan=plans.get(p.p_id);if(!plan||plan.user_id!==uid)failure('P0002');
+    return {plan,items:[...planItems.values()].filter(i=>i.plan_id===plan.id).sort((a,b)=>a.position-b.position).map(i=>({...i,problem:cfProblem(problems.get(i.problem_id)),officialStatus:'not_synced',sessions:[...sessions.values()].filter(s=>s.user_id===uid&&s.problem_id===i.problem_id).map(s=>({id:s.id,status:s.status,outcome:s.outcome,created_at:s.created_at,linked:planSessions.has(`${i.id}/${s.id}`)})),reviews:[...reviews.values()].filter(r=>r.user_id===uid&&r.problem_id===i.problem_id).map(r=>({id:r.id,session_id:r.session_id,created_at:r.created_at,analyzed:[...reviewRequests.values()].some(rr=>rr.review_id===r.id&&rr.status==='completed')}))}))};
+  }
+  if(name==='plan_write'){
+    const v=p.p_input,fp=JSON.stringify({id:p.p_id,v}),key=`${uid}/${v.requestId}`,old=planReceipts.get(key);if(old){if(old.fp!==fp)failure('PT409');return old.result;}
+    let plan=plans.get(p.p_id);if(v.action==='create'){plan={id:p.p_id,user_id:uid,name:v.name,description:v.description,archived:false,revision:0,created_at:now(),updated_at:now()};plans.set(plan.id,plan);}else{if(!plan||plan.user_id!==uid)failure('P0002');if(plan.revision!==v.revision)failure('PT409');if(plan.archived&&!['edit','delete'].includes(v.action))failure('23514');}
+    if(['create','add'].includes(v.action))for(const pid of v.problemIds){if(problems.get(pid)?.platform!=='codeforces')failure('23514');if([...planItems.values()].some(i=>i.plan_id===plan.id&&i.problem_id===pid))continue;const row={id:randomUUID(),plan_id:plan.id,user_id:uid,problem_id:pid,position:Math.max(-1,...[...planItems.values()].filter(i=>i.plan_id===plan.id).map(i=>i.position))+1,manual_status:'planned'};planItems.set(row.id,row);}
+    if(['remove','status'].includes(v.action)){const item=planItems.get(v.itemId);if(!item||item.plan_id!==plan.id)failure('P0002');if(v.action==='remove')planItems.delete(item.id);else item.manual_status=v.status;}
+    if(v.action==='reorder'){const ids=[...planItems.values()].filter(i=>i.plan_id===plan.id).map(i=>i.id);if(ids.length!==v.itemIds.length||new Set(v.itemIds).size!==ids.length||v.itemIds.some(x=>!ids.includes(x)))failure('23514');v.itemIds.forEach((id,n)=>{planItems.get(id).position=n;});}
+    if(v.action==='edit'){plan.name=v.name;plan.description=v.description;plan.archived=v.archived;}
+    if(v.action==='delete'){plans.delete(plan.id);for(const i of planItems.values())if(i.plan_id===plan.id)planItems.delete(i.id);}else if(v.action!=='create'){plan.revision++;plan.updated_at=now();}
+    const result={id:plan.id,deleted:v.action==='delete'};planReceipts.set(key,{fp,result});return result;
+  }
+  if(name==='start_cf_session'){
+    const v=p.p_input,fp=JSON.stringify(v),key=`start/${uid}/${v.requestId}`,old=planReceipts.get(key);if(old){if(old.fp!==fp)failure('PT409');return [owned(old.result.id,uid)];}
+    let pid=v.problemId, item;if(v.itemId){item=planItems.get(v.itemId);if(!item||item.user_id!==uid)failure('P0002');if(plans.get(item.plan_id)?.archived)failure('23514');pid=item.problem_id;}
+    if(problems.get(pid)?.platform!=='codeforces')failure('23514');
+    let s=item&&!v.newSession?[...sessions.values()].find(s=>s.user_id===uid&&s.status!=='completed'&&s.mode===(v.mode??'practice')&&planSessions.has(`${item.id}/${s.id}`)):null;
+    if(!s)[s]=rpc(v.timerEnabled?'create_training_session':'create_untimed_session',{p_problem_id:pid,p_mode:v.mode??'practice',p_statement:v.statementSnapshot??'',p_request_id:v.requestId},uid);
+    if(item)planSessions.add(`${item.id}/${s.id}`);planReceipts.set(key,{fp,result:{id:s.id}});return [s];
+  }
+  if(name==='create_cf_review'){
+    const v={...p.p_input},problem=problems.get(p.p_problem_id);if(problem?.platform!=='codeforces')failure('23514');if(!v.sessionId)v.sessionId=rpc('start_cf_session',{p_input:{problemId:problem.id,requestId:v.requestId}},uid)[0].id;
+    if(owned(v.sessionId,uid).problem_id!==problem.id)failure('23514');v.problemUrl=problem.canonical_url;return rpc('create_code_review',{p_input:v},uid);
+  }
+  if(name==='supplement_cf_context'){
+    const s=owned(p.p_id,uid);return rpc('append_training_thought',{p_id:s.id,p_content:s.thought_draft+'\n【用户补充的题面上下文】\n'+p.p_content,p_expected_revision:p.p_revision,p_request_id:p.p_request_id},uid);
+  }
+
   if(name === "create_untimed_session") {
     const previous=[...sessions.values()].find(s=>s.user_id===uid && s.create_request_id===p.p_request_id);
     const [row]=rpc("create_training_session",p,uid);
@@ -260,7 +302,7 @@ function rpc(name, p, uid) {
   }
   if (name === "create_training_session") {
     const problem = p.p_problem_id ? problems.get(p.p_problem_id) : null;
-    if (p.p_problem_id && (!problem || problem.owner_id !== uid))
+    if (p.p_problem_id && (!problem || (problem.platform!=="codeforces" && problem.owner_id !== uid)))
       failure("P0002");
     const old = [...sessions.values()].find(
       (row) => row.user_id === uid && row.create_request_id === p.p_request_id,
@@ -368,10 +410,10 @@ function rpc(name, p, uid) {
 function select(url, uid) {
   const table = url.pathname.split("/").at(-1);
   let rows =
-    table === "code_reviews" ? [...reviews.values()].filter(r=>r.user_id===uid) : table === "review_requests" ? [...reviewRequests.values()].filter(r=>r.user_id===uid) : table === "training_sessions"
+    table === "training_plans" ? [...plans.values()].filter(r=>r.user_id===uid) : table === "code_reviews" ? [...reviews.values()].filter(r=>r.user_id===uid) : table === "review_requests" ? [...reviewRequests.values()].filter(r=>r.user_id===uid) : table === "training_sessions"
       ? [...sessions.values()].filter((row) => row.user_id === uid)
       : table === "problems"
-        ? [...problems.values()].filter((row) => row.owner_id === uid)
+        ? [...problems.values()].filter((row) => (row.platform==="codeforces" || row.owner_id === uid))
         : table === "tutor_messages"
           ? [...tutorMessages.values()].filter(
               (row) => sessions.get(row.session_id)?.user_id === uid,

@@ -39,7 +39,8 @@ export async function runReview(repo: ReviewRepository, config: TutorConfig, id:
     question: string;
 }, signal?: AbortSignal, provider: LLMProvider = new OpenAICompatibleProvider(config), deadlineAt?: number) {
     const review = await repo.get(id);
-    if ([config.apiKey, config.signingSecret].some(secret => secret && (review.code_snapshot.includes(secret) || review.statement_snapshot.includes(secret) || input.question.includes(secret))))
+    const knownSecrets = [config.apiKey, config.signingSecret, process.env.CODEFORCES_RPC_SIGNING_SECRET ?? ""];
+    if (knownSecrets.some(secret => secret && (review.code_snapshot.includes(secret) || review.statement_snapshot.includes(secret) || input.question.includes(secret))))
         throw new ApiError(422, "REVIEW_SENSITIVE_INPUT", "输入包含已知服务端秘密，请清除后创建新快照。");
     const history = await repo.results(id);
     let messages = buildReviewPrompt(review, input.question, history.slice(0, 2).reverse());
@@ -57,7 +58,7 @@ export async function runReview(repo: ReviewRepository, config: TutorConfig, id:
     try {
         const result = await provider.complete(messages, signal, { action: "explain", allowedLevel: 5, deadlineAt, outputKind: "review" });
         usage = result.usage;
-        const analysis = auditReview(result.text, review, [config.apiKey, config.signingSecret]);
+        const analysis = auditReview(result.text, review, knownSecrets);
         const finished = await repo.finish({ ...settlement, success: true, analysis, model: usage.at(-1)?.model ?? config.model, usage }, config.signingSecret);
         if (!finished.accepted)
             throw new ApiError(409, "REVIEW_RESPONSE_DISCARDED", "复盘请求已过期，结果未展示；可能已产生模型用量。");

@@ -12,7 +12,7 @@ test("AC import, explicit authorization, immutable snapshot, generate/edit/regen
     const errors: string[] = [];
     page.on("pageerror", e => errors.push(e.message));
     await login(page);
-    const session = await (await page.request.post("/api/v1/sessions", { data: { requestId: randomUUID(), statementSnapshot: "n<=100，输出结果", timerEnabled: false } })).json();
+    const session = await (await page.request.post("/api/v1/sessions", { data: { problemId:"50000000-0000-4000-8000-000000000001", requestId: randomUUID(), statementSnapshot: "n<=100，输出结果", timerEnabled: false } })).json();
     expect(session.session.status).toBe("paused");
     await page.goto(`/reviews?sessionId=${session.session.id}`);
     await page.getByLabel("选择本地代码文件", { exact: false }).setInputFiles({ name: "accepted.cpp", mimeType: "text/plain", buffer: Buffer.from("int main() { return 0; }") });
@@ -69,7 +69,7 @@ test("file rejection, review field whitelist, contest and no-idea L0 continuity"
     await page.getByLabel("选择本地代码文件", { exact: false }).setInputFiles({ name: "bad.cpp", mimeType: "text/plain", buffer: Buffer.from([255, 0]) });
     await expect(page.getByRole("alert", {name:"复盘错误"})).toContainText("UTF-8");
     await expect(page.getByLabel("C++ 代码快照", { exact: true })).toHaveValue("");
-    const create = (mode: string) => page.request.post("/api/v1/sessions", { data: { requestId: randomUUID(), mode, statementSnapshot: "输入 n 个整数，n<=100。输出最大值。" } });
+    const create = (mode: string) => page.request.post("/api/v1/sessions", { data: { problemId:"50000000-0000-4000-8000-000000000001", requestId: randomUUID(), mode, statementSnapshot: "输入 n 个整数，n<=100。输出最大值。" } });
     const c = await (await create("contest")).json();
     const data = { sessionId: c.session.id, requestId: randomUUID(), code: "int main(){}", source: "paste", fileName: null, problemUrl: "", statement: "", submissionId: null, confirmation: "我确认本次为自报 AC，并授权将代码发送给配置的 AI Provider 进行完整复盘" };
     expect((await page.request.post("/api/v1/reviews", { data })).status()).toBe(403);

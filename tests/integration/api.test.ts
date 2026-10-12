@@ -87,10 +87,11 @@ describe("M1 API 鉴权与输入（测试替身）", () => {
   it("合法创建只传允许字段，不接受客户端身份", async () => {
     mocks.create.mockResolvedValue({ id });
     expect(
-      (await create(request({ requestId: id, statementSnapshot: "statement" })))
+      (await create(request({ problemId:id, requestId: id, statementSnapshot: "statement" })))
         .status,
     ).toBe(201);
     expect(mocks.create).toHaveBeenCalledWith({
+      problemId:id,
       requestId: id,
       statementSnapshot: "statement",
       mode: "practice",
@@ -165,6 +166,7 @@ describe("M1 API 鉴权与输入（测试替身）", () => {
     });
     expect((await create(bad)).status).toBe(400);
     const long = request({
+      problemId:id,
       requestId: id,
       statementSnapshot: "a".repeat(300001),
     });

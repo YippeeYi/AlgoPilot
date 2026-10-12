@@ -62,7 +62,7 @@ test("注册提示邮箱验证，回调验证后恢复原目标", async ({ page 
   await expect(page.getByText("账户已验证 · 私人训练空间")).toBeVisible();
 });
 
-test("自建题目、草稿刷新恢复、思路历史、计时与完成（桌面及移动）", async ({
+test("CF 选题、草稿刷新恢复、思路历史、计时与完成（桌面及移动）", async ({
   page,
 }, testInfo) => {
   const errors: string[] = [];
@@ -72,17 +72,12 @@ test("自建题目、草稿刷新恢复、思路历史、计时与完成（桌�
     if (/cdn\.jsdelivr|unpkg|cdnjs/.test(req.url()))
       externalEditorRequests.push(req.url());
   });
-  const title = `私人练习-${randomUUID()}`;
-  await login(page, "alice@fixture.test", "/problems");
-  await page.getByLabel("题目名称").fill(title);
-  await page
-    .getByLabel("题面、约束与样例")
-    .fill("给定 n 个整数。约束：1 ≤ n ≤ 100。");
-  await page.getByRole("button", { name: "创建题目", exact: true }).click();
-  const card = page
-    .locator('[data-slot="card"]')
-    .filter({ has: page.getByRole("heading", { name: title, exact: true }) });
-  await card.getByRole("button", { name: "开始这道题" }).click();
+  await login(page, "alice@fixture.test", "/sessions");
+  await page.getByLabel("CF 题号或 URL").fill("1538D");
+  await page.getByRole("button",{name:"查找 CF 题目"}).click();
+  await page.getByRole("button",{name:/选择 1538D/}).click();
+  await page.getByLabel("题面与约束（仅自己可见）").fill("给定 n 个整数。约束：1 ≤ n ≤ 100。");
+  await page.getByRole("button",{name:"开始训练",exact:true}).click();
   await expect(page).toHaveURL(/\/practice\/[0-9a-f-]{36}$/);
   const sessionUrl = page.url();
   await expect(
@@ -178,6 +173,8 @@ test("两用户 Session/Thought 隔离、非法请求、重复暂停与并发继
     data: {
       requestId: randomUUID(),
       mode: "contest",
+      timerEnabled:true,
+      problemId:"50000000-0000-4000-8000-000000000001",
       statementSnapshot: "private",
     },
   });
@@ -268,7 +265,7 @@ test("会话失效后保存明确失败，保留本地草稿并阻止应用内�
   await login(page);
   const { session } = await (
     await page.request.post("/api/v1/sessions", {
-      data: { requestId: randomUUID() },
+      data: { problemId:"50000000-0000-4000-8000-000000000001",requestId: randomUUID() },
     })
   ).json();
   await page.goto(`/practice/${session.id}`);
@@ -310,7 +307,7 @@ test("公开 preview 不调用私人 API（Auth 零调用由 proxy 单测验证�
 
 test("在途自动保存保留最新编辑并阻止导航；旧窗口 409 不覆盖新草稿", async ({page, context}, testInfo) => {
   await login(page);
-  const {session} = await (await page.request.post("/api/v1/sessions", {data:{requestId:randomUUID()}})).json();
+  const {session} = await (await page.request.post("/api/v1/sessions", {data:{problemId:"50000000-0000-4000-8000-000000000001",requestId:randomUUID()}})).json();
   const path = `/practice/${session.id}`;
   await page.goto(path);
   if (testInfo.project.name === "m1-mobile") await page.getByRole("tab",{name:"思路笔记"}).click();

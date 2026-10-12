@@ -1,0 +1,708 @@
+{
+  "status": "OK",
+  "result": {
+    "problems": [
+      {
+        "contestId": 1732,
+        "index": "C1",
+        "name": "Sheikh (Easy version)",
+        "type": "PROGRAMMING",
+        "points": 1000.0,
+        "rating": 1800,
+        "tags": [
+          "binary search",
+          "bitmasks",
+          "greedy",
+          "two pointers"
+        ]
+      },
+      {
+        "contestId": 1538,
+        "index": "D",
+        "name": "Another Problem About Dividing Numbers",
+        "type": "PROGRAMMING",
+        "rating": 1700,
+        "tags": [
+          "constructive algorithms",
+          "math",
+          "number theory"
+        ]
+      },
+      {
+        "contestId": 2275,
+        "index": "H",
+        "name": "A Problem to Warm Up the Eyebrows",
+        "type": "PROGRAMMING",
+        "tags": [
+          "combinatorics",
+          "dp",
+          "math"
+        ]
+      },
+      {
+        "contestId": 2275,
+        "index": "G",
+        "name": "Copper Squander",
+        "type": "PROGRAMMING",
+        "tags": [
+          "binary search",
+          "data structures",
+          "dsu",
+          "graphs",
+          "greedy",
+          "math",
+          "sortings",
+          "ternary search"
+        ]
+      },
+      {
+        "contestId": 2275,
+        "index": "F",
+        "name": "Tea Blend",
+        "type": "PROGRAMMING",
+        "tags": [
+          "hashing",
+          "math",
+          "number theory"
+        ]
+      },
+      {
+        "contestId": 2275,
+        "index": "E",
+        "name": "Repentance Is Already on the Way",
+        "type": "PROGRAMMING",
+        "tags": [
+          "dp",
+          "implementation"
+        ]
+      },
+      {
+        "contestId": 2275,
+        "index": "D",
+        "name": "Precision Alignment",
+        "type": "PROGRAMMING",
+        "tags": [
+          "binary search",
+          "brute force",
+          "greedy",
+          "implementation"
+        ]
+      },
+      {
+        "contestId": 2275,
+        "index": "C",
+        "name": "Unrequited Love",
+        "type": "PROGRAMMING",
+        "tags": [
+          "brute force",
+          "data structures"
+        ]
+      },
+      {
+        "contestId": 2275,
+        "index": "B",
+        "name": "Did Not Go to Print",
+        "type": "PROGRAMMING",
+        "tags": [
+          "data structures",
+          "implementation"
+        ]
+      },
+      {
+        "contestId": 2275,
+        "index": "A",
+        "name": "In Search of Convenience",
+        "type": "PROGRAMMING",
+        "tags": [
+          "geometry",
+          "implementation"
+        ]
+      },
+      {
+        "contestId": 2274,
+        "index": "B",
+        "name": "Prefix",
+        "type": "PROGRAMMING",
+        "points": 1250.0,
+        "tags": [
+          "greedy"
+        ]
+      },
+      {
+        "contestId": 2274,
+        "index": "A",
+        "name": "The Projections of Paco",
+        "type": "PROGRAMMING",
+        "points": 500.0,
+        "tags": [
+          "implementation",
+          "math"
+        ]
+      },
+      {
+        "contestId": 2273,
+        "index": "F",
+        "name": "Pancho's Permutation",
+        "type": "PROGRAMMING",
+        "points": 3500.0,
+        "tags": [
+          "constructive algorithms",
+          "dp",
+          "greedy",
+          "math"
+        ]
+      },
+      {
+        "contestId": 2273,
+        "index": "E",
+        "name": "Six-Seven Bags",
+        "type": "PROGRAMMING",
+        "points": 2250.0,
+        "tags": [
+          "brute force",
+          "greedy",
+          "interactive"
+        ]
+      },
+      {
+        "contestId": 2273,
+        "index": "D",
+        "name": "Aura Battle",
+        "type": "PROGRAMMING",
+        "points": 2000.0,
+        "tags": [
+          "brute force",
+          "implementation",
+          "interactive",
+          "math"
+        ]
+      },
+      {
+        "contestId": 2273,
+        "index": "C",
+        "name": "Matrix Puzzle",
+        "type": "PROGRAMMING",
+        "points": 1250.0,
+        "tags": [
+          "data structures",
+          "implementation",
+          "math",
+          "matrices"
+        ]
+      },
+      {
+        "contestId": 2273,
+        "index": "B",
+        "name": "Robot Championship",
+        "type": "PROGRAMMING",
+        "points": 1000.0,
+        "tags": [
+          "constructive algorithms",
+          "math"
+        ]
+      },
+      {
+        "contestId": 2273,
+        "index": "A",
+        "name": "Lavencia Oranges",
+        "type": "PROGRAMMING",
+        "points": 500.0,
+        "tags": [
+          "binary search",
+          "constructive algorithms",
+          "greedy"
+        ]
+      },
+      {
+        "contestId": 2271,
+        "index": "H2",
+        "name": "Personal Issues (Hard Version)",
+        "type": "PROGRAMMING",
+        "points": 2000.0,
+        "tags": [
+          "games",
+          "trees"
+        ]
+      },
+      {
+        "contestId": 2271,
+        "index": "H1",
+        "name": "Personal Issues (Easy Version)",
+        "type": "PROGRAMMING",
+        "points": 3000.0,
+        "tags": [
+          "dp",
+          "games",
+          "trees"
+        ]
+      },
+      {
+        "contestId": 2271,
+        "index": "G",
+        "name": "Grid Filling",
+        "type": "PROGRAMMING",
+        "points": 3500.0,
+        "tags": [
+          "constructive algorithms",
+          "greedy",
+          "implementation"
+        ]
+      },
+      {
+        "contestId": 2271,
+        "index": "F",
+        "name": "Beautiful Pillers",
+        "type": "PROGRAMMING",
+        "points": 2500.0,
+        "tags": [
+          "constructive algorithms",
+          "data structures",
+          "dp",
+          "greedy",
+          "implementation"
+        ]
+      },
+      {
+        "contestId": 2271,
+        "index": "E",
+        "name": "Array Emptying",
+        "type": "PROGRAMMING",
+        "points": 2250.0,
+        "tags": [
+          "binary search",
+          "greedy"
+        ]
+      },
+      {
+        "contestId": 2271,
+        "index": "D",
+        "name": "Target Infection",
+        "type": "PROGRAMMING",
+        "points": 1750.0,
+        "tags": [
+          "binary search",
+          "brute force",
+          "greedy",
+          "implementation",
+          "two pointers"
+        ]
+      },
+      {
+        "contestId": 2271,
+        "index": "C",
+        "name": "XOR Problem",
+        "type": "PROGRAMMING",
+        "points": 1250.0,
+        "tags": [
+          "constructive algorithms",
+          "graphs",
+          "greedy",
+          "math"
+        ]
+      },
+      {
+        "contestId": 2271,
+        "index": "B",
+        "name": "MEX Game",
+        "type": "PROGRAMMING",
+        "points": 1000.0,
+        "tags": [
+          "games"
+        ]
+      },
+      {
+        "contestId": 2271,
+        "index": "A",
+        "name": "Robot Odd Moves",
+        "type": "PROGRAMMING",
+        "points": 500.0,
+        "tags": [
+          "constructive algorithms",
+          "math"
+        ]
+      },
+      {
+        "contestId": 2269,
+        "index": "B",
+        "name": "KiaKio and Squared Numbers",
+        "type": "PROGRAMMING",
+        "points": 1000.0,
+        "rating": 1000,
+        "tags": [
+          "brute force",
+          "implementation"
+        ]
+      },
+      {
+        "contestId": 2269,
+        "index": "A",
+        "name": "SauSaGe Bank",
+        "type": "PROGRAMMING",
+        "points": 500.0,
+        "rating": 800,
+        "tags": [
+          "greedy",
+          "math"
+        ]
+      },
+      {
+        "contestId": 2268,
+        "index": "F",
+        "name": "Deglado",
+        "type": "PROGRAMMING",
+        "points": 3250.0,
+        "rating": 3500,
+        "tags": [
+          "constructive algorithms"
+        ]
+      },
+      {
+        "contestId": 2268,
+        "index": "E",
+        "name": "Kia Kio and Tree of Life",
+        "type": "PROGRAMMING",
+        "points": 2750.0,
+        "rating": 2700,
+        "tags": [
+          "data structures",
+          "fft",
+          "math",
+          "trees"
+        ]
+      },
+      {
+        "contestId": 2268,
+        "index": "D",
+        "name": "AghaBalaSar and Hamed",
+        "type": "PROGRAMMING",
+        "points": 2250.0,
+        "rating": 2600,
+        "tags": [
+          "data structures",
+          "dp",
+          "trees"
+        ]
+      },
+      {
+        "contestId": 2268,
+        "index": "C",
+        "name": "KiaKio and Energy Intervals",
+        "type": "PROGRAMMING",
+        "points": 1750.0,
+        "rating": 2300,
+        "tags": [
+          "binary search",
+          "bitmasks",
+          "data structures",
+          "divide and conquer",
+          "dsu",
+          "greedy",
+          "trees",
+          "two pointers"
+        ]
+      },
+      {
+        "contestId": 2268,
+        "index": "B",
+        "name": "What a SauSaGe! It's All Meat",
+        "type": "PROGRAMMING",
+        "points": 1000.0,
+        "rating": 1500,
+        "tags": [
+          "bitmasks",
+          "brute force",
+          "data structures",
+          "math"
+        ]
+      },
+      {
+        "contestId": 2268,
+        "index": "A",
+        "name": "K Is Important",
+        "type": "PROGRAMMING",
+        "points": 500.0,
+        "rating": 1200,
+        "tags": [
+          "constructive algorithms",
+          "greedy"
+        ]
+      },
+      {
+        "contestId": 2267,
+        "index": "G",
+        "name": "New LRT",
+        "type": "PROGRAMMING",
+        "points": 3000.0,
+        "rating": 2600,
+        "tags": [
+          "divide and conquer",
+          "dp",
+          "fft"
+        ]
+      },
+      {
+        "contestId": 2267,
+        "index": "F2",
+        "name": "XOR Transformations (Hard Version)",
+        "type": "PROGRAMMING",
+        "points": 2000.0,
+        "rating": 2300,
+        "tags": [
+          "bitmasks",
+          "brute force",
+          "data structures",
+          "dfs and similar",
+          "greedy",
+          "math",
+          "sortings",
+          "strings",
+          "trees"
+        ]
+      },
+      {
+        "contestId": 2267,
+        "index": "F1",
+        "name": "XOR Transformations (Easy Version)",
+        "type": "PROGRAMMING",
+        "points": 1000.0,
+        "rating": 1700,
+        "tags": [
+          "bitmasks",
+          "brute force",
+          "implementation",
+          "sortings"
+        ]
+      },
+      {
+        "contestId": 2267,
+        "index": "E",
+        "name": "Clean Substrings",
+        "type": "PROGRAMMING",
+        "points": 1750.0,
+        "rating": 2000,
+        "tags": [
+          "combinatorics",
+          "data structures",
+          "math"
+        ]
+      },
+      {
+        "contestId": 2267,
+        "index": "D",
+        "name": "Backrooms Hill",
+        "type": "PROGRAMMING",
+        "points": 1250.0,
+        "rating": 1400,
+        "tags": [
+          "constructive algorithms",
+          "dp",
+          "greedy",
+          "sortings",
+          "two pointers"
+        ]
+      }
+    ],
+    "problemStatistics": [
+      {
+        "contestId": 2275,
+        "index": "H",
+        "solvedCount": 434
+      },
+      {
+        "contestId": 2275,
+        "index": "G",
+        "solvedCount": 1163
+      },
+      {
+        "contestId": 2275,
+        "index": "F",
+        "solvedCount": 1990
+      },
+      {
+        "contestId": 2275,
+        "index": "E",
+        "solvedCount": 4155
+      },
+      {
+        "contestId": 2275,
+        "index": "D",
+        "solvedCount": 6978
+      },
+      {
+        "contestId": 2275,
+        "index": "C",
+        "solvedCount": 13201
+      },
+      {
+        "contestId": 2275,
+        "index": "B",
+        "solvedCount": 18970
+      },
+      {
+        "contestId": 2275,
+        "index": "A",
+        "solvedCount": 22865
+      },
+      {
+        "contestId": 2274,
+        "index": "B",
+        "solvedCount": 2810
+      },
+      {
+        "contestId": 2274,
+        "index": "A",
+        "solvedCount": 4339
+      },
+      {
+        "contestId": 2273,
+        "index": "F",
+        "solvedCount": 12
+      },
+      {
+        "contestId": 2273,
+        "index": "E",
+        "solvedCount": 42
+      },
+      {
+        "contestId": 2273,
+        "index": "D",
+        "solvedCount": 112
+      },
+      {
+        "contestId": 2273,
+        "index": "C",
+        "solvedCount": 376
+      },
+      {
+        "contestId": 2273,
+        "index": "B",
+        "solvedCount": 756
+      },
+      {
+        "contestId": 2273,
+        "index": "A",
+        "solvedCount": 2312
+      },
+      {
+        "contestId": 2271,
+        "index": "H2",
+        "solvedCount": 44
+      },
+      {
+        "contestId": 2271,
+        "index": "H1",
+        "solvedCount": 112
+      },
+      {
+        "contestId": 2271,
+        "index": "G",
+        "solvedCount": 55
+      },
+      {
+        "contestId": 2271,
+        "index": "F",
+        "solvedCount": 707
+      },
+      {
+        "contestId": 2271,
+        "index": "E",
+        "solvedCount": 1046
+      },
+      {
+        "contestId": 2271,
+        "index": "D",
+        "solvedCount": 2498
+      },
+      {
+        "contestId": 2271,
+        "index": "C",
+        "solvedCount": 4487
+      },
+      {
+        "contestId": 2271,
+        "index": "B",
+        "solvedCount": 7726
+      },
+      {
+        "contestId": 2271,
+        "index": "A",
+        "solvedCount": 9820
+      },
+      {
+        "contestId": 2269,
+        "index": "B",
+        "solvedCount": 12253
+      },
+      {
+        "contestId": 2269,
+        "index": "A",
+        "solvedCount": 18794
+      },
+      {
+        "contestId": 2268,
+        "index": "F",
+        "solvedCount": 251
+      },
+      {
+        "contestId": 2268,
+        "index": "E",
+        "solvedCount": 374
+      },
+      {
+        "contestId": 2268,
+        "index": "D",
+        "solvedCount": 678
+      },
+      {
+        "contestId": 2268,
+        "index": "C",
+        "solvedCount": 1085
+      },
+      {
+        "contestId": 2268,
+        "index": "B",
+        "solvedCount": 6198
+      },
+      {
+        "contestId": 2268,
+        "index": "A",
+        "solvedCount": 11180
+      },
+      {
+        "contestId": 2267,
+        "index": "G",
+        "solvedCount": 275
+      },
+      {
+        "contestId": 2267,
+        "index": "F2",
+        "solvedCount": 888
+      },
+      {
+        "contestId": 2267,
+        "index": "F1",
+        "solvedCount": 4000
+      },
+      {
+        "contestId": 2267,
+        "index": "E",
+        "solvedCount": 1898
+      },
+      {
+        "contestId": 2267,
+        "index": "D",
+        "solvedCount": 7590
+      },
+      {
+        "contestId": 1732,
+        "index": "C1",
+        "solvedCount": 8126
+      },
+      {
+        "contestId": 1538,
+        "index": "D",
+        "solvedCount": 15735
+      }
+    ]
+  }
+}

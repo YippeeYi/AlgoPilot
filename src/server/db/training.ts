@@ -11,7 +11,7 @@ import { ApiError, databaseError } from "@/server/http";
 
 const sessionFields =
   "id,user_id,problem_id,statement_snapshot,mode,phase,status,started_at,created_at,updated_at,active_seconds,resumed_at,ended_at,state_revision,code_draft,code_revision,thought_draft,thought_revision,outcome";
-const problemFields = "id,platform,title,statement,rating,created_at";
+const problemFields = "id,platform,title,statement,rating,created_at,contest_id,problem_index,canonical_url";
 const thoughtFields = "id,session_id,version,content,created_at";
 
 export function trainingRepository(
@@ -80,12 +80,7 @@ export function trainingRepository(
       mode: string;
       requestId: string;
     }) {
-      const { data, error } = await client.rpc(input.timerEnabled === false ? "create_untimed_session" : "create_training_session", {
-        p_problem_id: input.problemId ?? null,
-        p_statement: input.statementSnapshot ?? null,
-        p_mode: input.mode,
-        p_request_id: input.requestId,
-      });
+      const { data, error } = await client.rpc("start_cf_session", {p_input: input});
       databaseError(error);
       return sessionSchema.parse(data?.[0]);
     },

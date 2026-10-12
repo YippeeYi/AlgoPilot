@@ -13,7 +13,7 @@ export default async function ProblemsPage() {
       <PageHeading
         eyebrow="PROBLEM LIBRARY"
         title="选一道值得思考的题"
-        description="Codeforces API 提供题目元数据。完整题面需要自行提供，或打开官方题页查看。"
+        description="Codeforces API 提供题目元数据。默认在官方网页阅读完整题面，单选开始训练或多选加入计划。"
       />
       {context ? (
         <ProblemLibrary />
@@ -45,17 +45,15 @@ export default async function ProblemsPage() {
                 />
               </div>
               <Button disabled>导入 CF URL</Button>
-              <Button variant="outline" disabled>
-                自定义题目
-              </Button>
+
               <p className="w-full text-xs text-muted-foreground">
-                题目查询与导入尚未接入。独立训练工作台将默认隐藏算法标签。
+                配置 Supabase 并登录后可搜索题库与管理计划。训练工作台默认隐藏算法标签。
               </p>
             </CardContent>
           </Card>
           <EmptyState
             title="题库尚未连接"
-            description="请先配置 Supabase 并登录以创建私人题目。M3 将接入 Codeforces 官方元数据。"
+            description="请先配置 Supabase 并登录；题库只使用 Codeforces 官方缓存。"
             href="/practice/preview"
             action="先看看工作台布局"
           />

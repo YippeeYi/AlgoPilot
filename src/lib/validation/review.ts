@@ -10,7 +10,7 @@ export const cfProblemUrlSchema = z.string().max(200).refine((s) => {
         return true;
     try {
         const u = new URL(s);
-        return u.href === s && u.protocol === "https:" && u.hostname === "codeforces.com" && !u.port && !u.username && !u.password && !u.search && !u.hash && /^\/(?:problemset\/problem\/[1-9]\d*\/[A-Z][0-9]?|(?:contest|gym)\/[1-9]\d*\/problem\/[A-Z][0-9]?)$/.test(u.pathname);
+        return u.href === s && u.protocol === "https:" && u.hostname === "codeforces.com" && !u.port && !u.username && !u.password && !u.search && !u.hash && /^\/(?:problemset\/problem\/[1-9]\d*\/[A-Z0-9]{1,16}|(?:contest|gym)\/[1-9]\d*\/problem\/[A-Z0-9]{1,16})$/.test(u.pathname);
     }
     catch {
         return false;

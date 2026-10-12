@@ -26,7 +26,7 @@ describe("review HTTP boundaries",()=>{
     expect(repo.create).not.toHaveBeenCalled();expect(repo.edit).not.toHaveBeenCalled();
   });
   it("can save snapshot without AI; missing Provider is explicit and never runs orchestrator",async()=>{
-    expect((await POST(request(input))).status).toBe(201);
+    expect((await POST(request({...input,problemId:id}))).status).toBe(201);
     vi.stubEnv("LLM_API_KEY","");vi.stubEnv("TUTOR_RPC_SIGNING_SECRET","");
     const result=await generate(request({requestId:id,question:""}),context);expect(result.status).toBe(503);expect((await result.json()).error.code).toBe("LLM_NOT_CONFIGURED");expect(run).not.toHaveBeenCalled();
   });

@@ -1,4 +1,6 @@
 "use client";
+import { ProblemPicker } from "@/components/problems/problem-picker";
+import {cfKey,cfUrl,type CatalogProblem} from "@/lib/validation/m3";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -26,6 +28,7 @@ export function ReviewWorkspace({ initialSessionId = "", initialReviewId = "" }:
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState("");
     const [sessionId, setSessionId] = useState(initialSessionId);
+    const [problem,setProblem]=useState<CatalogProblem|null>(null);
     const [url, setUrl] = useState("");
     const [statement, setStatement] = useState("");
     const [submission, setSubmission] = useState("");
@@ -117,6 +120,7 @@ export function ReviewWorkspace({ initialSessionId = "", initialReviewId = "" }:
                 throw new Error("请明确确认自报 AC 与 Provider 数据发送授权。");
             if (selected && notes !== selected.notes)
                 throw new Error("请先保存用户编辑内容。");
+            if(!sessionId&&!problem)throw new Error("请先选择 Codeforces 题目，或关联已有训练。");
             const body = { sessionId: sessionId || null, code, source, fileName, problemUrl: url, statement, submissionId: submission || null, confirmation: "我确认本次为自报 AC，并授权将代码发送给配置的 AI Provider 进行完整复盘" as const };
             const payload = JSON.stringify(body);
             if (attempt.current?.payload !== payload)
@@ -126,7 +130,7 @@ export function ReviewWorkspace({ initialSessionId = "", initialReviewId = "" }:
                 throw new Error("代码、文件来源、题目 URL 或提交 ID 格式不正确。仅接受 Codeforces 官方 HTTPS 题目链接及最多 64 KB 的 UTF-8 文本。");
             const r = await requestJson<{
                 review: CodeReview;
-            }>("/api/v1/reviews", { method: "POST", body: input.data });
+            }>("/api/v1/reviews", { method: "POST", body: {...input.data,...(problem?{problemId:problem.id}:{})} });
             setItems(old => [r.review, ...old.filter(x => x.id !== r.review.id)]);
             setCode("");
             setConfirmed(false);
@@ -182,8 +186,11 @@ export function ReviewWorkspace({ initialSessionId = "", initialReviewId = "" }:
     <Card><CardHeader><CardTitle>AC 后导入 C++ 代码</CardTitle></CardHeader><CardContent>
       <p className="mb-4 text-sm leading-6 text-muted-foreground">本地 VS Code 编写、调试，Codeforces 官网手动提交。这里只做静态分析，不执行代码。文件选择仅在浏览器读取你选中的单个文件；保存快照后，点击生成或追问会将代码、题面及近期复盘发送给服务端配置的 AI Provider。请先删除密钥、私人路径和其他敏感内容。</p>
       <form onSubmit={create} className="space-y-3">
+<ProblemPicker disabled={busy} onSelect={p=>{setProblem(p);setSessionId("");setUrl(cfUrl(p.contestId,p.index));}}/>
+{problem&&<p>当前 CF 题目：{cfKey(problem.contestId,problem.index)} · {problem.name}</p>}
+
         <label className="block text-sm" htmlFor="review-session">关联训练（可选）</label>
-        <select id="review-session" className="w-full min-w-0 rounded border bg-background p-2 text-sm" value={sessionId} disabled={busy} onChange={e => setSessionId(e.target.value)}><option value="">新建独立复盘</option>{initialSessionId && !sessions.some(s => s.id === initialSessionId) && <option value={initialSessionId}>当前训练</option>}{sessions.filter(s => s.mode !== "contest").map(s => <option key={s.id} value={s.id}>{s.created_at.slice(0, 10)} · {s.id.slice(0, 8)} · {s.status}</option>)}</select>
+        <select id="review-session" className="w-full min-w-0 rounded border bg-background p-2 text-sm" value={sessionId} disabled={busy} onChange={e => {setSessionId(e.target.value);setProblem(null);}}><option value="">新建独立复盘</option>{initialSessionId && !sessions.some(s => s.id === initialSessionId) && <option value={initialSessionId}>当前训练</option>}{sessions.filter(s => s.mode !== "contest").map(s => <option key={s.id} value={s.id}>{s.created_at.slice(0, 10)} · {s.id.slice(0, 8)} · {s.status}</option>)}</select>
         <label className="block text-sm" htmlFor="review-url">Codeforces 题目 URL（可选）</label><Input id="review-url" value={url} maxLength={200} disabled={busy} onChange={e => setUrl(e.target.value)} placeholder="https://codeforces.com/problemset/problem/1234/A"/>
         <label className="block text-sm" htmlFor="review-statement">题面、约束与样例（可选，关联训练时默认使用原快照）</label><Textarea id="review-statement" value={statement} maxLength={16000} disabled={busy} onChange={e => setStatement(e.target.value)}/>
         <label className="block text-sm" htmlFor="review-submission">提交 ID（可选）</label><Input id="review-submission" value={submission} maxLength={18} inputMode="numeric" disabled={busy} onChange={e => setSubmission(e.target.value)}/>

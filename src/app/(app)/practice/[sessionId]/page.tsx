@@ -7,9 +7,12 @@ import { ApiError } from "@/server/http";
 
 export default async function PracticePage({
   params,
+  searchParams,
 }: {
   params: Promise<{ sessionId: string }>;
+  searchParams:Promise<{planId?:string}>;
 }) {
+  const planId=idSchema.safeParse((await searchParams).planId);
   const parsed = idSchema.safeParse((await params).sessionId);
   if (!parsed.success) notFound();
   const context = await pageContext();
@@ -27,6 +30,7 @@ export default async function PracticePage({
     <Workspace
       key={session.id}
       initialSession={session}
+      planId={planId.success?planId.data:undefined}
       problem={problem}
       serverNow={new Date().toISOString()}
     />

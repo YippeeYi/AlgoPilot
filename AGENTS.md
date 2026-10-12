@@ -11,7 +11,7 @@
 - 修改后运行 lint、typecheck、test、build，并在最终报告中写出结果和未验证部分。
 - 详细需求见 DEVELOPMENT_PLAN.md；完整执行指令见 CODEX_PROMPT.md。
 
-## 当前工程约定（M2.5）
+## 当前工程约定（M3 第一阶段）
 
 - 进度与未验证项见 `docs/MILESTONES.md` 和 `docs/M1_VERIFICATION.md`、`docs/M2_VERIFICATION.md`；M0 验收记录保留。缺少 Supabase 配置时只提供无数据布局预览。
 - `/practice/preview` 是专用预览入口，不是真实会话；尚未接入的写入/AI 操作必须禁用并说明原因。
@@ -35,10 +35,20 @@
 
 ## M2.5 复盘约定
 
-- 需求以 DEVELOPMENT_PLAN.md v2.0 为准；M2.5 工作台/无思路引导/AC 复盘，M3 CF 元数据与提交结果，M4 知识沉淀/复习/真实统计/产品完善。历史验收保留，新结果见 docs/M25_VERIFICATION.md。
+- 需求以 DEVELOPMENT_PLAN.md v3.0 为准；M2.5 工作台/无思路引导/AC 复盘，M3 CF 元数据与提交结果，M4 知识沉淀/复习/真实统计/产品完善。历史验收保留，新结果见 docs/M25_VERIFICATION.md。
 - L0 有思路时围绕卡点，无思路时从用户题面/约束/样例的低信息量问题开始；L0/L1 仍受限选择与服务端模板，不允许自由模型文本绕过审核。
 - 代码导入仅粘贴或显式单文件 .cpp/.cc/.cxx/.txt；类型、64000字节、UTF-8/控制字符校验，不遍历其他文件、不执行。发送前说明代码/题面/近期复盘给配置 Provider，要求明确自报 AC 与发送授权。
 - 创建复盘用窄 RPC，记录原状态/结果/授权/最高已看；未完成训练事务结束，已完成旧记录不回写。比赛模式禁止 AI。普通聊天不能进入复盘或升级披露。
 - 代码快照与 SHA-256 不可变；改代码新建复盘。结构化分析/生成历史/模型/Prompt/时间与用户编辑分开，编辑 revision CAS。不宣称执行、验证或保证正确，列出未证明假设。
 - Review 与 Tutor 共用数据库 UTC 额度/跨会话并发/租约，但独立 HMAC operation、分析记录，不改变 maxSeenLevel。nonce/usage/fingerprint 不给浏览器，缺失 token NULL。
 - CF API 不提供提交源码。官方 AC 仅证明公开提交状态，不能证明本地导入源码一致；M2.5 自报与未核实官方字段不能伪造。配置/迁移见 docs/M25_SETUP.md。
+
+## M3 题库与计划约定
+
+- 新训练/新独立复盘从真实 CF 题库选择。禁止新增 custom；旧私人题目/训练/笔记/代码/复盘保留。不要简单禁掉复盘内部无 problemId 的历史兼容 RPC。
+- CF 固定公开 problemset.problems，server-only 解析/同步；contestId + index 唯一，支持长及纯数字 index，缺 Rating 保留 NULL，不把 Tags 当题面；未解题默认隐藏 Tags。
+- PostgreSQL 持久缓存/6h TTL，共享租约、3 秒请求槽、60 秒冷却、超时/有界退避和缓存回退。查询/排序/分页在数据库，禁止浏览器逐字直接请求 CF。同期调用将来必须复用共享限流。
+- 公共元数据仅经用户 JWT + 服务端 HMAC 受控发布，不授普通用户 INSERT。CF 专用密钥可显式配置或从 Tutor master 按 algopilot/cf/v1 派生；不发送给浏览器/日志，不使用 service-role。
+- 多计划、同题跨计划、计划内唯一、完整顺序排列、CAS revision/requestId 幂等，PT409。删除计划不删除任何题目、训练或复盘。
+- 手动计划进度、每次独立训练状态、自报 AC、官方提交和 AI 分析完成分别显示。Handle/官方提交增量同步未实现时明确官方状态未同步，不能伪造结果。保存代码快照不能计作已生成 AI 复盘。
+- 追加 006 不改 001–005。部署前核对 005 已完整应用，未经用户授权不写托管数据库。M3 配置/验收见 docs/M3_SETUP.md、docs/M3_VERIFICATION.md。
