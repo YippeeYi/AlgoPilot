@@ -2,7 +2,7 @@
 
 面向 Codeforces / XCPC 个人选手的算法竞赛训练助手，以独立思考、苏格拉底式引导和可追溯复盘为核心。
 
-**当前交付：M2 AI 思维教练。** 保留 M0/M1 的邮箱认证、私人题目、计时、Monaco C++ 与思路历史；增量接入服务端 OpenAI-compatible Provider、分级苏格拉底式引导、持久对话、L5 二次确认、可信用量、额度与并发控制。CF 同步、自动复盘、推荐和代码执行未实现。没有 API Key 时明确禁用，不生成假回复；真实 Provider 和托管 Supabase 尚未验证，证据见 [M2 验收](docs/M2_VERIFICATION.md) 与 [里程碑](docs/MILESTONES.md)。
+**当前交付：M2 AI 思维教练。** 保留 M0/M1 的邮箱认证、私人题目、计时、Monaco C++ 与思路历史；增量接入服务端 OpenAI-compatible Provider、分级苏格拉底式引导、持久对话、L5 二次确认、可信用量、额度与并发控制。CF 同步、自动复盘、推荐和代码执行未实现。没有 API Key 时明确禁用，不生成假回复；真实 L0 Gemini、单用户托管持久化与 revision HTTP 已部分验证；双用户托管隔离等仍待验收，证据见 [M2 验收](docs/M2_VERIFICATION.md) 与 [里程碑](docs/MILESTONES.md)。
 
 ## 运行
 
@@ -62,6 +62,8 @@ Next proxy 刷新 Cookie；页面和 API 使用服务端 `getUser()` 验证，�
 | `TUTOR_RPC_SIGNING_SECRET`                        | 服务端与 private DB 的独立 HMAC 签名密钥 | 否         |
 | `M2_ALLOW_DATABASE_TESTS`、`M2_TEST_DATABASE_URL` | M2 隔离数据库 SQL smoke                  | 否         |
 | `M1_ALLOW_DATABASE_TESTS`、`M1_TEST_DATABASE_URL` | 只供隔离数据库 SQL 测试                  | 否         |
+
+托管 revision 修复另需追加 [业务冲突迁移](supabase/migrations/202610120004_business_conflicts.sql)，将业务 CAS 从 `40001` 改为 `PT409`，避免 PostgREST 内部重试超时。实际 HTTP、SQL/RLS、Mock 和未验证边界见 [修复验收](docs/M2_REPAIR_VERIFICATION.md) 与 [浏览器验收](docs/LIVE_ACCEPTANCE.md)。
 
 ## M2 功能与权限
 

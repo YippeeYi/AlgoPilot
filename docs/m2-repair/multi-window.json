@@ -1,0 +1,8 @@
+{
+  "status": 409,
+  "code": "REVISION_CONFLICT",
+  "elapsedMs": 1691,
+  "localPreserved": true,
+  "serverPreserved": true,
+  "revision": 5
+}

@@ -108,13 +108,13 @@ export function trainingRepository(
       input: { content: string; expectedRevision: number },
     ) {
       await this.get(id);
-      const { data, error } = await client.rpc("save_training_draft", {
+      const { data, error, status } = await client.rpc("save_training_draft", {
         p_id: id,
         p_kind: kind,
         p_content: input.content,
         p_expected_revision: input.expectedRevision,
       });
-      databaseError(error);
+      databaseError(error, { operation: "save_training_draft", status });
       return sessionSchema.parse(data?.[0]);
     },
     async thoughts(id: string, offset = 0, limit = 30) {

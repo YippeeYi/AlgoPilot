@@ -84,7 +84,7 @@ function rpc(name, p, uid) {
       if (row.status === "completed") failure("AP002");
       const old = tutorRequests.get(v.requestId);
       if (old) {
-        if (old.fingerprint !== v.fingerprint) failure("40001");
+        if (old.fingerprint !== v.fingerprint) failure("PT409");
         if (old.status === "completed")
           return { cached: true, requestId: v.requestId };
         failure(old.status === "pending" ? "AP004" : "AP006");
@@ -159,7 +159,7 @@ function rpc(name, p, uid) {
       };
     if (row.mode === "contest") failure("AP001");
     if (row.status === "completed") failure("AP002");
-    if (state.revision !== p.p_revision) failure("40001");
+    if (state.revision !== p.p_revision) failure("PT409");
     if (p.p_operation === "upgrade" && state.allowedLevel < 4) {
       state.allowedLevel++;
       state.revision++;
@@ -202,7 +202,7 @@ function rpc(name, p, uid) {
     );
     if (old) {
       if (old.title !== p.p_title || old.statement !== p.p_statement)
-        failure("40001");
+        failure("PT409");
       return [old];
     }
     const row = {
@@ -266,7 +266,7 @@ function rpc(name, p, uid) {
       failure("23514");
     }
     if (row.status === target) return [row];
-    if (row.state_revision !== p.p_expected_revision) failure("40001");
+    if (row.state_revision !== p.p_expected_revision) failure("PT409");
     if (row.status === "active")
       row.active_seconds += Math.max(
         0,
@@ -292,7 +292,7 @@ function rpc(name, p, uid) {
       [p.p_expected_revision, p.p_expected_revision + 1].includes(row[revision])
     )
       return [row];
-    if (row[revision] !== p.p_expected_revision) failure("40001");
+    if (row[revision] !== p.p_expected_revision) failure("PT409");
     row[draft] = p.p_content;
     row[revision]++;
     row.updated_at = now();
@@ -303,11 +303,11 @@ function rpc(name, p, uid) {
       (v) => v.session_id === row.id && v.request_id === p.p_request_id,
     );
     if (old) {
-      if (old.content !== p.p_content) failure("40001");
+      if (old.content !== p.p_content) failure("PT409");
       return { session: row, thought: old };
     }
     if (row.status === "completed") failure("23514");
-    if (row.thought_revision !== p.p_expected_revision) failure("40001");
+    if (row.thought_revision !== p.p_expected_revision) failure("PT409");
     const version = {
       id: randomUUID(),
       session_id: row.id,
@@ -423,7 +423,7 @@ const server = createServer(async (request, response) => {
     }
     send(404, { message: "Not found" });
   } catch (error) {
-    send(error.code === "P0002" ? 404 : 400, {
+    send(error.code === "P0002" ? 404 : error.code === "PT409" ? 409 : 400, {
       code: error.code ?? "XX000",
       message: "fixture operation rejected",
     });

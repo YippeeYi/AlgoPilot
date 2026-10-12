@@ -18,6 +18,7 @@ beforeAll(async () => {
     "202610110001_m1_training.sql",
     "202610110002_m2_tutor.sql",
     "202610110003_gemini_usage.sql",
+    "202610120004_business_conflicts.sql",
   ])
     await db.exec(await readFile(`supabase/migrations/${name}`, "utf8"));
   await db.query(
@@ -460,7 +461,7 @@ describe("M2 实际 SQL/RLS 和事务边界（本地 PostgreSQL）", () => {
       action: "chat",
     };
     await expect(signed("reserve", changed)).rejects.toMatchObject({
-      code: "40001",
+      code: "PT409",
     });
     const expired = signTutorPayload(
       { operation: "reserve", ...changed },

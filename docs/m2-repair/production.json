@@ -1,0 +1,14 @@
+{
+  "status": 200,
+  "url": "/practice/8b9a8ffb-5bbf-4825-b38d-65c05fdeae5d",
+  "observedMs": 8000,
+  "preloadWarnings": [],
+  "pageErrors": [],
+  "httpFailures": [],
+  "stageM2": true,
+  "activeStyles": [
+    "/_next/static/css/ee18173853f49e34.css",
+    "/_next/static/css/9b6c6efcb97c7b55.css",
+    "/_next/static/css/b8f0b32bd85dd25b.css"
+  ]
+}

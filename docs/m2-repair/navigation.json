@@ -1,0 +1,13 @@
+{
+  "blocked": true,
+  "latestPreserved": true,
+  "refreshRestored": true,
+  "documentRequests": [
+    "/practice/8b9a8ffb-5bbf-4825-b38d-65c05fdeae5d"
+  ],
+  "hmr": [],
+  "navigationEvents": [
+    "http://localhost:3000/practice/8b9a8ffb-5bbf-4825-b38d-65c05fdeae5d",
+    "http://localhost:3000/practice/8b9a8ffb-5bbf-4825-b38d-65c05fdeae5d"
+  ]
+}

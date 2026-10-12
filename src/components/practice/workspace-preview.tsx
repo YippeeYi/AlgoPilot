@@ -92,7 +92,7 @@ function ThoughtPanel({ idPrefix }: { idPrefix: string }) {
           </label>
           <Textarea
             id={`${idPrefix}-code-draft`}
-            placeholder="// 代码编辑与恢复将在 M1 接入"
+            placeholder="// 公开预览不保存代码；登录后可编辑与恢复草稿"
             className="min-h-48 resize-none font-mono text-xs"
             disabled
             spellCheck={false}

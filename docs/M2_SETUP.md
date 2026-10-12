@@ -25,6 +25,22 @@ set signing_secret=excluded.signing_secret, daily_hard_limit=excluded.daily_hard
 
 部署环境设置 `TUTOR_RPC_SIGNING_SECRET=<同一个值>`，绝不加 NEXT*PUBLIC*。daily_hard_limit 默认 100，可按需求调整（1–1000）；应用 LLM_DAILY_REQUEST_LIMIT 不能超过它。只有管理员能读取/改变配置，普通应用用户不能读取 signature secret 或请求 nonce。轮换时协调数据库与全部应用实例；切换期间签名不匹配将失败，未完成请求可能只能等待租约过期，不能自动恢复计费结果。
 
+## 托管 revision 冲突修复
+
+按顺序追加应用 `supabase/migrations/202610120004_business_conflicts.sql`。它检查 7 个受控 RPC 中预期的业务冲突语句，只把 `errcode='40001'` 改为 `PT409`，保留其余定义、owner、ACL、CAS、RLS 和签名。定义不符合预期时整笔事务回滚，先检查部署差异，不绕过保护。历史迁移不要修改或重跑。SQL Editor 手工执行成功不等同于 CLI 迁移历史登记；部署流水线应核对已应用记录，勿重复执行这份带定义检查的迁移。
+
+Supabase 的部分 PostgREST 版本会自动重试 `40001`，业务 CAS 失败可能一直重试直到应用传输超时。不要通过增加超时、放宽 CAS 或将所有 503 改为 409 处理。当前项目由用户在 SQL Editor 执行新增迁移，真实 HTTP 已确认 PT409/409，见 [修复验收](M2_REPAIR_VERIFICATION.md)。
+
+只读诊断脚本：`docs/sql/M2_REPAIR_DIAGNOSTICS.sql`（含迁移前函数校验值与此前成功请求的脱敏 usage）。仅选中所需 SELECT 执行，不读取密钥/正文。若项目已有持续重试，先由管理员依据日志核对具体后端；本轮未终止后端或重启项目。
+
+有两个专用账号后可运行人工登录的真实 HTTP 回归：
+
+```bash
+LIVE_ACCEPTANCE_ALLOW_WRITES=dedicated-resources node scripts/verify-live-revisions.mjs
+```
+
+需先启动 localhost:3000。浏览器手动登录，不在命令行提供密码。脚本创建并暂停标记测试会话，验证正常保存、过期 409、不覆盖、401 和双向 Session/Thought 隔离；不删除数据、不调用 Gemini、不导出 Cookie，脱敏结果写入被忽略的 `test-results/live-revisions.json`。它不验证真实数据库故障，也不是普通 Mock E2E。本轮只运行了其单用户部分，第二个账号缺失。
+
 ## 模型配置
 
 ```dotenv

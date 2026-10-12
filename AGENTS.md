@@ -30,3 +30,5 @@
 - L0/L1 使用受限模型选择及服务端提问模板；L2 以上自动审核不能证明不剧透。12 题审核集固定输出测试不能报告为真实模型质量验收。
 - 每日 UTC 入场额度、用户跨会话并发、幂等和租约在数据库控制。真实 usage 缺失标 NULL；超时/崩溃可能已有费用，禁止伪造或声称账单已准确核对。
 - 新迁移仅追加，不编辑已应用的历史 SQL。M2 外部 RLS smoke 用 `npm run test:rls:m2`，显式隔离开关与连接；多连接与托管 Supabase 需另验收，见 `docs/M2_SETUP.md`。
+
+- 业务 revision/requestId 冲突使用 PT409（增量迁移 202610120004），不得以 40001 触发 PostgREST 内部事务重试；传输失败/未知错误仍为 503。脱敏诊断仅允许操作名、SQLSTATE/PostgREST code、HTTP status 和类别，禁止 SDK 原文或请求正文。

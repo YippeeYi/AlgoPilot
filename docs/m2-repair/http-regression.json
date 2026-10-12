@@ -1,0 +1,52 @@
+{
+  "sessionId": "8b9a8ffb-5bbf-4825-b38d-65c05fdeae5d",
+  "records": [
+    {
+      "method": "POST",
+      "path": "/api/v1/sessions",
+      "status": 201,
+      "elapsedMs": 4343
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/sessions/8b9a8ffb-5bbf-4825-b38d-65c05fdeae5d",
+      "status": 200,
+      "elapsedMs": 2488
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/sessions/8b9a8ffb-5bbf-4825-b38d-65c05fdeae5d/thought-draft",
+      "status": 200,
+      "elapsedMs": 1954
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/sessions/8b9a8ffb-5bbf-4825-b38d-65c05fdeae5d/thought-draft",
+      "status": 409,
+      "elapsedMs": 1586,
+      "code": "REVISION_CONFLICT"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/sessions/8b9a8ffb-5bbf-4825-b38d-65c05fdeae5d",
+      "status": 200,
+      "elapsedMs": 1215
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/sessions/8b9a8ffb-5bbf-4825-b38d-65c05fdeae5d/thoughts",
+      "status": 201,
+      "elapsedMs": 1886
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/sessions/8b9a8ffb-5bbf-4825-b38d-65c05fdeae5d/thought-draft",
+      "status": 401,
+      "elapsedMs": 14,
+      "code": "UNAUTHENTICATED"
+    }
+  ],
+  "isolation": "NOT TESTED",
+  "realDatabaseOutage": "NOT TESTED",
+  "geminiCalls": 0
+}

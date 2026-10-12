@@ -310,3 +310,48 @@ test("公开 preview 不调用私人 API（Auth 零调用由 proxy 单测验证�
   await page.waitForTimeout(500);
   expect(requests).toEqual([]);
 });
+
+test("在途自动保存保留最新编辑并阻止导航；旧窗口 409 不覆盖新草稿", async ({page, context}, testInfo) => {
+  await login(page);
+  const {session} = await (await page.request.post("/api/v1/sessions", {data:{requestId:randomUUID()}})).json();
+  const path = `/practice/${session.id}`;
+  await page.goto(path);
+  if (testInfo.project.name === "m1-mobile") await page.getByRole("tab",{name:"思路 / 代码"}).click();
+  let release!: () => void;
+  const gate = new Promise<void>(resolve => {release=resolve;});
+  let started!: () => void;
+  const arrived = new Promise<void>(resolve => {started=resolve;});
+  await page.route(`**/api/v1/sessions/${session.id}/thought-draft`, async route => {
+    started(); await gate; await route.continue();
+  }, {times:1});
+  await page.getByLabel("当前思路",{exact:true}).fill("在途 A");
+  await arrived;
+  await page.getByLabel("当前思路",{exact:true}).fill("最新 B");
+  await page.getByRole("navigation",{name:"主导航"}).getByRole("link",{name:"训练记录"}).click();
+  await expect(page).toHaveURL(new RegExp(path+"$"));
+  await expect(page.getByText(/还有未保存的修改，请先保存再离开/)).toBeVisible();
+  release();
+  await expect(page.getByText("思路：已保存到服务器",{exact:true})).toBeVisible();
+  await page.reload();
+  if (testInfo.project.name === "m1-mobile") await page.getByRole("tab",{name:"思路 / 代码"}).click();
+  await expect(page.getByLabel("当前思路",{exact:true})).toHaveValue("最新 B");
+  const other = await context.newPage();
+  try {
+    await other.goto(path);
+    if (testInfo.project.name === "m1-mobile") await other.getByRole("tab",{name:"思路 / 代码"}).click();
+    await page.getByLabel("当前思路",{exact:true}).fill("新窗口 C");
+    await page.getByRole("button",{name:"保存思路草稿",exact:true}).click();
+    await expect(page.getByText("思路：已保存到服务器",{exact:true})).toBeVisible();
+    const response = other.waitForResponse(r => r.url().endsWith(`/api/v1/sessions/${session.id}/thought-draft`) && r.request().method()==="PATCH");
+    await other.getByLabel("当前思路",{exact:true}).fill("旧窗口 D");
+    await other.getByRole("button",{name:"保存思路草稿",exact:true}).click();
+    const rejected = await response;
+    expect(rejected.status()).toBe(409);
+    expect((await rejected.json()).error.code).toBe("REVISION_CONFLICT");
+    await expect(other.getByLabel("当前思路",{exact:true})).toHaveValue("旧窗口 D");
+    await expect(other.getByText("思路：保存失败 · 本地内容仍保留",{exact:true})).toBeVisible();
+    const current = await (await page.request.get(`/api/v1/sessions/${session.id}`)).json();
+    expect(current.session.thought_draft).toBe("新窗口 C");
+    expect(current.session.thought_revision).toBe(3);
+  } finally { await other.close(); }
+});

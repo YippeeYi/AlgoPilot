@@ -28,3 +28,9 @@ UUID requestId 由调用方生成，重试同一操作时复用；复用同 ID �
 限制：title 1–200 字符、题面/草稿/版本 64000 字符、body 300000 字节、offset 0–100000、limit 1–50；注册密码 8–128 字符。JSON、UUID、模式、版本整数范围与邮箱经 Zod 检查。写请求必须 JSON/同源，Next 内部 URL 差异通过 APP_URL 或请求 Host 处理，不使用 X-Forwarded-Host 授权。
 
 错误统一 `{error:{code,message}}`：401 未登录/失效、403 来源不合法、404 不存在或不归属（不泄露私人对象存在性）、400 JSON/类型、413 body 超长、422 字段校验、409 revision/非法状态、503 缺配置或服务不可用。错误不含 SQL、SDK、Cookie、密码、环境值或用户请求原文。
+
+## 托管 PostgREST 业务冲突
+
+应用增量迁移 `202610120004_business_conflicts.sql` 后，业务 revision/requestId 冲突使用 `PT409`，直接返回 PostgREST HTTP 409；API 输出仍为 `409 REVISION_CONFLICT`。不使用可触发内部事务重试的 `40001` 表示业务 CAS 失败。历史迁移不改写，API 暂保留旧 `40001` 映射以兼容尚未升级的部署，但这无法修复已经发生的 RPC 超时。未知 SQLSTATE、传输失败和真实不可用仍为 503，不按状态码或错误 message 猜测冲突。
+
+草稿失败的服务端诊断只记录固定操作名、格式受限的 SQLSTATE/PostgREST code、HTTP status（传输失败为 0）和类别，不记录 SDK message/details/hint、会话标识、正文或认证信息。真实回归与剩余边界见 [定向修复验收](M2_REPAIR_VERIFICATION.md)。

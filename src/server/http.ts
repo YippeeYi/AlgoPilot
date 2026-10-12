@@ -128,11 +128,40 @@ export async function readJson<T extends z.ZodType>(
   return schema.parse(body);
 }
 
-export function databaseError(error: { code?: string } | null) {
+export function databaseError(
+  error: { code?: string } | null,
+  diagnostic?: { operation: "save_training_draft"; status: number },
+) {
   if (!error) return;
+  if (diagnostic) {
+    // 仅保留 SQLSTATE/PostgREST 代码和 HTTP 状态；不记录 SDK message/details/hint。
+    const code = /^(?:[A-Z0-9]{5}|PGRST[A-Z0-9]{3})$/.test(error.code ?? "")
+      ? error.code
+      : "UNKNOWN";
+    console.warn("database_operation_failed", {
+      operation: diagnostic.operation,
+      status:
+        Number.isInteger(diagnostic.status) &&
+        diagnostic.status >= 0 &&
+        diagnostic.status <= 599
+          ? diagnostic.status
+          : 0,
+      code,
+      category:
+        code === "UNKNOWN"
+          ? "transport_or_unclassified"
+          : code?.startsWith("PGRST")
+            ? "postgrest"
+            : "postgresql",
+    });
+  }
   if (error.code === "P0002")
     throw new ApiError(404, "NOT_FOUND", "未找到可访问的记录。");
-  if (error.code === "40001" || error.code === "23505")
+  if (
+    error.code === "PT409" ||
+    error.code === "40001" ||
+    error.code === "23505"
+  )
     throw new ApiError(
       409,
       "REVISION_CONFLICT",

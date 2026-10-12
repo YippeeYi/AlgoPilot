@@ -1,0 +1,15 @@
+{
+  "documents": [],
+  "logs": [
+    "[Fast Refresh] rebuilding",
+    "[Fast Refresh] done in 191ms",
+    "[Fast Refresh] rebuilding",
+    "[Fast Refresh] done in 230ms"
+  ],
+  "dialogs": [
+    "beforeunload"
+  ],
+  "initialUrl": "http://localhost:3000/practice/8b9a8ffb-5bbf-4825-b38d-65c05fdeae5d",
+  "survivedDuringHmr": true,
+  "savedLatest": true
+}

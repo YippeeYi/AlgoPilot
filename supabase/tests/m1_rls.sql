@@ -1,4 +1,4 @@
--- 只在隔离数据库运行；全部夹具和修改随最终 ROLLBACK 撤销。
+-- 只在已应用全部当前迁移（含业务 PT409 修复）的隔离数据库运行；全部夹具和修改随最终 ROLLBACK 撤销。
 begin;
 insert into auth.users(id, email) values
  ('10000000-0000-4000-8000-000000000001', 'm1-a@example.invalid'),
@@ -26,7 +26,7 @@ begin
   begin
     perform public.save_training_draft(s.id, 'code', 'stale code', 0);
     raise exception 'STALE_CODE_NOT_REJECTED';
-  exception when sqlstate '40001' then null; end;
+  exception when sqlstate 'PT409' then null; end;
   saved := public.append_training_thought(s.id, '观察一', 0, '40000000-0000-4000-8000-000000000001');
   if (saved->'thought'->>'version')::integer <> 1 then raise exception 'FIRST_VERSION_FAILED'; end if;
   saved := public.append_training_thought(s.id, '观察一', 0, '40000000-0000-4000-8000-000000000001');
@@ -34,7 +34,7 @@ begin
   begin
     perform public.append_training_thought(s.id, '旧窗口的观察', 0, '40000000-0000-4000-8000-000000000002');
     raise exception 'STALE_THOUGHT_NOT_REJECTED';
-  exception when sqlstate '40001' then null; end;
+  exception when sqlstate 'PT409' then null; end;
   saved := public.append_training_thought(s.id, '观察二', 1, '40000000-0000-4000-8000-000000000003');
   if (saved->'thought'->>'version')::integer <> 2 or (select content from public.thought_snapshots where version = 1) <> '观察一' then raise exception 'APPEND_ONLY_FAILED'; end if;
   begin
@@ -78,7 +78,7 @@ begin
   begin
     perform public.transition_training_session(s.id, 'pause', 0, null);
     raise exception 'STALE_TRANSITION_ALLOWED';
-  exception when sqlstate '40001' then null; end;
+  exception when sqlstate 'PT409' then null; end;
   select * into s from public.transition_training_session(s.id, 'finish', 2, 'solved_self_reported');
   if s.status <> 'completed' or s.resumed_at is not null or s.outcome <> 'solved_self_reported' then raise exception 'FINISH_FAILED'; end if;
   select * into duplicate from public.transition_training_session(s.id, 'finish', 2, 'solved_self_reported');
