@@ -230,7 +230,7 @@ export function TutorConversation({
           )}
           {!messages.length && (
             <p className="rounded-lg bg-primary/5 p-4 text-sm leading-7">
-              从你已经想到的地方出发。默认只围绕已有思路提问，一次推进一个关键问题。
+              有思路时围绕具体卡点追问；完全没思路时，从题面、约束和样例开始，一次推进一个小问题。
             </p>
           )}
           {messages.map((m) => (
@@ -278,7 +278,7 @@ export function TutorConversation({
           onChange={(e) => setInput(e.target.value)}
           maxLength={6000}
           disabled={disabled}
-          placeholder="描述你已经想到的推导或具体疑问…"
+          placeholder="描述已有推导或卡点；也可以直接说明“完全没有思路”…"
         />
         <div className="flex flex-wrap gap-2">
           <Button

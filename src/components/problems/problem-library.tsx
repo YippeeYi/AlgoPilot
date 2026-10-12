@@ -77,7 +77,7 @@ export function ProblemLibrary() {
     try {
       const result = await requestJson<{ session: TrainingSession }>(
         "/api/v1/sessions",
-        { method: "POST", body: { problemId, mode: "practice", requestId } },
+        { method: "POST", body: { problemId, mode: "practice", timerEnabled: false, requestId } },
       );
       router.push(`/practice/${result.session.id}`);
     } catch (failure) {

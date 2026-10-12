@@ -102,7 +102,7 @@ export function AppShell({
             记录你的推论和卡点，让每次训练留下可复习的证据。
           </div>
           <p className="mt-5 text-xs text-muted-foreground">
-            {authenticated ? "个人训练 · M2" : "个人训练 · 布局预览"}
+            {authenticated ? "学习与复盘 · M2.5" : "个人训练 · 布局预览"}
           </p>
         </div>
       </aside>

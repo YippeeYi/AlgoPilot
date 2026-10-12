@@ -1,3 +1,4 @@
+import type { CodeReview } from "@/lib/validation/review";
 import type { TutorAction, TutorMessage } from "@/lib/validation/m2";
 import type { TrainingSession, Problem, Thought } from "@/lib/validation/m1";
 
@@ -28,6 +29,8 @@ type ProblemRow = Problem & {
 export type Database = {
   public: {
     Tables: {
+      code_reviews: ReadTable<CodeReview>;
+      review_requests: ReadTable<{id:string;review_id:string;question:string;analysis:unknown;model:string|null;prompt_version:string|null;created_at:string;status:string}>;
       profiles: Table<{
         id: string;
         cf_handle: string | null;
@@ -86,6 +89,10 @@ export type Database = {
     };
     Views: Record<string, never>;
     Functions: {
+      create_code_review: {Args:{p_input: import("zod").infer<typeof import("@/lib/validation/review").createReviewSchema>};Returns:unknown};
+      edit_code_review: {Args:{p_id:string;p_revision:number;p_notes:string};Returns:unknown};
+      review_reserve: {Args:{p_payload:string;p_signature:string};Returns:unknown};
+      review_finish: {Args:{p_payload:string;p_signature:string};Returns:unknown};
       tutor_state: { Args: { p_id: string }; Returns: unknown };
       tutor_hint: {
         Args: {
@@ -109,6 +116,7 @@ export type Database = {
         Args: { p_title: string; p_statement: string; p_request_id: string };
         Returns: ProblemRow[];
       };
+      create_untimed_session: {Args:{p_problem_id:string|null;p_statement:string|null;p_mode:string;p_request_id:string};Returns:SessionRow[]};
       create_training_session: {
         Args: {
           p_problem_id: string | null;

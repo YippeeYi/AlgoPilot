@@ -11,6 +11,7 @@ import type { TrainingSession } from "@/lib/validation/m1";
 export function CreateSession() {
   const router = useRouter();
   const [statement, setStatement] = useState("");
+  const [timerEnabled, setTimerEnabled] = useState(false);
   const [mode, setMode] = useState("practice");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
@@ -19,7 +20,7 @@ export function CreateSession() {
     event.preventDefault();
     setPending(true);
     setError("");
-    const payload = JSON.stringify({ statementSnapshot: statement, mode });
+    const payload = JSON.stringify({ statementSnapshot: statement, mode, timerEnabled });
     if (attempt.current?.payload !== payload)
       attempt.current = { payload, requestId: crypto.randomUUID() };
     try {
@@ -30,6 +31,7 @@ export function CreateSession() {
           body: {
             statementSnapshot: statement,
             mode,
+            timerEnabled,
             requestId: attempt.current.requestId,
           },
         },
@@ -75,6 +77,8 @@ export function CreateSession() {
             <option value="practice">独立练习</option>
             <option value="contest">比赛模式（AI 禁用）</option>
           </select>
+          <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={timerEnabled} onChange={e=>setTimerEnabled(e.target.checked)} disabled={pending}/>启用可选计时</label>
+          <p className="text-xs text-muted-foreground">在本地 VS Code 编写和调试，前往 Codeforces 手动提交。计时由服务器保存，网页无需一直打开。</p>
           {error && (
             <p role="alert" className="text-sm text-destructive">
               {error}

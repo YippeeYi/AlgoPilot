@@ -1,6 +1,5 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { Badge } from "@/components/ui/badge";
@@ -14,10 +13,6 @@ import type { TrainingSession, Problem, Thought } from "@/lib/validation/m1";
 import { DraftQueue } from "@/features/sessions/draft-queue";
 import { displayedSeconds, formatSeconds } from "@/features/sessions/time";
 
-const CodeEditor = dynamic(() => import("@/components/practice/code-editor"), {
-  ssr: false,
-  loading: () => <p className="p-4 text-sm">正在加载 C++ 编辑器…</p>,
-});
 const draftLabels = {
   saved: "已保存到服务器",
   dirty: "有未保存修改",
@@ -285,6 +280,8 @@ export function Workspace({
           </Button>
         </div>
       </div>
+      <p className="mb-4 text-sm text-muted-foreground">在本地 VS Code / C++ 编译器编写、运行和调试，在 Codeforces 官网手动提交。计时可选，网页无需一直打开。</p>
+      {session.mode !== "contest" && <Button asChild variant="outline" className="mb-4"><Link href={`/reviews?sessionId=${session.id}`}>AC 后导入代码复盘</Link></Button>}
       {completed && (
         <p role="status" className="mb-4 rounded-lg border bg-card p-4 text-sm">
           训练已完成，用时不再累计。结果：
@@ -325,7 +322,7 @@ export function Workspace({
               ))}
             </select>
             <p className="text-xs text-muted-foreground">
-              会先保存两种草稿。完成后不能继续计时或修改草稿；不生成 AI 复盘。
+              会先保存思路。完成后冻结训练记录；AC 后可单独确认进入代码复盘。
             </p>
             <div className="flex gap-3">
               <Button onClick={() => void transition("finish")} disabled={busy}>
@@ -344,14 +341,14 @@ export function Workspace({
       )}
       <Tabs
         defaultValue="statement"
-        className="gap-4 lg:grid lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)_minmax(0,1fr)]"
+        className="gap-4 lg:grid lg:grid-cols-[minmax(0,0.85fr)_minmax(0,0.85fr)_minmax(0,1.3fr)]"
       >
         <TabsList
           className="grid w-full grid-cols-3 lg:hidden"
           aria-label="工作台区域"
         >
           <TabsTrigger value="statement">题面</TabsTrigger>
-          <TabsTrigger value="thought">思路 / 代码</TabsTrigger>
+          <TabsTrigger value="thought">思路笔记</TabsTrigger>
           <TabsTrigger value="tutor">AI 教练</TabsTrigger>
         </TabsList>
         <TabsContent
@@ -386,7 +383,7 @@ export function Workspace({
         >
           <Card className="h-full shadow-none">
             <CardHeader className="border-b">
-              <CardTitle className="text-sm">思路与代码</CardTitle>
+              <CardTitle className="text-sm">思路笔记</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6 py-6">
               <div>
@@ -503,12 +500,11 @@ export function Workspace({
                   </div>
                 )}
               </div>
-              <div>
-                <CodeEditor
-                  value={code.value}
-                  onChange={(value) => codeQueue.setValue(value)}
-                  readOnly={busy || completed}
-                />
+              <details>
+                <summary className="cursor-pointer text-sm">历史代码记录（可选）</summary>
+                <p className="my-3 text-xs text-muted-foreground">保留旧代码与保存能力。日常编程请使用本地 VS Code；AC 后导入明确快照复盘。</p>
+                <label htmlFor="legacy-code">C++ 草稿</label>
+                <Textarea id="legacy-code" value={code.value} onChange={e=>codeQueue.setValue(e.target.value)} readOnly={busy || completed} maxLength={64000} className="mt-3 min-h-32 font-mono text-xs" spellCheck={false}/>
                 <p role="status" className="mt-2 text-xs text-muted-foreground">
                   代码：{draftLabels[code.status]}
                 </p>
@@ -526,7 +522,7 @@ export function Workspace({
                 >
                   保存代码草稿
                 </Button>
-              </div>
+              </details>
               <p className="text-xs leading-6 text-muted-foreground">
                 草稿在停止编辑约 1.2
                 秒后保存；请在“已保存到服务器”后刷新。离开页面前有未保存修改时会提醒。每次历史版本由你明确保存。

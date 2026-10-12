@@ -26,6 +26,8 @@ export function auditOutput(
     allowedLevel: number;
     action: TutorAction;
     thought: string;
+    statement?: string;
+    message?: string;
     previousAssistant: string[];
     secrets: string[];
   },
@@ -64,6 +66,28 @@ export function auditOutput(
     // Quoted user text is plain text, escaped before Markdown; no new model prose at L0/L1.
     const quote = out.quote.replace(/[\\`*_{}[\]()#+.!<>$|~-]/g, "\\$&");
     content = `${quote ? `你写到：“${quote}”\n\n` : ""}${question}`;
+    if (input.statement !== undefined) {
+      const noIdea = !input.thought.trim() || /(?:完全没有|毫无|没)思路/.test(input.message ?? "");
+      const escape = (s: string) => s.replace(/[\\`*_{}[\]()#+.!<>$|~-]/g, "\\$&");
+      if (noIdea) {
+        // Only quote already supplied facts, never accept new model prose or property claims.
+        const facts = (input.statement ?? "").split("\n").map(s=>s.trim()).filter(Boolean);
+        const anchors = facts.length ? facts.slice(0,8) : [""];
+        const starts = [
+          "先不考虑算法：请用自己的话说明输入给了什么、输出要求什么。",
+          "只根据题面，这些输入量各自表示什么？有哪一个含义还不确定？",
+          "请从题面已有的样例开始，说明输出为什么符合要求；暂时不推导解法。",
+          "题面明确给出的取值范围是什么？先列出你能读出的限制。",
+          "请写下你已经理解的一条题面事实，以及还没理解的一处描述。",
+          "选题面允许的最小输入，只说明输出要求，不急着找一般规律。",
+        ];
+        const candidates = starts.map((q,i)=>`${anchors[i%anchors.length] ? `题面中写到：“${escape(anchors[i%anchors.length]!.slice(0,160))}”\n\n`:"尚未提供题面，请先补充题面、约束和样例。\n\n"}${q}`);
+        content = candidates.find(q=>!input.previousAssistant.includes(q)) ?? candidates[0]!;
+      } else if (input.previousAssistant.includes(content)) {
+        const alternatives = ["你上一轮确认了哪些事实？针对这一步，还缺少哪一个依据？", "这一步中哪一项是观察、哪一项仍是猜想？请分开写出。", "若这一步不成立，你会先检查自己推导中的哪个前提？", "请把这一推导拆成相邻两步，说明从前一步到后一步用了什么。"];
+        content = alternatives.map(q=>`${quote ? `你写到：“${quote}”\n\n`:""}${q}`).find(q=>!input.previousAssistant.includes(q)) ?? content;
+      }
+    }
     level =
       input.allowedLevel === 0
         ? 0

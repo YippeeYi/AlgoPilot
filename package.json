@@ -7,8 +7,6 @@
     "node": "^24.15.0 || >=26.0.0"
   },
   "scripts": {
-    "predev": "node scripts/prepare-monaco.mjs",
-    "prebuild": "node scripts/prepare-monaco.mjs",
     "postbuild": "node scripts/verify-monaco.mjs",
     "dev": "next dev --webpack",
     "build": "next build --webpack",

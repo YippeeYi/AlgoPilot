@@ -124,6 +124,8 @@ export async function runTutor(
       allowedLevel: reserved.allowedLevel,
       action: input.action,
       thought: session.thought_draft,
+      statement: session.statement_snapshot,
+      message: input.message,
       previousAssistant: history
         .filter((m) => m.role === "assistant")
         .map((m) => m.content),

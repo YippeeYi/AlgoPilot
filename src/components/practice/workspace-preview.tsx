@@ -56,7 +56,7 @@ function ThoughtPanel({ idPrefix }: { idPrefix: string }) {
       <CardHeader className="border-b">
         <CardTitle className="flex items-center gap-2 text-sm">
           <Code2 className="size-4" />
-          思路与代码
+          思路笔记
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6 py-6">
@@ -83,24 +83,7 @@ function ThoughtPanel({ idPrefix }: { idPrefix: string }) {
             </Button>
           </div>
         </div>
-        <div>
-          <label
-            htmlFor={`${idPrefix}-code-draft`}
-            className="mb-3 block text-sm font-medium"
-          >
-            C++ 草稿
-          </label>
-          <Textarea
-            id={`${idPrefix}-code-draft`}
-            placeholder="// 公开预览不保存代码；登录后可编辑与恢复草稿"
-            className="min-h-48 resize-none font-mono text-xs"
-            disabled
-            spellCheck={false}
-          />
-          <p className="mt-3 text-xs leading-6 text-muted-foreground">
-            仅编辑与分析代码，不在服务器执行用户程序。
-          </p>
-        </div>
+        <p className="text-xs text-muted-foreground">本地 VS Code 编写和调试，Codeforces 官网手动提交。AC 后可粘贴或选择代码文件，明确授权后生成复盘。</p>
       </CardContent>
     </Card>
   );
@@ -128,7 +111,7 @@ export function TutorPanel({
         <div className="rounded-lg bg-primary/5 p-4 text-sm leading-7">
           <p className="font-medium">从你已经想到的地方出发</p>
           <p className="mt-2 text-muted-foreground">
-            默认只围绕已有思路提问。提示升级由服务器授权；完整解析需要两次明确确认。
+            有思路时围绕卡点追问；无思路时从题面、约束和样例中的低信息量问题开始。提示升级由服务器授权；完整解析需要两次明确确认。
           </p>
         </div>
         <p role="status" className="text-xs leading-6 text-muted-foreground">
@@ -196,7 +179,7 @@ export function WorkspacePreview() {
           </p>
           <h1 className="text-2xl font-semibold">训练工作台预览</h1>
           <p className="mt-2 text-xs leading-6 text-muted-foreground">
-            尚未创建会话 · 编辑、保存、计时与提示操作将在后续里程碑接入。
+            公开布局预览 · 私人笔记、可选计时和 AI 操作均禁用。
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -226,7 +209,7 @@ export function WorkspacePreview() {
           aria-label="工作台区域"
         >
           <TabsTrigger value="statement">题面</TabsTrigger>
-          <TabsTrigger value="thought">思路 / 代码</TabsTrigger>
+          <TabsTrigger value="thought">思路笔记</TabsTrigger>
           <TabsTrigger value="tutor">AI 教练</TabsTrigger>
         </TabsList>
         <TabsContent value="statement">

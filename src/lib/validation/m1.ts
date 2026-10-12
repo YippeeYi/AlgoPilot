@@ -18,6 +18,7 @@ export const createSessionSchema = z
   .object({
     problemId: idSchema.optional(),
     statementSnapshot: z.string().max(64_000).optional(),
+    timerEnabled: z.boolean().optional(),
     mode: z.enum(["practice", "contest"]).default("practice"),
     requestId: idSchema,
   })

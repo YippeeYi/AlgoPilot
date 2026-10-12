@@ -76,10 +76,11 @@ export function trainingRepository(
     async create(input: {
       problemId?: string;
       statementSnapshot?: string;
+      timerEnabled?: boolean;
       mode: string;
       requestId: string;
     }) {
-      const { data, error } = await client.rpc("create_training_session", {
+      const { data, error } = await client.rpc(input.timerEnabled === false ? "create_untimed_session" : "create_training_session", {
         p_problem_id: input.problemId ?? null,
         p_statement: input.statementSnapshot ?? null,
         p_mode: input.mode,

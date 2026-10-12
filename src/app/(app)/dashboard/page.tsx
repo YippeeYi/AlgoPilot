@@ -95,7 +95,7 @@ export default async function DashboardPage() {
           ) : (
             <EmptyState
               title="还没有训练记录"
-              description="接入账户后，你的训练用时、思路版本和代码草稿将保存在这里。"
+              description="接入账户后，你的思路版本、可选计时和 AC 代码快照将保存在这里。"
               href="/problems"
               action="浏览题库页面"
             />

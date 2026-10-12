@@ -2,8 +2,10 @@ import "server-only";
 import { z } from "zod";
 import { ApiError } from "@/server/http";
 import type { TutorConfig } from "./config";
+import { reviewAnalysisSchema } from "@/lib/validation/review";
 import { modelOutputSchema, type TutorAction } from "@/lib/validation/m2";
 export type CompletionOptions = {
+  outputKind?: "review";
   action: TutorAction;
   allowedLevel: number;
   hasThought?: boolean;
@@ -116,6 +118,7 @@ export function reasoningEffort(
   return "low";
 }
 function responseSchema(options?: CompletionOptions) {
+  if (options?.outputKind === "review") return z.toJSONSchema(reviewAnalysisSchema);
   const schema = z.toJSONSchema(modelOutputSchema);
   if (options && options.allowedLevel <= 1) {
     // Constrain formatting at generation as well as checking it in auditOutput.
@@ -225,7 +228,7 @@ export class OpenAICompatibleProvider implements LLMProvider {
                     response_format: {
                       type: "json_schema",
                       json_schema: {
-                        name: "tutor_response",
+                        name: options?.outputKind === "review" ? "ac_review" : "tutor_response",
                         strict: true,
                         schema: responseSchema(options),
                       },

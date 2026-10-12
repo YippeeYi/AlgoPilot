@@ -89,8 +89,8 @@ test("自建题目、草稿刷新恢复、思路历史、计时与完成（桌�
     page.getByText("给定 n 个整数。约束：1 ≤ n ≤ 100。", { exact: true }),
   ).toBeVisible();
   if (testInfo.project.name === "m1-mobile")
-    await page.getByRole("tab", { name: "思路 / 代码" }).click();
-  await expect(page.locator(".monaco-editor")).toBeVisible({ timeout: 20_000 });
+    await page.getByRole("tab", { name: "思路笔记" }).click();
+  await expect(page.locator(".monaco-editor")).toHaveCount(0);
   await page.getByLabel("当前思路", { exact: true }).fill("先分析边界条件");
   await page.getByRole("button", { name: "保存历史版本", exact: true }).click();
   await expect(
@@ -101,9 +101,7 @@ test("自建题目、草稿刷新恢复、思路历史、计时与完成（桌�
   await expect(
     page.getByRole("button", { name: "版本 2", exact: true }),
   ).toBeVisible();
-  await page
-    .getByRole("button", { name: "使用文本编辑器", exact: true })
-    .click();
+  await page.getByText("历史代码记录（可选）", {exact:true}).click();
   await page
     .getByLabel("C++ 草稿", { exact: true })
     .fill("#include <iostream>\nint main() { return 0; }");
@@ -111,6 +109,7 @@ test("自建题目、草稿刷新恢复、思路历史、计时与完成（桌�
   await expect(
     page.getByText("代码：已保存到服务器", { exact: true }),
   ).toBeVisible();
+  await page.getByRole("button", { name: "继续计时", exact: true }).click();
   await page.getByRole("button", { name: "暂停", exact: true }).click();
   await expect(
     page.getByRole("button", { name: "继续计时", exact: true }),
@@ -120,13 +119,11 @@ test("自建题目、草稿刷新恢复、思路历史、计时与完成（桌�
   await expect(page.getByLabel("有效训练时间")).toHaveText(pausedTime!);
   await page.reload();
   if (testInfo.project.name === "m1-mobile")
-    await page.getByRole("tab", { name: "思路 / 代码" }).click();
+    await page.getByRole("tab", { name: "思路笔记" }).click();
   await expect(page.getByLabel("当前思路", { exact: true })).toHaveValue(
     "再建立循环不变量",
   );
-  await page
-    .getByRole("button", { name: "使用文本编辑器", exact: true })
-    .click();
+  await page.getByText("历史代码记录（可选）", {exact:true}).click();
   await expect(page.getByLabel("C++ 草稿", { exact: true })).toHaveValue(
     "#include <iostream>\nint main() { return 0; }",
   );
@@ -276,7 +273,7 @@ test("会话失效后保存明确失败，保留本地草稿并阻止应用内�
   ).json();
   await page.goto(`/practice/${session.id}`);
   if (testInfo.project.name === "m1-mobile")
-    await page.getByRole("tab", { name: "思路 / 代码" }).click();
+    await page.getByRole("tab", { name: "思路笔记" }).click();
   await page.request.post("/api/v1/auth/logout");
   await page.getByLabel("当前思路", { exact: true }).fill("还未保存的本地推论");
   await page.getByRole("button", { name: "保存思路草稿", exact: true }).click();
@@ -316,7 +313,7 @@ test("在途自动保存保留最新编辑并阻止导航；旧窗口 409 不覆
   const {session} = await (await page.request.post("/api/v1/sessions", {data:{requestId:randomUUID()}})).json();
   const path = `/practice/${session.id}`;
   await page.goto(path);
-  if (testInfo.project.name === "m1-mobile") await page.getByRole("tab",{name:"思路 / 代码"}).click();
+  if (testInfo.project.name === "m1-mobile") await page.getByRole("tab",{name:"思路笔记"}).click();
   let release!: () => void;
   const gate = new Promise<void>(resolve => {release=resolve;});
   let started!: () => void;
@@ -333,12 +330,12 @@ test("在途自动保存保留最新编辑并阻止导航；旧窗口 409 不覆
   release();
   await expect(page.getByText("思路：已保存到服务器",{exact:true})).toBeVisible();
   await page.reload();
-  if (testInfo.project.name === "m1-mobile") await page.getByRole("tab",{name:"思路 / 代码"}).click();
+  if (testInfo.project.name === "m1-mobile") await page.getByRole("tab",{name:"思路笔记"}).click();
   await expect(page.getByLabel("当前思路",{exact:true})).toHaveValue("最新 B");
   const other = await context.newPage();
   try {
     await other.goto(path);
-    if (testInfo.project.name === "m1-mobile") await other.getByRole("tab",{name:"思路 / 代码"}).click();
+    if (testInfo.project.name === "m1-mobile") await other.getByRole("tab",{name:"思路笔记"}).click();
     await page.getByLabel("当前思路",{exact:true}).fill("新窗口 C");
     await page.getByRole("button",{name:"保存思路草稿",exact:true}).click();
     await expect(page.getByText("思路：已保存到服务器",{exact:true})).toBeVisible();

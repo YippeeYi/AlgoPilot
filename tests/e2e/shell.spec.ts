@@ -5,7 +5,7 @@ test("无凭据可浏览所有页面壳", async ({ page }) => {
     ["/dashboard", "把每一道题，变成自己的能力。"],
     ["/problems", "选一道值得思考的题"],
     ["/sessions", "看见你的思考轨迹"],
-    ["/reviews", "复盘，让收获留得更久"],
+    ["/reviews", "AC 后深度代码复盘"],
     ["/analytics", "用真实记录理解进步"],
     ["/settings", "个人设置"],
     ["/login", "回到你的训练空间"],
@@ -42,7 +42,7 @@ test("训练预览响应式布局、无调用操作与无横向溢出", async ({
     await expect(
       page.getByRole("tab", { name: "题面", exact: true }),
     ).toBeVisible();
-    await page.getByRole("tab", { name: "思路 / 代码" }).click();
+    await page.getByRole("tab", { name: "思路笔记" }).click();
     await expect(page.getByRole("tabpanel")).toContainText("当前思路");
     await page.getByRole("tab", { name: "AI 教练" }).click();
     await expect(page.getByRole("tabpanel")).toContainText("模型未接入");

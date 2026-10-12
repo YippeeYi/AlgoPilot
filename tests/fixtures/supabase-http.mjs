@@ -1,13 +1,15 @@
 // E2E 专用 HTTP 契约替身。没有真实邮件、Supabase JWT 验签或数据库 RLS。
 // 生产应用完全不包含此脚本；真实 SQL/RLS 由独立 PostgreSQL 测试覆盖。
 import { createServer } from "node:http";
-import { randomUUID, createHmac } from "node:crypto";
+import { randomUUID, createHmac, createHash } from "node:crypto";
 
 const users = new Map();
 const tokens = new Map();
 const sessions = new Map();
 const problems = new Map();
 const thoughts = new Map();
+const reviews = new Map();
+const reviewRequests = new Map();
 const metrics = { auth: 0, data: 0 };
 const tutorStates = new Map();
 const tutorMessages = new Map();
@@ -62,6 +64,44 @@ function owned(id, uid) {
   return row;
 }
 function rpc(name, p, uid) {
+  if(name === "create_untimed_session") {
+    const previous=[...sessions.values()].find(s=>s.user_id===uid && s.create_request_id===p.p_request_id);
+    const [row]=rpc("create_training_session",p,uid);
+    if(!previous){row.status="paused";row.resumed_at=null;row.active_seconds=0;row.state_revision=1;}
+    return [row];
+  }
+  if(name === "create_code_review") {
+    const v=p.p_input;
+    const fp=JSON.stringify(v);
+    const old=reviews.get(v.requestId);
+    if(old){if(old.user_id!==uid)failure("P0002");if(old.fingerprint!==fp)failure("PT409");return old.id;}
+    if(v.confirmation!=="我确认本次为自报 AC，并授权将代码发送给配置的 AI Provider 进行完整复盘")failure("42501");
+    const s=v.sessionId?owned(v.sessionId,uid):rpc("create_training_session",{p_problem_id:null,p_statement:v.statement,p_mode:"practice",p_request_id:v.requestId},uid)[0];
+    if(s.mode==="contest")failure("AP001");
+    const state=tutorStates.get(s.id)??{allowedLevel:0,maxSeenLevel:0};
+    const row={id:v.requestId,user_id:uid,session_id:s.id,problem_id:s.problem_id,problem_url:v.problemUrl,statement_snapshot:v.statement||s.statement_snapshot,code_snapshot:v.code,code_hash:createHash("sha256").update(v.code).digest("hex"),source:v.source,file_name:v.fileName,submission_id:v.submissionId,verdict_source:"user_reported",official_verdict:null,source_match:"unverified",authorization_event:{status:s.status,outcome:s.outcome,allowedLevel:state.allowedLevel,maxSeenLevel:state.maxSeenLevel,confirmation:v.confirmation,authorizedAt:now()},notes:"",revision:0,created_at:now(),edited_at:null,fingerprint:fp};
+    reviews.set(row.id,row);
+    if(s.status!=="completed")rpc("transition_training_session",{p_id:s.id,p_action:"finish",p_expected_revision:s.state_revision,p_outcome:"solved_self_reported"},uid);
+    return row.id;
+  }
+  if(name === "edit_code_review") {
+    const r=reviews.get(p.p_id);if(!r || r.user_id!==uid)failure("P0002");
+    if(r.revision!==p.p_revision)failure("PT409");r.notes=p.p_notes;r.revision++;r.edited_at=now();return null;
+  }
+  if(name === "review_reserve" || name === "review_finish") {
+    if(createHmac("sha256",fixtureSigningSecret).update(p.p_payload).digest("hex")!==p.p_signature)failure("42501");
+    const v=JSON.parse(p.p_payload);if(v.userId!==uid || Date.parse(v.expiresAt)<Date.now())failure("42501");
+    const r=reviews.get(v.reviewId);if(!r || r.user_id!==uid)failure("P0002");
+    if(name === "review_reserve"){
+      const old=reviewRequests.get(v.requestId);
+      if(old){if(old.fingerprint!==v.fingerprint)failure("PT409");if(old.status==="completed")return {cached:true};failure(old.status==="pending"?"AP004":"AP006");}
+      const all=[...tutorRequests.values(),...reviewRequests.values()].filter(x=>x.userId===uid);
+      if(all.some(x=>x.status==="pending"))failure("AP004");if(all.length>=v.dailyLimit)failure("AP003");
+      const q={...v,id:v.requestId,review_id:r.id,user_id:uid,status:"pending",leaseNonce:randomUUID(),created_at:now()};reviewRequests.set(q.id,q);return {cached:false,leaseNonce:q.leaseNonce};
+    }
+    const q=reviewRequests.get(v.requestId);if(!q || q.leaseNonce!==v.leaseNonce)failure("42501");if(q.status==="completed")return {accepted:true};
+    q.status=v.success?"completed":"failed";if(v.success){q.analysis=v.analysis;q.model=v.model;q.prompt_version=v.promptVersion;}return {accepted:v.success};
+  }
   if (name === "tutor_reserve" || name === "tutor_finish") {
     if (
       createHmac("sha256", fixtureSigningSecret)
@@ -92,8 +132,8 @@ function rpc(name, p, uid) {
       const requests = [...tutorRequests.values()].filter(
         (r) => r.userId === uid,
       );
-      if (requests.some((r) => r.status === "pending")) failure("AP004");
-      if (requests.length >= v.dailyLimit) failure("AP003");
+      if ([...reviewRequests.values()].some(r=>r.user_id===uid && r.status==="pending") || requests.some((r) => r.status === "pending")) failure("AP004");
+      if (requests.length + [...reviewRequests.values()].filter(r=>r.user_id===uid).length >= v.dailyLimit) failure("AP003");
       if (v.action === "explain" && state.allowedLevel !== 5) failure("AP007");
       const r = {
         ...v,
@@ -328,7 +368,7 @@ function rpc(name, p, uid) {
 function select(url, uid) {
   const table = url.pathname.split("/").at(-1);
   let rows =
-    table === "training_sessions"
+    table === "code_reviews" ? [...reviews.values()].filter(r=>r.user_id===uid) : table === "review_requests" ? [...reviewRequests.values()].filter(r=>r.user_id===uid) : table === "training_sessions"
       ? [...sessions.values()].filter((row) => row.user_id === uid)
       : table === "problems"
         ? [...problems.values()].filter((row) => row.owner_id === uid)
