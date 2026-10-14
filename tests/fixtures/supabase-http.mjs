@@ -65,10 +65,37 @@ function owned(id, uid) {
   return row;
 }
 const plans=new Map(),planItems=new Map(),planReceipts=new Map(),planSessions=new Set();
+const learningPrefs=new Map(),learningFeedback=new Map(),learningReceipts=new Map();
 const cfFixture=JSON.parse(readFileSync(new URL('./cf-problemset.json',import.meta.url),'utf8'));
 cfFixture.result.problems.forEach((p,n)=>{const id=`50000000-0000-4000-8000-${String(n+1).padStart(12,'0')}`;const stat=cfFixture.result.problemStatistics.find(s=>s.contestId===p.contestId&&s.index===p.index);problems.set(id,{id,owner_id:null,platform:'codeforces',contest_id:p.contestId,problem_index:p.index,title:p.name,rating:p.rating??null,tags:p.tags??[],statement:null,canonical_url:`https://codeforces.com/problemset/problem/${p.contestId}/${p.index}`,solved_count:stat?.solvedCount??null,metadata_synced_at:'2026-10-12T05:22:10.562Z',created_at:'2026-10-12T05:22:10.562Z'});});
 function cfProblem(r){return {id:r.id,contestId:r.contest_id,index:r.problem_index,name:r.title,rating:r.rating,tags:r.tags,solvedCount:r.solved_count};}
 function rpc(name, p, uid) {
+  if(name==='learning_write'){
+    const v=p.p_input,key=`${uid}/${v.requestId}`,fp=JSON.stringify(v),old=learningReceipts.get(key);
+    if(old){if(old!==fp)failure('PT409');return {saved:true};}
+    if(v.action==='preferences'){
+      const existing=learningPrefs.get(uid);if((existing?.revision??0)!==v.revision)failure('PT409');
+      learningPrefs.set(uid,{preferences:v.preferences,revision:(existing?.revision??0)+1});
+    }else if(v.action==='feedback'){
+      if(problems.get(v.problemId)?.platform!=='codeforces')failure('P0002');
+      learningFeedback.set(v.requestId,{id:v.requestId,user_id:uid,problemId:v.problemId,kind:v.kind,createdAt:now()});
+    }else failure('23514');
+    learningReceipts.set(key,fp);return {saved:true};
+  }
+  if(name==='learning_evidence'){
+    const pref=learningPrefs.get(uid),all=[...sessions.values()].filter(s=>s.user_id===uid).sort((a,b)=>b.created_at.localeCompare(a.created_at)||a.id.localeCompare(b.id));
+    const lastReviews=new Map();
+    if(pref?.preferences.reviewEvidence)for(const r of [...reviewRequests.values()].filter(r=>r.user_id===uid&&r.status==='completed'&&r.analysis).sort((a,b)=>b.created_at.localeCompare(a.created_at)||a.id.localeCompare(b.id))){
+      const cr=reviews.get(r.review_id);if(cr?.user_id!==uid)continue;const key=cr.problem_id??cr.id;if(!lastReviews.has(key))lastReviews.set(key,{id:r.id,reviewId:r.review_id,problemId:cr.problem_id,knowledge:r.analysis.transferableKnowledge??'',risks:r.analysis.risks??'',createdAt:r.created_at});
+    }
+    const feedback=new Map();for(const f of [...learningFeedback.values()].filter(f=>f.user_id===uid).sort((a,b)=>b.createdAt.localeCompare(a.createdAt)||a.id.localeCompare(b.id)))if(!feedback.has(f.problemId))feedback.set(f.problemId,{id:f.id,problemId:f.problemId,kind:f.kind,rating:problems.get(f.problemId)?.rating??null,createdAt:f.createdAt});
+    return {preferences:pref?.preferences??null,revision:pref?.revision??0,totalSessions:all.length,sessions:all.slice(0,500).map(s=>({id:s.id,problemId:s.problem_id,status:s.status,outcome:s.outcome,rating:problems.get(s.problem_id)?.rating??null,tags:s.status==='completed'&&(s.outcome==='solved_self_reported'||tutorStates.get(s.id)?.maxSeenLevel===5)?(problems.get(s.problem_id)?.tags??[]):[],maxHint:tutorStates.get(s.id)?.maxSeenLevel??0,externalEditorial:null,thoughtCount:[...thoughts.values()].filter(t=>t.session_id===s.id&&t.content.trim()).length,createdAt:s.created_at})),reviews:[...lastReviews.values()].slice(0,200),feedback:[...feedback.values()].slice(0,100)};
+  }
+  if(name==='learning_candidates'){
+    const q=p.p_query;
+    const rows=[...problems.values()].filter(r=>r.platform==='codeforces'&&r.rating!==null&&r.rating>=q.min&&r.rating<=q.max&&(!q.themes.length||q.themes.some(t=>r.tags.includes(t)))&&(q.repeat||![...sessions.values()].some(s=>s.user_id===uid&&s.problem_id===r.id&&s.outcome==='solved_self_reported')&&![...reviews.values()].some(cr=>cr.user_id===uid&&cr.problem_id===r.id)));
+    return {total:rows.length,items:rows.sort((a,b)=>Math.abs(a.rating-q.target)-Math.abs(b.rating-q.target)||b.contest_id-a.contest_id||a.problem_index.localeCompare(b.problem_index)).slice(0,600).map(r=>({...cfProblem(r),inPlan:[...planItems.values()].some(i=>i.user_id===uid&&i.problem_id===r.id&&!plans.get(i.plan_id)?.archived),practiced:[...sessions.values()].some(s=>s.user_id===uid&&s.problem_id===r.id)}))};
+  }
   if(name==='cf_catalog'){
     const q=p.p_query;let rows=[...problems.values()].filter(r=>r.platform==='codeforces');const tags=(q.tags??'').split(';').filter(Boolean);
     const keys=new Set(rows.flatMap(r=>r.tags));rows=rows.filter(r=>(!q.q || (/^[1-9]\d*[A-Z][A-Z0-9]*$/i.test(q.q)?`${r.contest_id}${r.problem_index}`.toUpperCase()===q.q.toUpperCase():r.title.toLowerCase().includes(q.q.toLowerCase())))&&(q.min===undefined || (r.rating!==null&&r.rating>=q.min))&&(q.max===undefined || (r.rating!==null&&r.rating<=q.max))&&tags.every(t=>r.tags.includes(t)));

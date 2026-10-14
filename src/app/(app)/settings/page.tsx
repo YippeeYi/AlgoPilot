@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { PageHeading } from "@/components/page-heading";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -34,7 +35,7 @@ export default function SettingsPage() {
             </label>
             <Input id="cf-handle" placeholder="尚未关联" disabled />
             <p className="mt-3 text-xs leading-6 text-muted-foreground">
-              公开数据同步将在 M3 接入。填写 Handle 不等于验证账号归属。
+              官方提交证据增量同步留下一阶段；推荐无需 Handle。填写 Handle 不等于验证账号归属。
             </p>
             <Button className="mt-5" disabled>
               保存并同步
@@ -71,10 +72,11 @@ export default function SettingsPage() {
             <CardTitle className="text-base">训练偏好</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm">
+            <Link className="text-primary underline" href="/dashboard">调整推荐与证据偏好</Link>
             <p>默认提示等级：L0</p>
             <p>训练中算法标签：隐藏</p>
             <p className="text-xs leading-6 text-muted-foreground">
-              本阶段保留默认训练偏好。深浅主题可通过顶部按钮切换，并保存在本机。
+              难度自评、主题与复盘证据授权在推荐页管理。深浅主题可通过顶部按钮切换，并保存在本机。
             </p>
           </CardContent>
         </Card>

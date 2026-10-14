@@ -38,12 +38,16 @@ export async function runTutor(
   const state = await repo.state(id);
   if (input.action === "explain" && state.allowedLevel !== 5)
     throw new ApiError(403, "L5_REQUIRED", "完整解析需要 L5 二次明确确认。");
+  const supplemented = session.thought_draft.split("【用户补充的题面上下文】").slice(1).join("\n").trim();
+  const statement = session.statement_snapshot.trim() || supplemented;
+  if (!statement)
+    throw new ApiError(422, "STATEMENT_REQUIRED", "请先补充当前题目的题面、约束与样例；CF 元数据不包含完整题面。 ");
   const [history, versions] = await Promise.all([
     repo.history(id),
     repo.thoughts(id),
   ]);
   const context = {
-    statement: session.statement_snapshot,
+    statement,
     thought: session.thought_draft,
     code: session.code_draft,
     versions: versions.map((v) => ({ version: v.version, content: v.content })),
@@ -124,7 +128,7 @@ export async function runTutor(
       allowedLevel: reserved.allowedLevel,
       action: input.action,
       thought: session.thought_draft,
-      statement: session.statement_snapshot,
+      statement,
       message: input.message,
       previousAssistant: history
         .filter((m) => m.role === "assistant")

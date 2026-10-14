@@ -280,6 +280,7 @@ test("会话失效后保存明确失败，保留本地草稿并阻止应用内�
   await expect(page.getByLabel("当前思路", { exact: true })).toHaveValue(
     "还未保存的本地推论",
   );
+  await page.getByText("辅助入口", {exact:true}).click();
   await page
     .getByRole("navigation", { name: "主导航" })
     .getByRole("link", { name: "训练记录" })
@@ -321,6 +322,7 @@ test("在途自动保存保留最新编辑并阻止导航；旧窗口 409 不覆
   await page.getByLabel("当前思路",{exact:true}).fill("在途 A");
   await arrived;
   await page.getByLabel("当前思路",{exact:true}).fill("最新 B");
+  await page.getByText("辅助入口", {exact:true}).click();
   await page.getByRole("navigation",{name:"主导航"}).getByRole("link",{name:"训练记录"}).click();
   await expect(page).toHaveURL(new RegExp(path+"$"));
   await expect(page.getByText(/还有未保存的修改，请先保存再离开/)).toBeVisible();

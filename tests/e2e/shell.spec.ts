@@ -2,11 +2,11 @@ import { expect, test } from "@playwright/test";
 
 test("无凭据可浏览所有页面壳", async ({ page }) => {
   const pages = [
-    ["/dashboard", "把每一道题，变成自己的能力。"],
+    ["/dashboard", "现在应该练什么，为什么？"],
     ["/problems", "选一道值得思考的题"],
     ["/sessions", "看见你的思考轨迹"],
     ["/reviews", "AC 后深度代码复盘"],
-    ["/analytics", "用真实记录理解进步"],
+    ["/analytics", "用真实证据理解能力"],
     ["/settings", "个人设置"],
     ["/login", "回到你的训练空间"],
     ["/register", "开始你的训练旅程"],
@@ -67,9 +67,8 @@ test("训练预览响应式布局、无调用操作与无横向溢出", async ({
 
 test("统计空状态不产生伪 Rating 或百分比", async ({ page }) => {
   await page.goto("/analytics");
-  await expect(page.getByLabel("尚无数据", { exact: true })).toHaveCount(3);
   await expect(
-    page.getByRole("heading", { name: "暂无官方 Rating 历史" }),
+    page.getByRole("heading", { name: "样本不足" }),
   ).toBeVisible();
   await expect(page.locator("main")).not.toContainText(/\d+%/);
 });

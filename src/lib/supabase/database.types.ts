@@ -90,6 +90,9 @@ export type Database = {
     };
     Views: Record<string, never>;
     Functions: {
+      learning_evidence: {Args:Record<string, never>;Returns:unknown};
+      learning_candidates: {Args:{p_query:unknown};Returns:unknown};
+      learning_write: {Args:{p_input:unknown};Returns:unknown};
       cf_catalog: {Args:{p_query:unknown};Returns:unknown};
       cf_sync: {Args:{p_payload:string;p_signature:string};Returns:unknown};
       plan_write: {Args:{p_id:string;p_input:unknown};Returns:unknown};

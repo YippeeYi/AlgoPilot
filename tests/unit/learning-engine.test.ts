@@ -1,0 +1,102 @@
+import { describe, it, expect } from "vitest";
+import { abilityProfile, recommend, recommendationTarget } from "@/features/learning/engine";
+import { defaultPreferences, type LearningEvidence, type LearningCandidate } from "@/lib/validation/learning";
+const id = (n: number) => `70000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
+const empty = (): LearningEvidence => ({ preferences: null, revision: 0, totalSessions: 0, sessions: [], reviews: [], feedback: [] });
+const candidate = (n: number, rating: number | null = 1000, tags = ["graphs"]): LearningCandidate => ({ id: id(n), contestId: n, index: "A", name: "Fixture only", rating, tags, solvedCount: null, inPlan: false, practiced: false });
+const session = (n: number, level = 4, tags = ["graphs"]) => ({ id: id(100 + n), problemId: id(200 + n), status: "completed" as const, outcome: "solved_self_reported", rating: 1400, tags, maxHint: level, externalEditorial: null, thoughtCount: 1, createdAt: `2026-10-${String(n).padStart(2, "0")}T00:00:00Z` });
+describe("shared, deterministic learning evidence model", () => {
+    it("cold start makes bounded recommendations, hides candidate tags, never invents mastery or history", () => {
+        const e = empty();
+        const r = recommend(e, Array.from({ length: 8 }, (_, i) => candidate(i + 1)));
+        expect(r.items).toHaveLength(5);
+        expect(r.profile.directions).toEqual([]);
+        expect(r.profile.distinctCompletedProblems).toBe(0);
+        expect(r.items[0]!.reasons.join()).toContain("暂定冷启动");
+        expect(r.items[0]!.refs).toEqual([]);
+        expect(JSON.stringify(r.items)).not.toContain("graphs");
+        expect(r.items[0]!.problem).not.toHaveProperty("tags");
+        expect(recommend(e, Array.from({ length: 8 }, (_, i) => candidate(i + 1)))).toEqual(r);
+    });
+    it("real high-hint evidence changes ordering, traces reason to completed training, respects explicit topic", () => {
+        const e = empty();
+        e.preferences = { ...defaultPreferences, min: 1200, max: 1800, goal: "independence" };
+        e.sessions = [session(1), session(2), session(3)];
+        e.totalSessions = 3;
+        const r = recommend(e, [candidate(1, 1400, ["math"]), candidate(2, 1400)]);
+        expect(r.items[0]!.problem.id).toBe(id(2));
+        expect(r.items[0]!.refs).toContainEqual({ kind: "training", id: e.sessions[0]!.id });
+        expect(r.profile.directions[0]).toMatchObject({ samples: 3, highHints: 3, confidence: "样本不足" });
+        expect(recommendationTarget(e).target).toBe(1300);
+        e.sessions = e.sessions.map(s => ({ ...s, maxHint: 0 }));
+        expect(recommendationTarget(e).target).toBe(1400);
+        e.preferences.themes = ["math"];
+        expect(recommend(e, [candidate(1, 1400, ["math"]), candidate(2, 1400)]).items.map(i => i.problem.id)).toEqual([id(1)]);
+    });
+    it("same problem attempts aren't independent samples; no hints or one AC never prove mastery", () => {
+        const e = empty();
+        const s = session(1, 0);
+        e.sessions = [s, { ...s, id: id(500), createdAt: "2026-10-12T00:00:00Z" }];
+        e.totalSessions = 2;
+        expect(abilityProfile(e).directions[0]).toMatchObject({ samples: 1, confidence: "样本不足", lowHintSolved: 1 });
+        expect(abilityProfile(e).directions[0]!.suggestion).toContain("不能据此断言已掌握");
+        const r = recommend(e, [candidate(201), candidate(1)]);
+        expect(r.items.map(i => i.problem.id)).not.toContain(s.problemId);
+        e.preferences = { ...defaultPreferences, repeat: true };
+        expect(recommend(e, [candidate(201)]).items).toHaveLength(1);
+    });
+    it("authorized structured AI review changes suggestions but is always unverified, and revocation removes it", () => {
+        const e = empty();
+        e.preferences = { ...defaultPreferences, reviewEvidence: true };
+        const pool = [candidate(1, 1000, ["math"]), candidate(2)];
+        expect(recommend(e, pool).items[0]!.problem.id).toBe(id(1));
+        e.reviews = [{ id: id(601), reviewId: id(602), problemId: id(603), knowledge: "图论：连通性。", risks: "边界问题需要检查。", createdAt: "2026-10-14T00:00:00Z" }];
+        const r = recommend(e, pool);
+        expect(r.items[0]!.problem.id).toBe(id(2));
+        expect(r.items[0]!.reasons.join()).toContain("待验证");
+        expect(r.items[0]!.refs).toContainEqual({ kind: "ai_review", id: id(601), reviewId: id(602) });
+        expect(r.profile.recurringIssues[0]).toMatchObject({ samples: 1, recurring: false });
+        expect(r.profile.reviewDirections[0]!.source).toContain("未验证");
+        e.preferences.reviewEvidence = false;
+        expect(recommend(e, pool).items[0]!.problem.id).toBe(id(1));
+        expect(abilityProfile(e).reviewDirections).toEqual([]);
+    });
+    it("negated AI risk statements do not create recurring weakness claims", () => {
+        const e=empty(); e.preferences={...defaultPreferences, reviewEvidence:true};
+        e.reviews=[{id:id(801),reviewId:id(802),problemId:id(803),knowledge:"",risks:"没有边界问题；不存在溢出风险；no complexity issue.",createdAt:"2026-10-14T00:00:00Z"}];
+        expect(abilityProfile(e).recurringIssues).toEqual([]);
+    });
+    it("plans reduce priority, recently repeated topics compete with exploration, greedy selection spreads knowledge", () => {
+        const e = empty();
+        e.preferences = { ...defaultPreferences, goal: "explore" };
+        e.sessions = [session(1)];
+        e.totalSessions = 1;
+        const r = recommend(e, [{ ...candidate(1, 1000, ["math"]), inPlan: true }, candidate(2, 1000, ["math"]), candidate(3), candidate(4, 1000, ["strings"])]);
+        expect(r.items[0]!.problem.id).toBe(id(2));
+        expect(r.items[1]!.problem.id).toBe(id(4));
+        expect(r.items.find(i => i.problem.id === id(1))!.reasons.join()).toContain("已在现有计划");
+        expect(new Set(r.items.map(i => i.problem.id)).size).toBe(r.items.length);
+    });
+    it("feedback shifts difficulty within range, downweights rejected problems, reroll keeps constraints and explains exhaustion", () => {
+        const e = empty();
+        e.preferences = { ...defaultPreferences };
+        e.feedback = [{ id: id(701), problemId: id(1), kind: "too_hard", rating: 1100, createdAt: "2026-10-14T00:00:00Z" }];
+        const r = recommend(e, [candidate(1), candidate(2, 900)]);
+        expect(r.target).toBe(900);
+        expect(r.items[0]!.problem.id).toBe(id(2));
+        expect(r.items[0]!.refs).toContainEqual({ kind: "user_feedback", id: id(701) });
+        expect(recommend(e, [candidate(1)], [id(1)]).reused).toBe(true);
+        expect(recommend(e, [candidate(1), candidate(2), candidate(3), candidate(4), candidate(5), candidate(6)], [id(1)]).items.some(i => i.problem.id === id(1))).toBe(false);
+    });
+    it("missing metadata, sparse history and duplicate input degrade safely without invented rating or topics", () => {
+        const e = empty();
+        const c = candidate(2, 1000, []);
+        const r = recommend(e, [candidate(1, null), c, c]);
+        expect(r.items).toHaveLength(1);
+        expect(r.items[0]!.reasons.join()).toContain("官方标签缺失");
+        e.preferences = { ...defaultPreferences, themes: ["graphs"] };
+        expect(recommend(e, [c]).items).toEqual([]);
+        e.totalSessions = 600;
+        expect(abilityProfile(e).limitations.join()).toContain("500");
+    });
+});

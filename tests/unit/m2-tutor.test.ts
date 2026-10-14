@@ -221,6 +221,15 @@ describe("M2 策略与权限（Mock Provider）", () => {
       expect(repository.reserve).not.toHaveBeenCalled();
     },
   );
+  it("缺少题面时不入场、不调用 Provider；显式补充题面可进入原 Tutor", async () => {
+    const provider = new MockProvider({ text: model(), usage });
+    const missing = repo(0, {...baseSession, statement_snapshot: "", thought_draft: "我的想法"});
+    await expect(runTutor(missing,config,baseSession.id,input,undefined,provider)).rejects.toMatchObject({code:"STATEMENT_REQUIRED"});
+    expect(provider.calls).toHaveLength(0); expect(missing.reserve).not.toHaveBeenCalled();
+    const supplied = repo(0, {...baseSession, statement_snapshot: "", thought_draft: "我的想法\n【用户补充的题面上下文】\n输入 n 个整数，n<=100，输出最大值。"});
+    await runTutor(supplied,config,baseSession.id,input,undefined,provider);
+    expect(provider.calls[0]!.at(-1)!.content).toContain("输入 n 个整数");
+  });
   it("explain 仅 L5；额度/并发被 DB 拒绝时不调用模型", async () => {
     const provider = new MockProvider({ text: model(), usage });
     await expect(

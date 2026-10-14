@@ -1,8 +1,8 @@
 # AlgoPilot
 
-Codeforces / XCPC 算法竞赛学习与复盘助手，核心为卡题启发式引导与 AC 后用户主动提供的 C++ 代码分析。用户在本地 VS Code 编写、编译、调试，在 Codeforces 官网手动提交；AlgoPilot 不执行代码，不提供在线判题或自动提交。
+Codeforces / XCPC 算法竞赛学习与复盘助手，只聚焦三件事：推荐合适的题并解释原因、分析题目与代码、从真实证据分析选手能力。CF 已做好的排行榜、比赛展示和提交浏览不重复开发。用户在本地 VS Code 编写、编译、调试，在 Codeforces 官网手动提交；AlgoPilot 不执行代码，不提供在线判题或自动提交。
 
-当前交付 **M3 第一阶段：Codeforces 题库、选题和多题训练计划**。M2.5 的 L0–L5 教练、单文件导入、独立 Review Orchestrator、不可变代码快照和深度复盘继续保留。Handle、Rating 历史与官方提交增量同步留给 M3 后续阶段，当前官方状态明确未同步，自报 AC 不等于官方验证。
+当前交付 **M3.2：可解释题目推荐与选手能力画像 V1**，建立于已完成的 M3 CF 题库与多计划之上。M2.5 的 L0–L5 教练、单文件导入、独立 Review Orchestrator、不可变代码快照和深度复盘继续保留。Handle 与官方提交证据增量同步留给下一阶段，不开发提交列表或 Rating 历史图表，当前官方状态明确未同步，自报 AC 不等于官方验证。
 
 ## 运行
 
@@ -14,18 +14,23 @@ cp .env.example .env.local
 npm run dev
 ```
 
-设置 Supabase 项目 URL、publishable key 和 APP_URL，按顺序应用 001–006 迁移；只执行目标环境缺失的 SQL。Auth 使用 SSR Cookie、proxy 刷新与服务端 getUser 验证。没有配置时仅提供无数据页面壳和公开 `/practice/preview`，不会伪造登录或启用 AI。
+设置 Supabase 项目 URL、publishable key 和 APP_URL，按顺序应用 001–007 迁移；只执行目标环境缺失的 SQL。Auth 使用 SSR Cookie、proxy 刷新与服务端 getUser 验证。没有配置时仅提供无数据页面壳和公开 `/practice/preview`，不会伪造登录或启用 AI。
 
 CF 签名默认从已有 Tutor 独立主密钥派生，也支持单独 `CODEFORCES_RPC_SIGNING_SECRET`。配置不等于连接验证。具体见 [M3 配置](docs/M3_SETUP.md)、[Supabase 设置](docs/SUPABASE_SETUP.md)、[M2 Provider](docs/M2_SETUP.md)、[M2.5 复盘配置](docs/M25_SETUP.md)。密钥仅在服务端/private DB，禁止 service-role 绕过。
 
 ## 使用流程
+
+主入口为推荐、能力画像、题目分析/复盘；题库/计划/历史/账户为辅助入口，旧深链接全部保留。
+
+- `/dashboard`：简短难度自评（不必关联 Handle）、可选主题/目标、每轮最多 5 题，推荐理由与训练/复盘/反馈引用，官方读题/原教练/加入现有计划/反馈/换一轮。复盘证据需额外主动授权，可关闭。
+- `/analytics`：同一证据模型分析知识方向、难度表现、实际提示依赖和复盘问题；附样本/来源/可信度，不生成综合能力分或假官方 Rating。
 
 - `/problems`：官方题库缓存，题号/题名/URL 检索，Rating 范围、Tags 筛选、解题人数排序与分页。缺失难度显示“未定级”。单选开始训练，多选跨页保留并创建或追加计划。
 - `/plans`：多个私人计划；顺序、手动状态、名称/说明、归档/恢复与删除。删除计划不删除题目、训练、思路历史或复盘。每道题的多个会话独立展示。
 - `/sessions`：从 CF 选题新建训练，查看与重新打开所有历史记录。已停止新建自定义题目，旧自建题与空训练继续可读。
 - `/practice/[sessionId]`：官方题面链接、用户补充的题面上下文、思路笔记/版本与 AI 教练；未解题默认隐藏 Tags。计时可选且由服务器保存，网页无需常开。旧 C++ 草稿保留在可展开兼容区，Monaco 不进入主流程。
 - `/reviews`：选择 CF 题目或关联旧训练，粘贴代码或读取显式选择的单个 .cpp/.cc/.cxx/.txt（UTF-8、64000 字节、类型/控制字符校验）。明确确认自报 AC 与发送 Provider 授权，保存代码快照，生成/编辑/重生成/追问。代码、题面与近期复盘在调用时发送给配置 Provider；请先清除敏感内容。
-- `/dashboard`、`/analytics`、`/settings`：真实记录与明确空状态；不制造统计/Rating。`/login`、`/register` 与邮箱验证恢复安全目标。
+- `/settings`：配置状态与账户辅助设置；不制造服务联通或官方事实。`/login`、`/register` 与邮箱验证恢复安全目标。
 
 复盘九项分析：算法总结、正确性证明与未证明假设、时空复杂度、具体行号、边界/潜在缺陷、实现改进、可选其他算法、可迁移知识和复习问题。每份分析绑定不可变 SHA-256 代码快照；改代码创建新复盘。通过 reviewId 恢复，用户编辑 CAS。AI 不宣称运行代码或系统验证自报 AC。公开提交状态也不能证明本地导入代码与提交源码一致。
 
@@ -48,11 +53,20 @@ npm run lint
 npm run typecheck
 npm run test
 npm run build
+npm run test
 npm run test:e2e
 ```
 
-先 typecheck 后 build，避免生成目录竞争。PGlite 执行实际 SQL/RLS，Auth 环境是替身；Playwright 运行真实 Next/SDK 与本地 HTTP/Provider Mock，不代表托管验收。记录的真实 CF 响应与实际实时下载另行标注。见 [本轮验收](docs/M3_VERIFICATION.md)、[里程碑](docs/MILESTONES.md)、[M1](docs/M1_VERIFICATION.md)、[M2](docs/M2_VERIFICATION.md)、[M2.5](docs/M25_VERIFICATION.md)，历史验收不改写。
+先 typecheck 后 build，避免生成目录竞争。PGlite 执行实际 SQL/RLS，Auth 环境是替身；Playwright 运行真实 Next/SDK 与本地 HTTP/Provider Mock，不代表托管验收。记录的真实 CF 响应与实际实时下载另行标注。见 [本轮验收](docs/M32_VERIFICATION.md)、[推荐算法/配置](docs/M32_SETUP.md)、[M3 历史验收](docs/M3_VERIFICATION.md)、[里程碑](docs/MILESTONES.md)、[M1](docs/M1_VERIFICATION.md)、[M2](docs/M2_VERIFICATION.md)、[M2.5](docs/M25_VERIFICATION.md)，历史验收不改写。
 
 外部 SQL smoke 仅允许显式隔离库：`M1_ALLOW_DATABASE_TESTS=isolated` 或 `M2_ALLOW_DATABASE_TESTS=isolated`，对应专用 TEST_DATABASE_URL 后运行 test:rls / test:rls:m2。禁止生产破坏性测试。Vercel/Node 部署先迁移并配置 Auth Site URL/Redirect URLs，CI 单独执行所有门禁。没有配置不创建外部项目或伪称集成成功。
 
 需求与执行约定：[DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md)、[AGENTS.md](AGENTS.md)、[CODEX_PROMPT.md](CODEX_PROMPT.md)。M4 计划知识沉淀、复习、真实统计和产品完善。
+
+## 推荐与画像的依据
+
+确定性权重集中于 `src/features/learning/engine.ts`：难度适配、真实提示/自报待加强信号、明确目标、近期重复与新颖度、当轮多样性、活跃计划降权、反馈，以及低权重 AI 建议。数据库过滤和分层取最多 600 候选；不是全库最优保证，不推荐缺 Rating 的题。有主题则要求可信 Tags 匹配，默认隐藏未解题 Tags。
+
+画像取最近 500 次训练、每题最新完成记录；不同题目不足 5 为样本不足，更多也只有限可信。无提示不证明独立。复盘每题最新、最多 200，词汇匹配只是 AI 待验证建议；思路版本只计实际记录，不按文字量评估思考质量。用户自报、官方元数据和 AI 推测始终分开，官方提交目前未同步。
+
+部署新增 `supabase/migrations/202610140007_learning_recommendations.sql`，先核对 006 已应用，勿重跑历史 SQL；本轮没有部署托管 007。无需额外服务/模型/密钥，旧 HMAC、RLS、额度和租约继续保留。参见 [M3.2 设置与局限](docs/M32_SETUP.md)。

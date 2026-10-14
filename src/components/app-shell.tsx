@@ -12,7 +12,7 @@ import {
   Settings,
   Sparkles,
 } from "lucide-react";
-import { navigation } from "@/lib/navigation";
+import { navigation, auxiliaryNavigation } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LogoutButton } from "@/components/logout-button";
@@ -94,6 +94,10 @@ export function AppShell({
               </Link>
             );
           })}
+          <details className="shrink-0 px-3 py-3 text-xs text-muted-foreground">
+            <summary className="cursor-pointer">辅助入口</summary>
+            <div className="mt-3 flex flex-col gap-3">{auxiliaryNavigation.map(({href,label}) => <Link key={href} href={href} prefetch={pathname === "/practice/preview" ? false : undefined} onClick={guardNavigation} aria-current={pathname === href ? "page" : undefined}>{label}</Link>)}</div>
+          </details>
         </nav>
         <div className="mt-auto hidden p-5 lg:block">
           <div className="rounded-xl border border-border p-4 text-xs leading-6 text-muted-foreground">
@@ -103,7 +107,7 @@ export function AppShell({
             记录你的推论和卡点，让每次训练留下可复习的证据。
           </div>
           <p className="mt-5 text-xs text-muted-foreground">
-            {authenticated ? "学习与复盘 · M3" : "个人训练 · 布局预览"}
+            {authenticated ? "推荐 · 分析 · 能力画像 · M3.2" : "个人训练 · 布局预览"}
           </p>
         </div>
       </aside>

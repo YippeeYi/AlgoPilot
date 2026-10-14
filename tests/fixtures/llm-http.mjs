@@ -23,7 +23,7 @@ createServer(async (req, res) => {
   calls++;
   const system = body.messages[0].content;
   if(system.includes("algopilot-ac-review/")) {
-    const analysis={summary:"[MOCK] 算法总结",correctness:"[MOCK] 静态证明摘要，未运行代码。",assumptions:"[MOCK] 输入范围待确认。",timeComplexity:"[MOCK] O(1)",spaceComplexity:"[MOCK] O(1)",lineAnalysis:[{start:1,end:1,analysis:"[MOCK] 程序入口。"}],risks:"[MOCK] 边界待检查。",improvements:"[MOCK] 改善命名。",alternatives:"",transferableKnowledge:"[MOCK] 复杂度推导。",revisionQuestions:["[MOCK] 输入前提是什么？"],answer:"[MOCK] 追问回答。"};
+    const analysis={summary:"[MOCK] 算法总结",correctness:"[MOCK] 静态证明摘要，未运行代码。",assumptions:"[MOCK] 输入范围待确认。",timeComplexity:"[MOCK] O(1)",spaceComplexity:"[MOCK] O(1)",lineAnalysis:[{start:1,end:1,analysis:"[MOCK] 程序入口。"}],risks:"[MOCK] 边界问题需要核实。",improvements:"[MOCK] 改善命名。",alternatives:"",transferableKnowledge:"[MOCK] 数论与数学。",revisionQuestions:["[MOCK] 输入前提是什么？"],answer:"[MOCK] 追问回答。"};
     res.end(JSON.stringify({model:"fixture-http-model",choices:[{finish_reason:"stop",message:{role:"assistant",content:JSON.stringify(analysis)}}],usage:{prompt_tokens:123,completion_tokens:45,total_tokens:168}}));return;
   }
   const level = Number(system.match(/有效等级 L(\d)/)?.[1] ?? 0);

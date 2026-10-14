@@ -38,7 +38,7 @@ export default defineConfig({
     },
     {
       name: "m2-desktop",
-      testMatch: ["m2.spec.ts", "m25.spec.ts", "m3.spec.ts"],
+      testMatch: ["m2.spec.ts", "m25.spec.ts", "m3.spec.ts", "m32.spec.ts"],
       use: {
         ...devices["Desktop Chrome"],
         baseURL: "http://127.0.0.1:3102",
@@ -47,7 +47,7 @@ export default defineConfig({
     },
     {
       name: "m2-mobile",
-      testMatch: ["m2.spec.ts", "m25.spec.ts", "m3.spec.ts"],
+      testMatch: ["m2.spec.ts", "m25.spec.ts", "m3.spec.ts", "m32.spec.ts"],
       use: { ...devices["Pixel 7"], baseURL: "http://127.0.0.1:3102" },
     },
   ],

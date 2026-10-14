@@ -1,15 +1,16 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import AnalyticsPage from "@/app/(app)/analytics/page";
 import { AuthPreview } from "@/components/auth-preview";
 import { ThemeProvider } from "@/components/theme-provider";
 
+vi.mock("@/server/auth", () => ({ pageContext: vi.fn().mockResolvedValue(null) }));
+
 describe("无数据与账户预览", () => {
-  it("没有训练证据时不虚构统计或 Rating", () => {
-    render(<AnalyticsPage />);
-    expect(screen.getAllByLabelText("尚无数据")).toHaveLength(3);
+  it("没有训练证据时不虚构统计或 Rating", async () => {
+    render(await AnalyticsPage());
     expect(
-      screen.getByRole("heading", { name: "暂无官方 Rating 历史" }),
+      screen.getByRole("heading", { name: "样本不足" }),
     ).toBeVisible();
     expect(screen.queryByText(/\d+%/)).not.toBeInTheDocument();
   });
