@@ -74,3 +74,10 @@
 - 偏好/授权变动时拒绝旧 revision 的在途推荐/画像；新反馈意图新 ID，未知结果重试沿用原 ID。复盘否定词不能反向变成知识方向加权，AI 总贡献不随复盘数量累加。
 - 近期窗口不代表长期全部能力，旧方向退出窗口不意味着掌握。人工教学评审必须由人填写，自动标签/难度断言不能冒充真实推荐价值。
 - 报告见 docs/M321_RECOMMENDATION_EVALUATION.md，人工表见 docs/M321_MANUAL_REVIEW.md；托管/真实用户评审未完成时不得宣称具备生产发布验收。
+
+## M3.2.2 评审与题型适配约定
+
+- deterministic/1.2：009 在 600 预算前排除 interactive 与有官方来源的比赛语言限制，不全局禁止 special；例外表私有 RLS，无普通用户写入。001–008 保持原样，009 需明确生产授权，只应用缺失迁移。
+- 小型 problem-annotations.json 为 AI 官方来源核验，不是真人教学结论；core/Tags-only/related 匹配强度 1/0.75/0.25 集中在 engine.ts。标注是支持的训练任务，不宣称唯一必需算法，不为固定题号预定名次。默认方向/题解仍隐藏。
+- review:recommendations 校验 scenario + problem_key，保留原人工/AI CSV、独立真人覆写和 auditHistory；来源核验、AI 初评、真人结论分栏，评审不能进入线上画像。真人未填仍 0/40。
+- 候选返回 training-fit/1，应用拒绝旧策略，不用旧预算后过滤冒充新筛选。目标 007/008 匿名 PGRST202 不能证明部署状态；真实 JWT/托管/教学收益待验。报告 docs/M322_RECOMMENDATION_REVIEW.md。

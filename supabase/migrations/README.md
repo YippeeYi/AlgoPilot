@@ -9,3 +9,5 @@ M2.5 追加 `202610120005_ac_reviews.sql`：独立授权/代码快照/复盘请�
 M3 追加 `202610120006_cf_catalog_plans.sql`：官方元数据可信缓存、共享请求槽/租约与多题计划/RLS/CAS。只执行缺失迁移；先确认 005 完整应用。签名配置及所有接口见 `docs/M3_SETUP.md`。
 
 M3.2 追加 `202610140007_learning_recommendations.sql`。M3.2.1 追加 `202610140008_recommendation_audit.sql`，仅替换候选读取函数，RLS/ACL 与历史不变。007 原始 DDL 重跑会原子拒绝，正式迁移应按版本只执行缺失文件；008 重放稳定。部署须本阶段用户明确授权，隔离验证与真实托管验证不可混称。见 `docs/M321_ISOLATED_SETUP.md`。
+
+M3.2.2 追加 `202610140009_recommendation_fit.sql`；生产应用须明确授权，先核验 007/008 实际版本/函数定义，仅执行缺失迁移。原始 009 建表 DDL 重跑原子失败，依赖迁移账本，不称任意幂等。私有例外表 RLS/无用户授权；候选 RPC 策略 training-fit/1，旧策略应用安全拒绝。见 docs/M322_RECOMMENDATION_REVIEW.md。

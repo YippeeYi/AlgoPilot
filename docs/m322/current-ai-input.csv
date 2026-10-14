@@ -1,0 +1,41 @@
+scenario,scenario_zh,problem_key,official_url,rating,assessment,rationale,suggestion,reviewer,reviewed_at,statement_consulted,review_type
+cold,无历史冷启动,1800/B,https://codeforces.com/problemset/problem/1800/B,1000,适合,大小写字母配对与剩余配额优化，兼顾字符串计数和简单贪心。,冷启动摸底可用；不将 Rating 1000 当作真实能力结论。,GPT-6（AI辅助初评）,2026-10-14,已读（官方题面；部分使用官方竞赛链接）,AI初评，非真人评价
+cold,无历史冷启动,29/A,https://codeforces.com/problemset/problem/29/A,1000,适合,至多 100 个位置，双向命中关系可用枚举/映射验证，适合作为基础实现诊断。,安排在本组最前，完成后根据表现提高难度。,GPT-6（AI辅助初评）,2026-10-14,已读（官方题面；部分使用官方竞赛链接）,AI初评，非真人评价
+cold,无历史冷启动,1765/E,https://codeforces.com/problemset/problem/1765/E,1000,适合,金币/银币兑换要识别 a>b 时套利循环与 a≤b 时的常规计算，测试边界分析能力。,可测查条件分类与数学推理；不能只按 math 标签解释。,GPT-6（AI辅助初评）,2026-10-14,已读（官方题面；部分使用官方竞赛链接）,AI初评，非真人评价
+cold,无历史冷启动,672/B,https://codeforces.com/problemset/problem/672/B,1000,适合,关键在发现单字符不重复即可保证所有非空子串不同，进而统计重复字符。,作为观察与推导入门题；若秒解则提高难度。,GPT-6（AI辅助初评）,2026-10-14,已读（官方题面；部分使用官方竞赛链接）,AI初评，非真人评价
+cold,无历史冷启动,2156/B,https://codeforces.com/problemset/problem/2156/B,1000,适合,环形 A/B 机器对大整数反复变换，需理解衰减过程及全 A 等边界。,放在摸底后段，避免与前四题同等优先级。,GPT-6（AI辅助初评）,2026-10-14,已读（官方题面；部分使用官方竞赛链接）,AI初评，非真人评价
+sparse,仅两道训练记录,1381/A1,https://codeforces.com/problemset/problem/1381/A1,1300,适合,二进制串前缀翻转构造，练习操作序列设计和过程验证。,建议保留为构造方向，观察是否会证明步数界。,GPT-6（AI辅助初评）,2026-10-14,已读（官方题面；部分使用官方竞赛链接）,AI初评，非真人评价
+sparse,仅两道训练记录,298/A,https://codeforces.com/problemset/problem/298/A,1300,适合,根据 R/L 足迹推出起点终点，核心是边界处理和局部规律。,可作轻量实现题；若历史两题已熟练模拟则应降权。,GPT-6（AI辅助初评）,2026-10-14,已读（官方题面；部分使用官方竞赛链接）,AI初评，非真人评价
+sparse,仅两道训练记录,1900/C,https://codeforces.com/problemset/problem/1900/C,1300,适合,二叉树沿根到叶路径修改指令的最小代价，可用树遍历或树上 DP。,若用户无树基础，应作为探索题而非认定其已会 DP。,GPT-6（AI辅助初评）,2026-10-14,已读（官方题面；部分使用官方竞赛链接）,AI初评，非真人评价
+sparse,仅两道训练记录,2129/A,https://codeforces.com/problemset/problem/2129/A,1300,适合,区间覆盖收益与图中环惩罚同时出现，需证明选择无环边集的构造性质。,属于综合构造题；仅两条历史不宜宣称用户已具备 DSU/图论基础。,GPT-6（AI辅助初评）,2026-10-14,已读（官方题面；部分使用官方竞赛链接）,AI初评，非真人评价
+sparse,仅两道训练记录,1603/A,https://codeforces.com/problemset/problem/1603/A,1300,适合,按下标删元素、整除条件与删除次序相关，考查必要条件和构造证明。,数学构造方向合理，可用于判定推理能力。,GPT-6（AI辅助初评）,2026-10-14,已读（官方题面；部分使用官方竞赛链接）,AI初评，非真人评价
+beginner,800–1200 初学者,1800/B,https://codeforces.com/problemset/problem/1800/B,1000,适合,字符串频次及大小写配对的贪心方法明确，适合检验字符串基础。,保留，但完成后不要重复推荐同类计数题。,GPT-6（AI辅助初评）,2026-10-14,已读（官方题面；部分使用官方竞赛链接）,AI初评，非真人评价
+beginner,800–1200 初学者,29/A,https://codeforces.com/problemset/problem/29/A,1000,偏简单,n≤100，枚举是否存在互相命中的两只骆驼即可；对已有 16 道 1000 分自报完成的场景挑战偏低。,可作为热身，不宜占据五题核心推荐位；替换为需更深入枚举优化的题。,GPT-6（AI辅助初评）,2026-10-14,已读（官方题面；部分使用官方竞赛链接）,AI初评，非真人评价
+beginner,800–1200 初学者,1765/E,https://codeforces.com/problemset/problem/1765/E,1000,适合,简单兑换问题暗含套利与分情况讨论，对初学者仍有思维训练价值。,保留，重点检查用户能否主动识别 a>b 的特殊分支。,GPT-6（AI辅助初评）,2026-10-14,已读（官方题面；部分使用官方竞赛链接）,AI初评，非真人评价
+beginner,800–1200 初学者,672/B,https://codeforces.com/problemset/problem/672/B,1000,偏简单,26 个小写字母去重的直接计数通常是基础实现题，对已完成 16 道同难度题目的场景偏浅。,改为少量热身或换成更具字符串构造挑战的 1000–1200 题。,GPT-6（AI辅助初评）,2026-10-14,已读（官方题面；部分使用官方竞赛链接）,AI初评，非真人评价
+beginner,800–1200 初学者,2156/B,https://codeforces.com/problemset/problem/2156/B,1000,适合,循环机器多次查询，要求从逐步模拟中正确处理大数和环形更新。,适合作为该组稍难的一题，必要时给予更长思考时间。,GPT-6（AI辅助初评）,2026-10-14,已读（官方题面；部分使用官方竞赛链接）,AI初评，非真人评价
+intermediate,1400–1800 中等选手,1861/C,https://codeforces.com/problemset/problem/1861/C,1600,适合,用 +/−/0/1 表示数组变化和是否有序，需维护可行约束不变量。,保留，特别适合训练状态条件与反例。,GPT-6（AI辅助初评）,2026-10-14,已读（官方题面；部分使用官方竞赛链接）,AI初评，非真人评价
+intermediate,1400–1800 中等选手,1327/C,https://codeforces.com/problemset/problem/1327/C,1600,适合,同步移动棋子的网格覆盖构造，要求给出满足操作上界的遍历序列。,保留，可要求用户解释为何覆盖全部目标点。,GPT-6（AI辅助初评）,2026-10-14,已读（官方题面；部分使用官方竞赛链接）,AI初评，非真人评价
+intermediate,1400–1800 中等选手,253/C,https://codeforces.com/problemset/problem/253/C,1600,适合,不同行长度的文本光标最短按键，需要压缩状态或推导最优移动路线。,保留，定位为状态建模与最短代价分析，不要只按 graphs 标签解释。,GPT-6（AI辅助初评）,2026-10-14,已读（官方题面；部分使用官方竞赛链接）,AI初评，非真人评价
+intermediate,1400–1800 中等选手,1334/C,https://codeforces.com/problemset/problem/1334/C,1600,适合,环形怪物爆炸链的最小子弹数，核心为找出起点并利用相邻贡献。,保留，适合贪心证明及前后依赖分析。,GPT-6（AI辅助初评）,2026-10-14,已读（官方题面；部分使用官方竞赛链接）,AI初评，非真人评价
+intermediate,1400–1800 中等选手,322/B,https://codeforces.com/problemset/problem/322/B,1600,适合,三色花束分组与混合花束的最大化，可用模 3 结构缩小枚举。,保留以补数学/组合方向；不要把多样性等同于标签数量。,GPT-6（AI辅助初评）,2026-10-14,已读（官方题面；部分使用官方竞赛链接）,AI初评，非真人评价
+advanced,2000+ 进阶选手,2028/E,https://codeforces.com/problemset/problem/2028/E,2300,适合,树上对抗随机转移求各点逃脱概率，涉及树结构、概率与状态推导。,高阶综合题，保留；若缺少概率 DP 基础可改为专项进阶。,GPT-6（AI辅助初评）,2026-10-14,已读（官方题面；部分使用官方竞赛链接）,AI初评，非真人评价
+advanced,2000+ 进阶选手,727/F,https://codeforces.com/problemset/problem/727/F,2300,适合,n≤750、m≤200000 的多初始值前缀非负优化，考查离线/贪心/DP 边界。,保留，可作为高级多询问优化题。,GPT-6（AI辅助初评）,2026-10-14,已读（官方题面；部分使用官方竞赛链接）,AI初评，非真人评价
+advanced,2000+ 进阶选手,1101/G,https://codeforces.com/problemset/problem/1101/G,2300,适合,分段异或非零线性无关条件，核心是 GF(2) 线性基/秩思想。,适合高阶选手；应在推荐说明中提示线性基先修，而非仅标 math/matrices。,GPT-6（AI辅助初评）,2026-10-14,已读（官方题面；部分使用官方竞赛链接）,AI初评，非真人评价
+advanced,,1658/D2,https://codeforces.com/problemset/problem/1658/D2,2300,,,,,,,unreviewed
+advanced,,1895/E,https://codeforces.com/problemset/problem/1895/E,2300,,,,,,,unreviewed
+graphs,图论高提示依赖,690/C2,https://codeforces.com/problemset/problem/690/C2,1500,适合,给定满足树结构的网络求最大两点距离，属于树直径的典型训练。,优先保留；若难度合适可与树上路径题组成递进。,GPT-6（AI辅助初评）,2026-10-14,已读（官方题面；部分使用官方竞赛链接）,AI初评，非真人评价
+graphs,图论高提示依赖,114/B,https://codeforces.com/problemset/problem/114/B,1500,适合,至多 16 人的相容组最大化可建冲突图并枚举独立集，训练图建模与位掩码。,适合图论建模/状态枚举，但不用于检验 BFS/DFS 熟练度。,GPT-6（AI辅助初评）,2026-10-14,已读（官方题面；部分使用官方竞赛链接）,AI初评，非真人评价
+graphs,图论高提示依赖,402/C,https://codeforces.com/problemset/problem/402/C,1500,适合,根据 2n+p 边数及子图边数上界构造无重边图，属于图的结构性构造。,图论相关但非遍历题；建议与搜索/连通性题搭配以避免偏构造。,GPT-6（AI辅助初评）,2026-10-14,已读（官方题面；部分使用官方竞赛链接）,AI初评，非真人评价
+graphs,图论高提示依赖,177/C1,https://codeforces.com/problemset/problem/177/C1,1500,适合,好友关系强制整个连通分量同时选择，再检查分量内敌对关系。,非常契合连通分量/DFS/DSU 的基础诊断，优先保留。,GPT-6（AI辅助初评）,2026-10-14,已读（官方题面；部分使用官方竞赛链接）,AI初评，非真人评价
+graphs,,1106/D,https://codeforces.com/problemset/problem/1106/D,1500,,,,,,,unreviewed
+dp,DP 高提示依赖,264/B,https://codeforces.com/problemset/problem/264/B,1500,适合,在严格递增数列中按公共质因子维护最长链，典型 DP 状态压缩与数论结合。,优先保留，说明关键训练点是基于质因子的状态转移。,GPT-6（AI辅助初评）,2026-10-14,已读（官方题面；部分使用官方竞赛链接）,AI初评，非真人评价
+dp,DP 高提示依赖,1526/C1,https://codeforces.com/problemset/problem/1526/C1,1500,适合,在血量始终非负下最大化可选药水数，n≤2000 允许 O(n²) 状态 DP。,非常适合 DP 初中级训练；注意本题也有贪心思路。,GPT-6（AI辅助初评）,2026-10-14,已读（官方题面；部分使用官方竞赛链接）,AI初评，非真人评价
+dp,DP 高提示依赖,1997/D,https://codeforces.com/problemset/problem/1997/D,1500,适合,树上节点值的操作约束要求自底向上计算可提供的资源/边界，适合树形 DP/贪心分析。,保留，建议要求写出递推含义和正确性证明。,GPT-6（AI辅助初评）,2026-10-14,已读（官方题面；部分使用官方竞赛链接）,AI初评，非真人评价
+dp,,1253/C,https://codeforces.com/problemset/problem/1253/C,1500,,,,,,,unreviewed
+dp,,2069/C,https://codeforces.com/problemset/problem/2069/C,1500,,,,,,,unreviewed
+extensive,大量完成/计划/反馈,2061/C,https://codeforces.com/problemset/problem/2061/C,1600,适合,统计相邻不能都说谎的配置数，需要维护身份/计数相容性，可设计线性 DP。,适合作为组合与 DP 结合的有价值新题。,GPT-6（AI辅助初评）,2026-10-14,已读（官方题面；部分使用官方竞赛链接）,AI初评，非真人评价
+extensive,大量完成/计划/反馈,1980/E,https://codeforces.com/problemset/problem/1980/E,1600,适合,矩阵行列分别交换，判断位置关系是否可通过置换保持，训练结构不变量与映射。,可保留作为不同于已有训练的矩阵/不变量题。,GPT-6（AI辅助初评）,2026-10-14,已读（官方题面；部分使用官方竞赛链接）,AI初评，非真人评价
+extensive,大量完成/计划/反馈,1921/E,https://codeforces.com/problemset/problem/1921/E,1600,适合,棋盘双方最优移动结果判断，核心为回合奇偶、纵向距离及可达区间。,适合作为博弈几何推理题；避免仅标记为暴力枚举。,GPT-6（AI辅助初评）,2026-10-14,已读（官方题面；部分使用官方竞赛链接）,AI初评，非真人评价
+extensive,大量完成/计划/反馈,727/B,https://codeforces.com/problemset/problem/727/B,1600,适合,无分隔符账单拆分与千位点/小数点解析，需要严格字符串语法与数值边界。,保留为实现与解析能力考查，但连续推送同类纯实现题应降权。,GPT-6（AI辅助初评）,2026-10-14,已读（官方题面；部分使用官方竞赛链接）,AI初评，非真人评价
+extensive,大量完成/计划/反馈,2157/D,https://codeforces.com/problemset/problem/2157/D,1600,适合,在未知最终名次区间上优化最坏收益，涉及排序和分段最优分析。,高质量数学/贪心综合题；关注用户是否能证明最坏情形。,GPT-6（AI辅助初评）,2026-10-14,已读（官方题面；部分使用官方竞赛链接）,AI初评，非真人评价

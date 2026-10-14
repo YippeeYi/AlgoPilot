@@ -1,7 +1,10 @@
 import { defaultPreferences, type LearningCandidate, type LearningEvidence } from "@/lib/validation/learning";
+import { candidatePolicyVersion, teachingMetadata, topicMatch, trainingCompatibility } from "./problem-fit";
 // Ranking units, not a player ability score. Centralized for audit and tuning.
-export const recommendationVersion = "deterministic/1.1";
+export const recommendationVersion = "deterministic/1.2";
 export const recommendationWeights = Object.freeze({ difficulty: 40, weakness: 22, goal: 16, novelty: 10, diversity: 12, plannedPenalty: 24, feedbackPenalty: 60, reviewSuggestion: 6 });
+export const topicMatchWeights = Object.freeze({ core: 1, tagsOnly: 0.75, related: 0.25 });
+export const recommendationTopicMatch = (p: Pick<LearningCandidate, "contestId" | "index" | "tags">, topic: string) => topicMatch(p, topic, topicMatchWeights);
 export const learningLimits = Object.freeze({ recommendations: 5, adequateSamples: 5, recentSessions: 20, feedbackWindow: 20, feedbackStep: 100, feedbackMaxShift: 200 });
 const aliases: Record<string, RegExp> = {
     implementation: /实现问题|边界问题|溢出风险|可能溢出|off.by.one|integer overflow/i,
@@ -93,29 +96,37 @@ export function recommend(e: LearningEvidence, candidates: LearningCandidate[], 
     const recentTags = new Set(recent.flatMap(s => s.tags));
     const solved = new Set(e.sessions.filter(s => s.outcome === "solved_self_reported").map(s => s.problemId));
     const unique = new Map(candidates.map(c => [c.id, c]));
-    let pool = [...unique.values()].filter(c => c.rating !== null && c.rating >= p.min && c.rating <= p.max && (p.repeat || !solved.has(c.id)) && (!p.themes.length || c.tags.some(t => p.themes.includes(t as typeof p.themes[number]))));
+    let pool = [...unique.values()].filter(c => !["interactive", "language_not_cpp"].includes(trainingCompatibility(c)) && c.rating !== null && c.rating >= p.min && c.rating <= p.max && (p.repeat || !solved.has(c.id)) && (!p.themes.length || c.tags.some(t => p.themes.includes(t as typeof p.themes[number]))));
     const alternatives = pool.filter(c => !exclude.includes(c.id));
     const reused = alternatives.length < Math.min(learningLimits.recommendations, pool.length);
     pool = [...alternatives, ...(reused ? pool.filter(c => exclude.includes(c.id)) : [])];
+    // These evidence signals are invariant within a request. Reusing them avoids
+    // rebuilding up to 500/200 record references in each of five greedy rounds.
+    // Only round coverage is dynamic; weights, factors and result order are unchanged.
+    const signals = new Map(pool.map(c => {
+        const directions = profile.directions.filter(d => recommendationTopicMatch(c, d.topic).strength > 0 && d.weakness > 0);
+        const matches = [...new Set([...directions.map(d => d.topic), ...p.themes.filter(t => recommendationTopicMatch(c, t).strength > 0)])].map(t => recommendationTopicMatch(c, t));
+        const ai = profile.reviewDirections.filter(d => c.tags.includes(d.topic));
+        const difficulty = recommendationWeights.difficulty * Math.max(0, 1 - Math.abs(c.rating! - target) / Math.max(200, p.max - p.min));
+        const weakness = recommendationWeights.weakness * Math.max(0, ...directions.map(d => d.weakness * recommendationTopicMatch(c, d.topic).strength));
+        const theme = p.themes.some(t => c.tags.includes(t));
+        const novel = c.tags.length > 0 && c.tags.some(t => !recentTags.has(t));
+        const feedback = e.feedback.find(f => f.problemId === c.id);
+        const repeatedRecently = recent.some(s => s.problemId === c.id);
+        const refs: EvidenceRef[] = [...new Map([...directions.flatMap(d => d.refs), ...ai.flatMap(d => d.refs), ...feedbackRefs, ...(historySamples >= 3 ? historyRefs : []), ...(feedback ? [{ kind: "user_feedback" as const, id: feedback.id }] : [])].map(r => [r.id, r])).values()];
+        return [c.id, { directions, matches, ai, difficulty, weakness, theme, novel, feedback, repeatedRecently, refs }] as const;
+    }));
     const usedTags = new Set<string>();
     const selected = [];
     while (pool.length && selected.length < learningLimits.recommendations) {
         const scored = pool.map(c => {
-            const directions = profile.directions.filter(d => c.tags.includes(d.topic) && d.weakness > 0);
-            const ai = profile.reviewDirections.filter(d => c.tags.includes(d.topic));
-            const difficulty = recommendationWeights.difficulty * Math.max(0, 1 - Math.abs(c.rating! - target) / Math.max(200, p.max - p.min));
-            const weakness = recommendationWeights.weakness * Math.max(0, ...directions.map(d => d.weakness));
-            const theme = p.themes.some(t => c.tags.includes(t));
-            const novel = c.tags.length > 0 && c.tags.some(t => !recentTags.has(t));
+            const { directions, matches, ai, difficulty, weakness, theme, novel, feedback, repeatedRecently, refs } = signals.get(c.id)!;
             const diversity = c.tags.length > 0 && c.tags.some(t => !usedTags.has(t));
-            const feedback = e.feedback.find(f => f.problemId === c.id);
-            const repeatedRecently = recent.some(s => s.problemId === c.id);
-            const factors = { difficulty, weakness, goal: p.goal === "independence" ? weakness / recommendationWeights.weakness * recommendationWeights.goal : p.goal === "explore" ? Number(novel) * recommendationWeights.goal : Number(theme) * recommendationWeights.goal,
+            const factors = { difficulty, weakness, goal: p.goal === "independence" ? weakness / recommendationWeights.weakness * recommendationWeights.goal : p.goal === "explore" ? Number(novel) * recommendationWeights.goal : Math.max(0, ...p.themes.map(t => recommendationTopicMatch(c, t).strength)) * recommendationWeights.goal,
                 novelty: Number(novel) * recommendationWeights.novelty - Number(repeatedRecently) * recommendationWeights.novelty,
                 diversity: Number(diversity) * recommendationWeights.diversity, plan: c.inPlan ? -recommendationWeights.plannedPenalty : 0,
                 feedback: feedback ? -recommendationWeights.feedbackPenalty : 0, review: ai.length ? recommendationWeights.reviewSuggestion : 0, reroll: exclude.includes(c.id) ? -recommendationWeights.feedbackPenalty : 0 };
             const score = Object.values(factors).reduce((a, b) => a + b, 0);
-            const refs: EvidenceRef[] = [...new Map([...directions.flatMap(d => d.refs), ...ai.flatMap(d => d.refs), ...feedbackRefs, ...(historySamples >= 3 ? historyRefs : []), ...(feedback ? [{ kind: "user_feedback" as const, id: feedback.id }] : [])].map(r => [r.id, r])).values()];
             // Do not send candidate tags, nor name a hidden algorithm in default recommendations.
             const reasons = [`CF 题目 Rating ${c.rating}，位于${e.preferences ? "你选择的" : "暂定冷启动"} ${p.min}–${p.max} 区间；本轮参考难度 ${target}。`];
             if (historySamples >= 3)
@@ -125,7 +136,15 @@ export function recommend(e: LearningEvidence, candidates: LearningCandidate[], 
             if (directions.length)
                 reasons.push(`与你的已完成训练中待加强方向相关：依据 ${new Set(directions.flatMap(d => d.refs.map(r => r.id))).size} 道题的实际提示与自报结果；关联不等于因果，仍需验证。（未解题标签隐藏）`);
             if (theme)
-                reasons.push(`符合你主动选择的主题：${p.themes.filter(t => c.tags.includes(t)).join("、")}。`);
+                reasons.push(`官方标签关联你主动选择的主题：${p.themes.filter(t => c.tags.includes(t)).join("、")}；标签命中不保证是核心解法。`);
+            if (matches.some(m => m.basis === "source_checked"))
+                reasons.push("相关训练任务已对照官方题面与题解核验，专项匹配按完整强度加权；这是 AI 来源核验，仍待真人复核，不表示算法是唯一必需解法。（未解题方向隐藏）");
+            if (matches.some(m => m.basis === "tags_only"))
+                reasons.push("相关方向仅有官方 Tags，核心学习任务尚未核验；相应专项匹配按 0.75 强度加权，适配仍有不确定性。（未解题方向隐藏）");
+            if (matches.some(m => m.basis === "related"))
+                reasons.push("来源核验支持关联方向，但该方向不是所核验解法的核心训练任务；相应专项匹配按 0.25 强度加权，不代表该题没有训练价值。（未解题方向隐藏）");
+            if (trainingCompatibility(c) === "special_unverified")
+                reasons.push("官方特殊题标记的具体限制尚未核验；未因该标记一律排除，开始前请在 CF 官网确认语言和环境要求。");
             if (ai.length)
                 reasons.push("已授权 AI 复盘提及相关知识，作为低权重的待验证建议；不代表已证实薄弱点。（未解题标签隐藏）");
             if (novel)
@@ -146,7 +165,7 @@ export function recommend(e: LearningEvidence, candidates: LearningCandidate[], 
                 reasons.push("你曾反馈这道题不合适，因此降低优先级；候选不足时仍可能出现。");
             if (factors.reroll < 0)
                 reasons.push("替代候选不足，保留上一轮题目并额外降权；本轮没有随机更换结果。");
-            return { problem: { id: c.id, contestId: c.contestId, index: c.index, name: c.name, rating: c.rating }, reasons, refs, factors, score, inPlan: c.inPlan, practiced: c.practiced };
+            return { topicFit: { version: teachingMetadata.version, bases: [...new Set(matches.map(m => m.basis))] }, problem: { id: c.id, contestId: c.contestId, index: c.index, name: c.name, rating: c.rating }, reasons, refs, factors, score, inPlan: c.inPlan, practiced: c.practiced };
         }).sort((a, b) => b.score - a.score || a.problem.id.localeCompare(b.problem.id));
         const best = scored[0]!;
         selected.push(best);
@@ -154,7 +173,7 @@ export function recommend(e: LearningEvidence, candidates: LearningCandidate[], 
         candidate.tags.forEach(t => usedTags.add(t));
         pool = pool.filter(c => c.id !== best.problem.id);
     }
-    return { version: recommendationVersion, items: selected, profile, target, requestedShift, shift, reused, preferences: p, configured: Boolean(e.preferences), revision: e.revision,
+    return { version: recommendationVersion, candidatePolicyVersion, items: selected, profile, target, requestedShift, shift, reused, preferences: p, configured: Boolean(e.preferences), revision: e.revision,
         limitations: "确定性 V1，仅对数据库按难度与主题分层选出的最多 600 个候选排序；Rating 缺失的题不推荐，主题训练排除缺 Tags 题。推荐排序分数不是选手能力分。" };
 }
 export type RecommendationResult = ReturnType<typeof recommend> & {

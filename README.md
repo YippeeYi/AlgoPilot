@@ -2,7 +2,7 @@
 
 Codeforces / XCPC 算法竞赛学习与复盘助手，只聚焦三件事：推荐合适的题并解释原因、分析题目与代码、从真实证据分析选手能力。CF 已做好的排行榜、比赛展示和提交浏览不重复开发。用户在本地 VS Code 编写、编译、调试，在 Codeforces 官网手动提交；AlgoPilot 不执行代码，不提供在线判题或自动提交。
 
-当前交付 **M3.2.1：推荐质量审计与隔离验收**，建立于已完成的 M3 CF 题库与多计划之上。M2.5 的 L0–L5 教练、单文件导入、独立 Review Orchestrator、不可变代码快照和深度复盘继续保留。Handle 与官方提交证据增量同步留给下一阶段，不开发提交列表或 Rating 历史图表，当前官方状态明确未同步，自报 AC 不等于官方验证。
+当前交付 **M3.2.2：评审整合与推荐定向修复**，建立于已完成的 M3 CF 题库与多计划之上。M2.5 的 L0–L5 教练、单文件导入、独立 Review Orchestrator、不可变代码快照和深度复盘继续保留。Handle 与官方提交证据增量同步留给下一阶段，不开发提交列表或 Rating 历史图表，当前官方状态明确未同步，自报 AC 不等于官方验证。
 
 ## 运行
 
@@ -14,7 +14,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-设置 Supabase 项目 URL、publishable key 和 APP_URL，按顺序应用 001–008 迁移；只执行目标环境缺失的 SQL。Auth 使用 SSR Cookie、proxy 刷新与服务端 getUser 验证。没有配置时仅提供无数据页面壳和公开 `/practice/preview`，不会伪造登录或启用 AI。
+设置 Supabase 项目 URL、publishable key 和 APP_URL，获得目标环境授权后按顺序应用缺失的 001–009 迁移；只执行目标环境缺失的 SQL。Auth 使用 SSR Cookie、proxy 刷新与服务端 getUser 验证。没有配置时仅提供无数据页面壳和公开 `/practice/preview`，不会伪造登录或启用 AI。
 
 CF 签名默认从已有 Tutor 独立主密钥派生，也支持单独 `CODEFORCES_RPC_SIGNING_SECRET`。配置不等于连接验证。具体见 [M3 配置](docs/M3_SETUP.md)、[Supabase 设置](docs/SUPABASE_SETUP.md)、[M2 Provider](docs/M2_SETUP.md)、[M2.5 复盘配置](docs/M25_SETUP.md)。密钥仅在服务端/private DB，禁止 service-role 绕过。
 
@@ -76,3 +76,9 @@ npm run test:e2e
 `npm run test:recommendations` 使用仓库内 11,450 题的官方元数据录制和八类合成选手历史，生成确定性断言；设置 M321_EVALUATION_OUTPUT 可导出结果/人工评审 CSV。原生隔离 PostgreSQL 使用测试目录运行时和显式开关，详见 [设置](docs/M321_ISOLATED_SETUP.md)。不增加生产数据库依赖。
 
 追加 008 修正等价 Tags 顺序、新旧比赛和已计划候选饥饿偏差；修正中位数、反馈实际变化、评分理由、否定 AI 提及、A/B/A 反馈与在途授权撤销。权重和分析窗口未扩展。完整依据、性能与 M3.3 边界见 [评测报告](docs/M321_RECOMMENDATION_EVALUATION.md)，[人工评审表](docs/M321_MANUAL_REVIEW.md) 尚待人填写。本轮未执行 007/008 生产部署，目标库实际状态待核对；原生隔离和 HTTP Mock 不是托管 JWT 验收。
+
+## M3.2.2 评审与适配
+
+追加 009 在 600 候选预算前排除 interactive 与有官方来源确认的非 C++ 语言比赛；不全局排除 special。deterministic/1.2 用小型可追溯标注区分核心/Tags-only/相关任务，主权重与难度模型不变。数据库未安装 training-fit/1 时推荐返回安全 503，需要授权后的缺失迁移核验。
+
+`npm run review:recommendations` 校验并汇总原 40 条 AI 初评与独立真人覆写，默认保留审计历史；AI 33/2/5 不是真人验收，真人仍 0/40。`M322_EVALUATION_OUTPUT=docs/m322 npm run test:recommendations` 重放八类合成选手与 11,450 题录制，原人工表不覆盖。实测对照、来源与未验证项见 [M322 报告](docs/M322_RECOMMENDATION_REVIEW.md)。本轮无生产变更，匿名目标探测不能证明 007/008 的完整部署，真实 JWT/收益仍待验。

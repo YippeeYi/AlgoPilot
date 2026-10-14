@@ -1,0 +1,27 @@
+{
+  "version": "source-audit/1",
+  "checkedAt": "2026-10-14",
+  "checkedBy": "Codex AI; independent official-source check, not human teaching review",
+  "items": [
+    {
+      "scenario": "beginner",
+      "key": "29/A",
+      "status": "context_uncertain",
+      "sources": [
+        "https://codeforces.com/problemset/problem/29/A"
+      ],
+      "finding": "Constraint n<=100 permits direct pair enumeration; relative simplicity is plausible, not proven for this simulated beginner.",
+      "limitation": "16 distinct self-reported math completions with unknown external help do not prove enumeration/string mastery; keep difficulty model. Same problem can be diagnostic in cold start."
+    },
+    {
+      "scenario": "beginner",
+      "key": "672/B",
+      "status": "context_uncertain",
+      "sources": [
+        "https://codeforces.com/problemset/problem/672/B"
+      ],
+      "finding": "Distinct single letters constrain nonempty substrings; observation/implementation difficulty depends on the learner, not just record count.",
+      "limitation": "16 distinct self-reported math completions with unknown external help do not prove enumeration/string mastery; keep difficulty model. Same problem can be diagnostic in cold start."
+    }
+  ]
+}

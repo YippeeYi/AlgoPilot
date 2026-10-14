@@ -1,0 +1,141 @@
+{
+  "version": "teaching-metadata/1",
+  "suitabilityVersion": "training-fit/1",
+  "contestRestrictions": [
+    {
+      "contestId": 130,
+      "restriction": "language_not_cpp",
+      "language": "Befunge",
+      "status": "source_checked_by_ai",
+      "checkedAt": "2026-10-14",
+      "sources": [
+        "https://codeforces.com/problemset/problem/130/I"
+      ],
+      "summary": "Contest Languages lists only Befunge; restriction applies to the entire Unknown Language Round 4, not every *special problem."
+    }
+  ],
+  "problems": [
+    {
+      "key": "1487/C",
+      "coreTopics": [
+        "constructive algorithms",
+        "math"
+      ],
+      "relatedTopics": [
+        "graphs",
+        "dfs and similar"
+      ],
+      "status": "source_checked_by_ai",
+      "checkedAt": "2026-10-14",
+      "checkedBy": "Codex / AI source audit (not human teaching review)",
+      "summary": "Official solution constructs cyclic pair outcomes using parity and index distance; graph interpretation is related, not a traversal diagnostic.",
+      "sources": [
+        "https://codeforces.com/problemset/problem/1487/C",
+        "https://codeforces.com/blog/entry/87873"
+      ]
+    },
+    {
+      "key": "1553/D",
+      "coreTopics": [
+        "greedy",
+        "two pointers",
+        "strings"
+      ],
+      "relatedTopics": [
+        "dp"
+      ],
+      "status": "source_checked_by_ai",
+      "checkedAt": "2026-10-14",
+      "checkedBy": "Codex / AI source audit (not human teaching review)",
+      "summary": "Official published solution scans with parity and paired skips; DP is a possible alternative, not required by the canonical solution.",
+      "sources": [
+        "https://codeforces.com/problemset/problem/1553/D",
+        "https://codeforces.com/blog/entry/93105"
+      ]
+    },
+    {
+      "key": "2053/C",
+      "coreTopics": [
+        "math",
+        "divide and conquer"
+      ],
+      "relatedTopics": [
+        "dp"
+      ],
+      "status": "source_checked_by_ai",
+      "checkedAt": "2026-10-14",
+      "checkedBy": "Codex / AI source audit (not human teaching review)",
+      "summary": "Editorial gives symmetry/count-by-length and recursive halving methods; recurrence alone does not establish DP-state training.",
+      "sources": [
+        "https://codeforces.com/problemset/problem/2053/C",
+        "https://codeforces.com/blog/entry/136455"
+      ]
+    },
+    {
+      "key": "690/C2",
+      "coreTopics": [
+        "graphs",
+        "trees",
+        "dfs and similar"
+      ],
+      "relatedTopics": [],
+      "status": "source_checked_by_ai",
+      "checkedAt": "2026-10-14",
+      "checkedBy": "Codex / AI source audit (not human teaching review)",
+      "summary": "Official editorial presents tree diameter by two traversals and an alternative tree DP. Graph/tree traversal is a core supported training task.",
+      "sources": [
+        "https://codeforces.com/problemset/problem/690/C2",
+        "https://assets.codeforces.com/files/690/hc2-2016-editorial.pdf"
+      ]
+    },
+    {
+      "key": "264/B",
+      "coreTopics": [
+        "dp",
+        "number theory"
+      ],
+      "relatedTopics": [],
+      "status": "source_checked_by_ai",
+      "checkedAt": "2026-10-14",
+      "checkedBy": "Codex / AI source audit (not human teaching review)",
+      "summary": "Official editorial defines maximum sequence length by last value and divisors, with explicit transitions.",
+      "sources": [
+        "https://codeforces.com/problemset/problem/264/B",
+        "https://codeforces.com/blog/entry/6478"
+      ]
+    },
+    {
+      "key": "1526/C1",
+      "coreTopics": [
+        "dp",
+        "greedy"
+      ],
+      "relatedTopics": [],
+      "status": "source_checked_by_ai",
+      "checkedAt": "2026-10-14",
+      "checkedBy": "Codex / AI source audit (not human teaching review)",
+      "summary": "Official editorial explicitly supports quadratic position/count DP for the easy version and alternative greedy solutions; DP is suitable but not mandatory.",
+      "sources": [
+        "https://codeforces.com/problemset/problem/1526/C1",
+        "https://codeforces.com/blog/entry/91195"
+      ]
+    },
+    {
+      "key": "690/C1",
+      "coreTopics": [
+        "graphs",
+        "dsu",
+        "dfs and similar"
+      ],
+      "relatedTopics": [],
+      "status": "source_checked_by_ai",
+      "checkedAt": "2026-10-14",
+      "checkedBy": "Codex / AI source audit (not human teaching review)",
+      "summary": "Non-problem control: editorial checks connectedness and acyclicity using graph search or union-find.",
+      "sources": [
+        "https://codeforces.com/problemset/problem/690/C1",
+        "https://assets.codeforces.com/files/690/hc2-2016-editorial.pdf"
+      ]
+    }
+  ]
+}

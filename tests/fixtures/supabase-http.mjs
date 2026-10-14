@@ -4,6 +4,7 @@ import {readFileSync} from "node:fs";
 import { createServer } from "node:http";
 import { randomUUID, createHmac, createHash } from "node:crypto";
 
+const fitRegistry = JSON.parse(readFileSync(new URL('../../src/features/learning/problem-annotations.json', import.meta.url), 'utf8'));
 const users = new Map();
 const tokens = new Map();
 const sessions = new Map();
@@ -93,8 +94,8 @@ function rpc(name, p, uid) {
   }
   if(name==='learning_candidates'){
     const q=p.p_query;
-    const rows=[...problems.values()].filter(r=>r.platform==='codeforces'&&r.rating!==null&&r.rating>=q.min&&r.rating<=q.max&&(!q.themes.length||q.themes.some(t=>r.tags.includes(t)))&&(q.repeat||![...sessions.values()].some(s=>s.user_id===uid&&s.problem_id===r.id&&s.outcome==='solved_self_reported')&&![...reviews.values()].some(cr=>cr.user_id===uid&&cr.problem_id===r.id)));
-    return {total:rows.length,items:rows.sort((a,b)=>Math.abs(a.rating-q.target)-Math.abs(b.rating-q.target)||b.contest_id-a.contest_id||a.problem_index.localeCompare(b.problem_index)).slice(0,600).map(r=>({...cfProblem(r),inPlan:[...planItems.values()].some(i=>i.user_id===uid&&i.problem_id===r.id&&!plans.get(i.plan_id)?.archived),practiced:[...sessions.values()].some(s=>s.user_id===uid&&s.problem_id===r.id)}))};
+    const rows=[...problems.values()].filter(r=>r.platform==='codeforces'&&!r.tags.includes('interactive')&&!fitRegistry.contestRestrictions.some(f=>f.contestId===r.contest_id)&&r.rating!==null&&r.rating>=q.min&&r.rating<=q.max&&(!q.themes.length||q.themes.some(t=>r.tags.includes(t)))&&(q.repeat||![...sessions.values()].some(s=>s.user_id===uid&&s.problem_id===r.id&&s.outcome==='solved_self_reported')&&![...reviews.values()].some(cr=>cr.user_id===uid&&cr.problem_id===r.id)));
+    return {policyVersion:fitRegistry.suitabilityVersion,total:rows.length,items:rows.sort((a,b)=>Math.abs(a.rating-q.target)-Math.abs(b.rating-q.target)||b.contest_id-a.contest_id||a.problem_index.localeCompare(b.problem_index)).slice(0,600).map(r=>({...cfProblem(r),inPlan:[...planItems.values()].some(i=>i.user_id===uid&&i.problem_id===r.id&&!plans.get(i.plan_id)?.archived),practiced:[...sessions.values()].some(s=>s.user_id===uid&&s.problem_id===r.id)}))};
   }
   if(name==='cf_catalog'){
     const q=p.p_query;let rows=[...problems.values()].filter(r=>r.platform==='codeforces');const tags=(q.tags??'').split(';').filter(Boolean);

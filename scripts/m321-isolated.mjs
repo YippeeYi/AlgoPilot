@@ -47,12 +47,19 @@ try {
  try{await admin.query(await readFile('supabase/migrations/202610140007_learning_recommendations.sql','utf8'));assert.fail('007 unexpectedly replayed');}catch(e){assert.equal(e.code,'42P07');await admin.query('rollback');}
  assert.equal(JSON.stringify(await functions()),beforeReplay);checks.push('007 replay rejected atomically (42P07), function definitions preserved');
  const patch=await readFile('supabase/migrations/202610140008_recommendation_audit.sql','utf8');await admin.query(patch);const patched=JSON.stringify(await functions());const previous=JSON.parse(beforeReplay);assert.deepEqual(JSON.parse(patched).filter((r,i)=>r.definition!==previous[i].definition).map(r=>r.proname),['learning_candidates']);await admin.query(patch);assert.equal(JSON.stringify(await functions()),patched);checks.push('008 replay stable; only candidate function replaced');
- assert.deepEqual((await admin.query('select to_jsonb(s) v from public.training_sessions s where id=$1',[legacySession])).rows[0].v,legacyBefore);checks.push('legacy custom/session data unchanged across 006–008');
+ const fitPatch=await readFile('supabase/migrations/202610140009_recommendation_fit.sql','utf8');await admin.query(fitPatch);
+ const afterFit=JSON.stringify(await functions());assert.deepEqual(JSON.parse(afterFit).filter((r,i)=>r.definition!==JSON.parse(patched)[i].definition).map(r=>r.proname),['learning_candidates']);
+ await expectCode(()=>asUser(b,bob,()=>b.query("update algopilot_private.recommendation_restrictions set language='C++'")),'42501');
+ assert((await admin.query("select relrowsecurity from pg_class where oid='algopilot_private.recommendation_restrictions'::regclass")).rows[0].relrowsecurity);
+ checks.push('009 changes only candidate RPC; exception metadata RLS/ACL rejects user edits');
+ assert.deepEqual((await admin.query('select to_jsonb(s) v from public.training_sessions s where id=$1',[legacySession])).rows[0].v,legacyBefore);checks.push('legacy custom/session data unchanged across 006–009');
  await admin.query('insert into algopilot_private.tutor_settings(signing_secret) values($1)',[secret]);await admin.query('insert into algopilot_private.cf_settings(signing_secret) values($1)',[secret]);
  const source=process.env.CF_REAL_RESPONSE_PATH??'tests/fixtures/cf-problemset-20261012.json.gz',recordedBytes=await readFile(source),raw=(source.endsWith('.gz')?gunzipSync(recordedBytes):recordedBytes).toString('utf8'),recording=JSON.parse(raw).result;
  const statistics=new Map(recording.problemStatistics.map(p=>[`${p.contestId}/${p.index}`,p.solvedCount]));
  const problems=recording.problems.filter(p=>p.contestId).map(p=>({contestId:p.contestId,index:p.index,name:p.name,rating:p.rating??null,tags:p.tags??[],solvedCount:statistics.get(`${p.contestId}/${p.index}`)??null}));
  const lease=await signed(a,alice,'cf_sync',{operation:'cf_sync',action:'reserve'});await signed(a,alice,'cf_sync',{operation:'cf_sync',action:'slot',nonce:lease.nonce});await signed(a,alice,'cf_sync',{operation:'cf_sync',action:'publish',nonce:lease.nonce,problems});
+ const fitPool=(await asUser(a,alice,()=>a.query('select public.learning_candidates($1::jsonb) v',[JSON.stringify({min:2000,max:2600,target:2300,themes:[],repeat:false})]))).rows[0].v;
+ assert.equal(fitPool.policyVersion,'training-fit/1');assert(fitPool.items.every(p=>p.contestId!==130&&!p.tags.includes('interactive')));assert.equal(fitPool.items.length,600);checks.push('009 real recorded catalog suitability before 600 shortlist');
  const pid=(await admin.query("select id from public.problems where rating between 1400 and 1800 order by contest_id,problem_index limit 1")).rows[0].id;
  const pids=(await Promise.all([a,b,c].map(x=>x.query('select pg_backend_pid() pid')))).map(r=>r.rows[0].pid);assert.equal(new Set(pids).size,3);
  // Independent connections contend on the same user's CAS, verified through pg_stat_activity.

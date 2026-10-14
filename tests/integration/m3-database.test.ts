@@ -51,6 +51,7 @@ beforeAll(async () => {
     await db.exec(await readFile("supabase/migrations/202610120006_cf_catalog_plans.sql", "utf8"));
     await db.exec(await readFile("supabase/migrations/202610140007_learning_recommendations.sql", "utf8"));
     await db.exec(await readFile("supabase/migrations/202610140008_recommendation_audit.sql", "utf8"));
+    await db.exec(await readFile("supabase/migrations/202610140009_recommendation_fit.sql", "utf8"));
     await db.query("insert into algopilot_private.cf_settings(signing_secret) values($1)", [secret]);
     const nonce = (await sync({ action: "reserve" })).rows[0]!.v.nonce;
     await sync({ action: "slot", nonce });

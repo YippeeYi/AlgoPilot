@@ -16,5 +16,5 @@ export const evidenceSchema = z.object({
     feedback: z.array(z.object({ id: idSchema, problemId: idSchema, kind: feedbackSchema.shape.kind, rating: z.number().nullable(), createdAt: z.string() })),
 });
 export type LearningEvidence = z.infer<typeof evidenceSchema>;
-export const candidatesSchema = z.object({ items: z.array(catalogProblemSchema.extend({ inPlan: z.boolean(), practiced: z.boolean() })), total: z.number().int().nonnegative() });
+export const candidatesSchema = z.object({ policyVersion: z.string().optional(), items: z.array(catalogProblemSchema.extend({ inPlan: z.boolean(), practiced: z.boolean() })), total: z.number().int().nonnegative() });
 export type LearningCandidate = z.infer<typeof candidatesSchema>["items"][number];

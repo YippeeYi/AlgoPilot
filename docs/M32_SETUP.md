@@ -65,3 +65,9 @@ L0 分布包含尚未请求 AI 的记录，不能等同于实际查看过一条 
 推荐/画像输出前验证当前偏好 revision；在缓存刷新期间授权或目标变动则安全返回 409 LEARNING_EVIDENCE_CHANGED，要求重新请求，不展示旧授权的建议。反馈新操作使用新 requestId，未知响应重试保持旧 ID，修复 A/B/A 操作被旧幂等请求吞掉的问题。
 
 当前仅本地/原生隔离验证；本轮未执行 007/008 生产部署，目标库实际状态待授权流程前只读核对。见 [评测报告](M321_RECOMMENDATION_EVALUATION.md)、[人工表](M321_MANUAL_REVIEW.md)、[隔离与部署准备](M321_ISOLATED_SETUP.md)。
+
+## M3.2.2 当前适配策略
+
+在明确授权后只应用缺失的 009_recommendation_fit.sql，001–008 不重写。009 在分层前排除 interactive 和私有版本化例外语言比赛；无需新密钥/服务。应用要求 training-fit/1，旧库安全 503，请先核验已部署版本与函数定义再协调应用上线。匿名 PGRST202 不足以判断 007/008 完整状态。
+
+deterministic/1.2 的主权重、难度和窗口保持；engine.ts 集中核心/Tags-only/相关强度为 1/0.75/0.25。小型官方来源标注仍属 AI 核验而非真人结论，不宣称算法必需；未知 special 需确认。控制实验与真人覆写流程见 [M322 报告](M322_RECOMMENDATION_REVIEW.md)。

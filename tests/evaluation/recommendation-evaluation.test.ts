@@ -66,6 +66,8 @@ describe("versioned recommendation evaluation; synthetic histories, automatic as
   const lifetime=abilityProfile(e),window=abilityProfile({...e,sessions:e.sessions.slice(-500)});
   expect(lifetime.directions.find(d=>d.topic==='graphs')!.samples).toBe(100);expect(window.directions.some(d=>d.topic==='graphs')).toBe(false);expect(window.limitations.join()).toContain('500');
  });
+ // 24 complete runs share CPU/GC with the SQL suite. Align only this sampling
+ // timeout with vitest.evaluation.config.ts; individual timings remain recorded.
  it("benchmarks maximum input windows without treating local timing as a production SLA",async()=>{
   const e=emptyEvidence();e.preferences={min:800,max:2600,themes:[],goal:'independence',repeat:false,reviewEvidence:true};
   e.sessions=Array.from({length:500},(_,i)=>training(i+1,1600,['graphs','dp','math','greedy'][i%4]!,4));e.totalSessions=700;
@@ -73,7 +75,7 @@ describe("versioned recommendation evaluation; synthetic histories, automatic as
   const pool=catalog.slice(0,600),metrics:Record<string,{medianMs:number;p95Ms:number;samples:number}>={};
   for(const [name,fn] of [['baseline',baseline.recommend],['current',recommend]] as const){const times:number[]=[];for(let n=0;n<12;n++){const start=performance.now();const r=fn(e,pool);if(n>=2)times.push(performance.now()-start);expect(r.items).toHaveLength(5);}times.sort((a,b)=>a-b);metrics[name]={samples:times.length,medianMs:(times[times.length/2-1]!+times[times.length/2]!)/2,p95Ms:times.at(-1)!};}
   if(process.env.M321_EVALUATION_OUTPUT) {await mkdir(process.env.M321_EVALUATION_OUTPUT,{recursive:true});await writeFile(`${process.env.M321_EVALUATION_OUTPUT}/engine-performance.json`,JSON.stringify({source:'SYNTHETIC worst-window workload; ten measured runs after two warmups',sessions:500,reviews:200,candidates:600,metrics},null,2)+'\n');}
- });
+ }, 30000);
  it("writes reproducible scenario observations only when an output directory is explicitly supplied",async()=>{
   if(!process.env.M321_EVALUATION_OUTPUT)return;
   await mkdir(process.env.M321_EVALUATION_OUTPUT,{recursive:true});
