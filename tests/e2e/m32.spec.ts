@@ -78,6 +78,14 @@ test('cold start, feedback, plan association, Tutor context, AC review evidence 
     await page.screenshot({ path: `/tmp/algopilot-m32-profile-${info.project.name}.png`, fullPage: true });
     await page.reload();
     await expect(page.getByText(/AI 推测（未验证）/).first()).toBeVisible();
+    await page.goto('/dashboard');
+    await expect(page.getByRole('button',{name:'保存目标并推荐'})).toBeEnabled();
+    await page.getByLabel(/授权从已生成/).uncheck();
+    await page.getByRole('button',{name:'保存目标并推荐'}).click();
+    await expect(page.getByText(/目标已保存/)).toBeVisible();
+    const revoked=await(await page.request.post('/api/v1/recommendations',{data:{}})).json();
+    expect(revoked.profile.reviewDirections).toEqual([]);expect(revoked.items.every((i:{factors:{review:number}})=>i.factors.review===0)).toBe(true);
+    await page.goto('/analytics');await expect(page.getByText(/尚无已授权且可识别的复盘证据/)).toBeVisible();
     expect(errors).toEqual([]);
 });
 test('two users isolate profile, feedback, preferences and review sources; safe cache failure with retry', async ({ page, browser, baseURL }) => {
@@ -109,4 +117,18 @@ test('two users isolate profile, feedback, preferences and review sources; safe 
     await expect(page.getByRole('link', { name: '辅助选题：浏览题库' })).toBeVisible();
     await page.getByRole('button', { name: '重新推荐' }).click();
     await expect(page.locator('[data-slot="card"]').first()).toBeVisible();
+});
+
+test('feedback A/B/A creates new intent while a lost acknowledgement retries the same request',async({page})=>{
+ await login(page);await expect(page.getByRole('button',{name:'保存目标并推荐'})).toBeEnabled();
+ await page.getByLabel('愿意挑战的最低难度').fill('1800');await page.getByLabel('愿意挑战的最高难度').fill('1800');await page.getByRole('button',{name:'保存目标并推荐'}).click();await expect(page.getByText(/目标已保存/)).toBeVisible();
+ const ids:string[]=[];page.on('request',r=>{if(r.method()==='POST'&&r.url().endsWith('/learning/feedback'))ids.push(r.postDataJSON().requestId);});
+ const card=page.locator('[data-slot="card"]').filter({hasText:'1732C1'});
+ for(const label of ['太简单','太难','太简单']){await card.getByRole('button',{name:label,exact:true}).click();await expect(page.getByText(/反馈已保存/)).toBeVisible();}
+ expect(ids).toHaveLength(3);expect(new Set(ids).size).toBe(3);
+ let rec=await(await page.request.post('/api/v1/recommendations',{data:{}})).json();expect(rec.items[0].refs.some((r:{id:string})=>r.id===ids[2])).toBe(true);
+ await page.route('**/api/v1/learning/feedback',async route=>{await route.fetch();await route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({error:{message:'[FIXTURE] acknowledgement lost after persistence'}})});},{times:1});
+ await card.getByRole('button',{name:'太难',exact:true}).click();await expect(page.locator('main').getByRole('alert')).toContainText('acknowledgement lost');
+ await card.getByRole('button',{name:'太难',exact:true}).click();await expect(page.getByText(/反馈已保存/)).toBeVisible();expect(ids[4]).toBe(ids[3]);
+ rec=await(await page.request.post('/api/v1/recommendations',{data:{}})).json();expect(rec.items[0].refs.some((r:{id:string})=>r.id===ids[3])).toBe(true);expect(rec.shift).toBe(0); // Fixed range: actual movement is zero.
 });

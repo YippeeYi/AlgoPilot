@@ -437,7 +437,7 @@ function rpc(name, p, uid) {
 function select(url, uid) {
   const table = url.pathname.split("/").at(-1);
   let rows =
-    table === "training_plans" ? [...plans.values()].filter(r=>r.user_id===uid) : table === "code_reviews" ? [...reviews.values()].filter(r=>r.user_id===uid) : table === "review_requests" ? [...reviewRequests.values()].filter(r=>r.user_id===uid) : table === "training_sessions"
+    table === "learning_preferences" ? (learningPrefs.has(uid)?[{user_id:uid,...learningPrefs.get(uid)}]:[]) : table === "training_plans" ? [...plans.values()].filter(r=>r.user_id===uid) : table === "code_reviews" ? [...reviews.values()].filter(r=>r.user_id===uid) : table === "review_requests" ? [...reviewRequests.values()].filter(r=>r.user_id===uid) : table === "training_sessions"
       ? [...sessions.values()].filter((row) => row.user_id === uid)
       : table === "problems"
         ? [...problems.values()].filter((row) => (row.platform==="codeforces" || row.owner_id === uid))

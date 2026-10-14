@@ -17,7 +17,9 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "test:rls": "bash scripts/test-rls.sh",
-    "test:rls:m2": "bash scripts/test-m2-rls.sh"
+    "test:rls:m2": "bash scripts/test-m2-rls.sh",
+    "test:recommendations": "vitest run --config vitest.evaluation.config.ts",
+    "test:isolated:m321": "node scripts/m321-isolated.mjs"
   },
   "dependencies": {
     "@monaco-editor/react": "4.7.0",

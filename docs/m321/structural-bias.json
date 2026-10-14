@@ -1,0 +1,20 @@
+{
+  "source": "SYNTHETIC SQL counterexamples",
+  "tagPermutation": {
+    "beforeOverlap": 300,
+    "afterOverlap": 600,
+    "limit": 600,
+    "eligible": 1200
+  },
+  "plans": {
+    "beforePlanned": 600,
+    "afterPlanned": 0,
+    "availableUnplanned": 600
+  },
+  "contests": {
+    "beforeNewestHalf": 600,
+    "afterNewestHalf": 298,
+    "afterOlderHalf": 302,
+    "note": "Same-fit unplanned candidates; deterministic external-key hash, not a stochastic exploration score."
+  }
+}

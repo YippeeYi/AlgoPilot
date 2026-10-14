@@ -1,7 +1,14 @@
 // Browser + local HTTP fixtures; separate SQL tests verify actual PostgreSQL/RLS.
 import { expect, test } from "@playwright/test";
 import { randomUUID } from "node:crypto";
-async function login(page: import("@playwright/test").Page, email = "alice@fixture.test") {
+async function login(page: import("@playwright/test").Page, email = `m25-${randomUUID()}@fixture.test`) {
+    // Each parallel case gets its own fixture account; shared-user AI leases are intentional.
+    if(email.startsWith("m25-")) {
+        await page.request.post("/api/v1/auth/register", {data:{email,password:"Fixture-password-123"}});
+        await page.goto(`/auth/callback?token_hash=${encodeURIComponent(`confirm:${email}`)}&type=email&next=%2Freviews`);
+        await expect(page).toHaveURL(/\/reviews$/);
+        return;
+    }
     await page.goto("/login?next=%2Freviews");
     await page.getByLabel("邮箱", { exact: true }).fill(email);
     await page.getByLabel("密码", { exact: true }).fill("Fixture-password-123");

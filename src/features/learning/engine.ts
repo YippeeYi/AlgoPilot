@@ -1,5 +1,6 @@
 import { defaultPreferences, type LearningCandidate, type LearningEvidence } from "@/lib/validation/learning";
 // Ranking units, not a player ability score. Centralized for audit and tuning.
+export const recommendationVersion = "deterministic/1.1";
 export const recommendationWeights = Object.freeze({ difficulty: 40, weakness: 22, goal: 16, novelty: 10, diversity: 12, plannedPenalty: 24, feedbackPenalty: 60, reviewSuggestion: 6 });
 export const learningLimits = Object.freeze({ recommendations: 5, adequateSamples: 5, recentSessions: 20, feedbackWindow: 20, feedbackStep: 100, feedbackMaxShift: 200 });
 const aliases: Record<string, RegExp> = {
@@ -17,7 +18,7 @@ const issuePatterns = {
 };
 // Only affirmative risk clauses contribute recurring-issue suggestions.
 function riskClauses(text: string) {
-    return text.split(/[。；;.!?！？\n]|但是|但|\bbut\b/i).filter(clause => !/没有|不存在|并无|无需|未发现|无明显|\bno\b|\bnot\b/i.test(clause)).join("；");
+    return text.split(/[。；;.!?！？\n]|但是|但|\bbut\b/i).filter(clause => !/没有|不存在|并无|无需|未发现|无明显|不需要|不必|\bwithout\b|\bno\b|\bnot\b/i.test(clause)).join("；");
 }
 export type EvidenceRef = {
     kind: "training" | "ai_review" | "user_feedback";
@@ -56,7 +57,7 @@ export function abilityProfile(e: LearningEvidence) {
     });
     const reviews = e.preferences?.reviewEvidence ? e.reviews : [];
     const reviewDirections = Object.entries(aliases).flatMap(([topic, pattern]) => {
-        const rows = reviews.filter(r => pattern.test(r.knowledge) || pattern.test(r.risks));
+        const rows = reviews.filter(r => pattern.test(riskClauses(r.knowledge)) || pattern.test(riskClauses(r.risks)));
         return rows.length ? [{ topic, samples: rows.length, source: "AI 推测（未验证）", refs: rows.map(r => ({ kind: "ai_review" as const, id: r.id, reviewId: r.reviewId })) }] : [];
     });
     const recurringIssues = Object.entries(issuePatterns).flatMap(([key, pattern]) => {
@@ -67,23 +68,27 @@ export function abilityProfile(e: LearningEvidence) {
         hintDistribution: Array.from({ length: 6 }, (_, level) => ({ level, samples: e.sessions.filter(s => s.maxHint === level).length })),
         thoughtRecordedSessions: e.sessions.filter(s => s.thoughtCount > 0).length,
         sources: { metadata: "CF 官方题目元数据（Rating 不是选手能力）", outcome: "用户自报；官方提交状态未同步", hints: "AlgoPilot 实际已看最高等级，不等于授权等级", review: "已授权的结构化 AI 复盘，未经执行或正确性验证" },
-        limitations: ["缺少提示不能证明独立完成；外部题解使用可能未知。", "同题只取最近一次完成训练；重复训练不增加知识方向样本量。", "题目 Tags 只能表明关联方向，不能证明卡点由该知识点造成。", "未自报解出且未查看 L5 的题目不展开知识方向；保留难度与提示统计。", "复盘仅取每题最新分析、最多 200 题；词汇匹配不能证明 AI 判断正确。", ...(e.totalSessions > e.sessions.length ? ["仅分析最近 500 次训练，较早记录未纳入画像。"] : [])] };
+        limitations: ["这是最近 500 次训练窗口画像，不代表长期全部能力；旧方向未出现不表示已掌握。", "缺少提示不能证明独立完成；外部题解使用可能未知。", "同题只取最近一次完成训练；重复训练不增加知识方向样本量。", "题目 Tags 只能表明关联方向，不能证明卡点由该知识点造成。", "未自报解出且未查看 L5 的题目不展开知识方向；保留难度与提示统计。", "复盘仅取每题最新分析、最多 200 题；词汇匹配不能证明 AI 判断正确。", ...(e.totalSessions > e.sessions.length ? ["仅分析最近 500 次训练，较早记录未纳入画像。"] : [])] };
 }
 export function recommendationTarget(e: LearningEvidence) {
     const p = e.preferences ?? defaultPreferences;
     const completed = latestProblems(e).filter(s => s.outcome === "solved_self_reported" && s.rating !== null);
     const ratings = completed.map(s => s.rating!).sort((a, b) => a - b);
-    const median = ratings.length ? ratings[Math.floor(ratings.length / 2)]! : null;
+    const middle = Math.floor(ratings.length / 2);
+    const median = ratings.length ? ratings.length % 2 ? ratings[middle]! : (ratings[middle - 1]! + ratings[middle]!) / 2 : null;
     const relevant = [...e.feedback].sort((a, b) => b.createdAt.localeCompare(a.createdAt) || a.id.localeCompare(b.id)).filter(f => f.rating !== null && f.rating >= p.min && f.rating <= p.max).slice(0, learningLimits.feedbackWindow);
-    const shift = Math.max(-learningLimits.feedbackMaxShift, Math.min(learningLimits.feedbackMaxShift, relevant.reduce((n, f) => n + (f.kind === "too_easy" ? learningLimits.feedbackStep : f.kind === "too_hard" ? -learningLimits.feedbackStep : 0), 0)));
+    const requestedShift = Math.max(-learningLimits.feedbackMaxShift, Math.min(learningLimits.feedbackMaxShift, relevant.reduce((n, f) => n + (f.kind === "too_easy" ? learningLimits.feedbackStep : f.kind === "too_hard" ? -learningLimits.feedbackStep : 0), 0)));
     const highHintSamples = completed.filter(s => s.maxHint >= 3).length;
     const base = ratings.length >= 3 && median !== null ? median - (highHintSamples * 2 >= ratings.length ? 100 : 0) : (p.min + p.max) / 2;
-    // Explicit range is a hard constraint. History only narrows cold-start target if inside it.
-    return { preferences: p, target: Math.round(Math.max(p.min, Math.min(p.max, base + shift))), shift, historySamples: ratings.length, historyRefs: completed.slice(0, 20).map(s => ({ kind: "training" as const, id: s.id })), feedbackRefs: relevant.filter(f => f.kind !== "off_goal").map(f => ({ kind: "user_feedback" as const, id: f.id })) };
+    // Report actual movement after hard-range clipping, separately from requested feedback.
+    const baseTarget = Math.round(Math.max(p.min, Math.min(p.max, base)));
+    const target = Math.round(Math.max(p.min, Math.min(p.max, base + requestedShift)));
+    const shift = target - baseTarget;
+    return { preferences: p, target, baseTarget, requestedShift, shift, historySamples: ratings.length, historyRefs: completed.slice(0, 20).map(s => ({ kind: "training" as const, id: s.id })), feedbackRefs: relevant.filter(f => f.kind !== "off_goal").map(f => ({ kind: "user_feedback" as const, id: f.id })) };
 }
 export function recommend(e: LearningEvidence, candidates: LearningCandidate[], exclude: string[] = []) {
     const profile = abilityProfile(e);
-    const { preferences: p, target, shift, feedbackRefs, historySamples, historyRefs } = recommendationTarget(e);
+    const { preferences: p, target, shift, requestedShift, feedbackRefs, historySamples, historyRefs } = recommendationTarget(e);
     const recent = [...e.sessions].sort((a, b) => b.createdAt.localeCompare(a.createdAt) || a.id.localeCompare(b.id)).slice(0, learningLimits.recentSessions);
     const recentTags = new Set(recent.flatMap(s => s.tags));
     const solved = new Set(e.sessions.filter(s => s.outcome === "solved_self_reported").map(s => s.problemId));
@@ -104,11 +109,12 @@ export function recommend(e: LearningEvidence, candidates: LearningCandidate[], 
             const novel = c.tags.length > 0 && c.tags.some(t => !recentTags.has(t));
             const diversity = c.tags.length > 0 && c.tags.some(t => !usedTags.has(t));
             const feedback = e.feedback.find(f => f.problemId === c.id);
+            const repeatedRecently = recent.some(s => s.problemId === c.id);
             const factors = { difficulty, weakness, goal: p.goal === "independence" ? weakness / recommendationWeights.weakness * recommendationWeights.goal : p.goal === "explore" ? Number(novel) * recommendationWeights.goal : Number(theme) * recommendationWeights.goal,
-                novelty: Number(novel) * recommendationWeights.novelty - Number(recent.some(s => s.problemId === c.id)) * recommendationWeights.novelty,
+                novelty: Number(novel) * recommendationWeights.novelty - Number(repeatedRecently) * recommendationWeights.novelty,
                 diversity: Number(diversity) * recommendationWeights.diversity, plan: c.inPlan ? -recommendationWeights.plannedPenalty : 0,
-                feedback: feedback ? -recommendationWeights.feedbackPenalty : 0, review: ai.length ? recommendationWeights.reviewSuggestion : 0 };
-            const score = Object.values(factors).reduce((a, b) => a + b, 0) - (exclude.includes(c.id) ? recommendationWeights.feedbackPenalty : 0);
+                feedback: feedback ? -recommendationWeights.feedbackPenalty : 0, review: ai.length ? recommendationWeights.reviewSuggestion : 0, reroll: exclude.includes(c.id) ? -recommendationWeights.feedbackPenalty : 0 };
+            const score = Object.values(factors).reduce((a, b) => a + b, 0);
             const refs: EvidenceRef[] = [...new Map([...directions.flatMap(d => d.refs), ...ai.flatMap(d => d.refs), ...feedbackRefs, ...(historySamples >= 3 ? historyRefs : []), ...(feedback ? [{ kind: "user_feedback" as const, id: feedback.id }] : [])].map(r => [r.id, r])).values()];
             // Do not send candidate tags, nor name a hidden algorithm in default recommendations.
             const reasons = [`CF 题目 Rating ${c.rating}，位于${e.preferences ? "你选择的" : "暂定冷启动"} ${p.min}–${p.max} 区间；本轮参考难度 ${target}。`];
@@ -123,17 +129,23 @@ export function recommend(e: LearningEvidence, candidates: LearningCandidate[], 
             if (ai.length)
                 reasons.push("已授权 AI 复盘提及相关知识，作为低权重的待验证建议；不代表已证实薄弱点。（未解题标签隐藏）");
             if (novel)
-                reasons.push("可拓宽近期训练的知识覆盖；方向标签默认隐藏。");
-            if (shift)
-                reasons.push(`依据你近期的难度反馈，将参考难度调整 ${shift > 0 ? "+" : ""}${shift}，仍遵守所选区间。`);
+                reasons.push(recentTags.size ? "可拓宽已记录的近期知识覆盖；方向标签默认隐藏。" : "本轮考虑知识覆盖；尚无可比较的近期知识记录，方向标签默认隐藏。");
+            if (diversity)
+                reasons.push("补充本轮此前尚未覆盖的知识方向，获得多样性加权；标签默认隐藏。");
+            if (factors.goal > 0)
+                reasons.push(p.goal === "independence" ? "本轮独立解题目标额外优先考虑有训练证据的待加强方向。" : p.goal === "explore" ? "本轮探索目标额外优先考虑近期未覆盖方向。" : "本轮均衡目标对你选择的主题加权。");
+            if (requestedShift)
+                reasons.push(`依据近期难度反馈请求调整 ${requestedShift > 0 ? "+" : ""}${requestedShift}；所选范围内本轮实际调整 ${shift > 0 ? "+" : ""}${shift}，参考难度为 ${target}。`);
             if (c.inPlan)
                 reasons.push("已在现有计划中，因此降低优先级；可继续关联到其他计划。");
             if (c.practiced)
-                reasons.push("曾经训练过，重复程度已计入排序。");
+                reasons.push(repeatedRecently ? "最近 20 次训练中出现过这道题，本轮已做重复降权。" : "曾经训练过；最近 20 次中未出现，本轮不额外做近期重复降权。");
             if (!c.tags.length)
                 reasons.push("官方标签缺失；仅依据难度与训练记录推荐，不推测知识方向。");
             if (feedback)
                 reasons.push("你曾反馈这道题不合适，因此降低优先级；候选不足时仍可能出现。");
+            if (factors.reroll < 0)
+                reasons.push("替代候选不足，保留上一轮题目并额外降权；本轮没有随机更换结果。");
             return { problem: { id: c.id, contestId: c.contestId, index: c.index, name: c.name, rating: c.rating }, reasons, refs, factors, score, inPlan: c.inPlan, practiced: c.practiced };
         }).sort((a, b) => b.score - a.score || a.problem.id.localeCompare(b.problem.id));
         const best = scored[0]!;
@@ -142,7 +154,7 @@ export function recommend(e: LearningEvidence, candidates: LearningCandidate[], 
         candidate.tags.forEach(t => usedTags.add(t));
         pool = pool.filter(c => c.id !== best.problem.id);
     }
-    return { items: selected, profile, target, shift, reused, preferences: p, configured: Boolean(e.preferences), revision: e.revision,
+    return { version: recommendationVersion, items: selected, profile, target, requestedShift, shift, reused, preferences: p, configured: Boolean(e.preferences), revision: e.revision,
         limitations: "确定性 V1，仅对数据库按难度与主题分层选出的最多 600 个候选排序；Rating 缺失的题不推荐，主题训练排除缺 Tags 题。推荐排序分数不是选手能力分。" };
 }
 export type RecommendationResult = ReturnType<typeof recommend> & {

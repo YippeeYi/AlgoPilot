@@ -1,0 +1,18 @@
+{
+  "source": "SYNTHETIC worst-window workload; ten measured runs after two warmups",
+  "sessions": 500,
+  "reviews": 200,
+  "candidates": 600,
+  "metrics": {
+    "baseline": {
+      "samples": 10,
+      "medianMs": 43.43379200000004,
+      "p95Ms": 49.76324999999997
+    },
+    "current": {
+      "samples": 10,
+      "medianMs": 38.0030835,
+      "p95Ms": 42.97858299999996
+    }
+  }
+}

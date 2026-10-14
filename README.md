@@ -2,7 +2,7 @@
 
 Codeforces / XCPC 算法竞赛学习与复盘助手，只聚焦三件事：推荐合适的题并解释原因、分析题目与代码、从真实证据分析选手能力。CF 已做好的排行榜、比赛展示和提交浏览不重复开发。用户在本地 VS Code 编写、编译、调试，在 Codeforces 官网手动提交；AlgoPilot 不执行代码，不提供在线判题或自动提交。
 
-当前交付 **M3.2：可解释题目推荐与选手能力画像 V1**，建立于已完成的 M3 CF 题库与多计划之上。M2.5 的 L0–L5 教练、单文件导入、独立 Review Orchestrator、不可变代码快照和深度复盘继续保留。Handle 与官方提交证据增量同步留给下一阶段，不开发提交列表或 Rating 历史图表，当前官方状态明确未同步，自报 AC 不等于官方验证。
+当前交付 **M3.2.1：推荐质量审计与隔离验收**，建立于已完成的 M3 CF 题库与多计划之上。M2.5 的 L0–L5 教练、单文件导入、独立 Review Orchestrator、不可变代码快照和深度复盘继续保留。Handle 与官方提交证据增量同步留给下一阶段，不开发提交列表或 Rating 历史图表，当前官方状态明确未同步，自报 AC 不等于官方验证。
 
 ## 运行
 
@@ -14,7 +14,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-设置 Supabase 项目 URL、publishable key 和 APP_URL，按顺序应用 001–007 迁移；只执行目标环境缺失的 SQL。Auth 使用 SSR Cookie、proxy 刷新与服务端 getUser 验证。没有配置时仅提供无数据页面壳和公开 `/practice/preview`，不会伪造登录或启用 AI。
+设置 Supabase 项目 URL、publishable key 和 APP_URL，按顺序应用 001–008 迁移；只执行目标环境缺失的 SQL。Auth 使用 SSR Cookie、proxy 刷新与服务端 getUser 验证。没有配置时仅提供无数据页面壳和公开 `/practice/preview`，不会伪造登录或启用 AI。
 
 CF 签名默认从已有 Tutor 独立主密钥派生，也支持单独 `CODEFORCES_RPC_SIGNING_SECRET`。配置不等于连接验证。具体见 [M3 配置](docs/M3_SETUP.md)、[Supabase 设置](docs/SUPABASE_SETUP.md)、[M2 Provider](docs/M2_SETUP.md)、[M2.5 复盘配置](docs/M25_SETUP.md)。密钥仅在服务端/private DB，禁止 service-role 绕过。
 
@@ -69,4 +69,10 @@ npm run test:e2e
 
 画像取最近 500 次训练、每题最新完成记录；不同题目不足 5 为样本不足，更多也只有限可信。无提示不证明独立。复盘每题最新、最多 200，词汇匹配只是 AI 待验证建议；思路版本只计实际记录，不按文字量评估思考质量。用户自报、官方元数据和 AI 推测始终分开，官方提交目前未同步。
 
-部署新增 `supabase/migrations/202610140007_learning_recommendations.sql`，先核对 006 已应用，勿重跑历史 SQL；本轮没有部署托管 007。无需额外服务/模型/密钥，旧 HMAC、RLS、额度和租约继续保留。参见 [M3.2 设置与局限](docs/M32_SETUP.md)。
+部署新增 `supabase/migrations/202610140007_learning_recommendations.sql` 与 `202610140008_recommendation_audit.sql`，先核对 006 已应用，勿重跑历史 SQL；本轮没有部署托管 007/008。无需额外服务/模型/密钥，旧 HMAC、RLS、额度和租约继续保留。参见 [M3.2 设置与局限](docs/M32_SETUP.md)。
+
+## M3.2.1 评测
+
+`npm run test:recommendations` 使用仓库内 11,450 题的官方元数据录制和八类合成选手历史，生成确定性断言；设置 M321_EVALUATION_OUTPUT 可导出结果/人工评审 CSV。原生隔离 PostgreSQL 使用测试目录运行时和显式开关，详见 [设置](docs/M321_ISOLATED_SETUP.md)。不增加生产数据库依赖。
+
+追加 008 修正等价 Tags 顺序、新旧比赛和已计划候选饥饿偏差；修正中位数、反馈实际变化、评分理由、否定 AI 提及、A/B/A 反馈与在途授权撤销。权重和分析窗口未扩展。完整依据、性能与 M3.3 边界见 [评测报告](docs/M321_RECOMMENDATION_EVALUATION.md)，[人工评审表](docs/M321_MANUAL_REVIEW.md) 尚待人填写。本轮未执行 007/008 生产部署，目标库实际状态待核对；原生隔离和 HTTP Mock 不是托管 JWT 验收。

@@ -29,6 +29,7 @@ type ProblemRow = Problem & {
 export type Database = {
   public: {
     Tables: {
+      learning_preferences: ReadTable<{user_id:string;preferences:unknown;revision:number;updated_at:string}>;
       training_plans: ReadTable<import("@/lib/validation/m3").TrainingPlan & {user_id:string}>;
       code_reviews: ReadTable<CodeReview>;
       review_requests: ReadTable<{id:string;review_id:string;question:string;analysis:unknown;model:string|null;prompt_version:string|null;created_at:string;status:string}>;

@@ -1,0 +1,18 @@
+{
+  "source": "SYNTHETIC actual SQL stress; fixed administrator-seeded analyses, no Provider call",
+  "training": {
+    "total": 705,
+    "retained": 500,
+    "earlierCompleted": 205,
+    "completedInWindow": 0
+  },
+  "reviews": {
+    "distinctProblems": 205,
+    "analysisRecords": 206,
+    "retained": 200,
+    "oldGraphReviews": 5,
+    "graphReviewsInWindow": 0,
+    "duplicateRegenerationDidNotInflate": true
+  },
+  "revocationPreserves206Analyses": true
+}

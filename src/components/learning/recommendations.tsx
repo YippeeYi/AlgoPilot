@@ -91,7 +91,7 @@ export function Recommendations() {
             throw e;
         }
     }
-    async function feedback(problemId: string, kind: string) { const key = `feedback/${problemId}/${kind}`; await requestJson("/api/v1/learning/feedback", { method: "POST", body: { requestId: attempt(key).id, problemId, kind } }); await reload([problemId]); setNotice("反馈已保存并影响本轮排序；它是偏好信号，不是解题结果或能力结论。"); }
+    async function feedback(problemId: string, kind: string) { const key = `feedback/${problemId}/${kind}`; await requestJson("/api/v1/learning/feedback", { method: "POST", body: { requestId: attempt(key).id, problemId, kind } }); attempts.current.delete(key); await reload([problemId]); setNotice("反馈已保存并影响本轮排序；它是偏好信号，不是解题结果或能力结论。"); }
     async function start(problemId: string) { const r = await requestJson<{
         session: {
             id: string;

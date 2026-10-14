@@ -15,6 +15,8 @@ export function POST(request: Request) {
         const { preferences, target } = recommendationTarget(evidence);
         const cache = await catalog(cfRepository(client, user.id), catalogQuerySchema.parse({ limit: 1 }));
         const candidates = await repo.candidates(preferences, target);
-        return json({ ...recommend(evidence, candidates.items, input.exclude), candidateCount: candidates.total, syncedAt: cache.syncedAt, stale: cache.stale, notice: cache.notice });
+        const recommendations = recommend(evidence, candidates.items, input.exclude);
+        await repo.assertRevision(evidence.revision);
+        return json({ ...recommendations, candidateCount: candidates.total, syncedAt: cache.syncedAt, stale: cache.stale, notice: cache.notice });
     });
 }

@@ -10,6 +10,7 @@ export default defineConfig({
     setupFiles: ["./tests/setup.ts"],
     include: [
       "tests/unit/**/*.test.{ts,tsx}",
+      "tests/evaluation/**/*.test.ts",
       "tests/integration/**/*.test.{ts,tsx}",
     ],
     clearMocks: true,

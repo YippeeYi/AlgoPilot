@@ -64,3 +64,13 @@
 - 用户偏好和反馈使用 007 追加迁移、RLS、普通 JWT/窄 RPC/字段白名单/行锁/CAS/requestId/PT409；不修改 001–006，未经本阶段授权不部署托管迁移。反馈是偏好，不是能力事实。
 - 缺少题面/补充上下文时 Tutor 要求补充，不调用模型，不根据标题/Tags 猜题意；继续保留所有提示权限、HMAC、配额/租约与 Review 安全机制。
 - 配置与算法局限见 `docs/M32_SETUP.md`，实际检查与外部未验证项见 `docs/M32_VERIFICATION.md`。
+
+## M3.2.1 验收与质量约定
+
+- 推荐算法版本 deterministic/1.1；008 只修正已证明的候选 Tags 顺序、比赛新旧及计划饥饿偏差。评分权重与 600/500/200 上限不变；未来变更先用固定数据证明问题。
+- 原始 007 DDL 重跑会原子拒绝，不是假称迁移幂等；只应用缺失迁移。001–007 不修改，生产 007/008 仍须当前阶段明确授权，不使用生产数据进行破坏性验证。
+- 评测 `npm run test:recommendations`；原生临时隔离 `M321_ALLOW_DATABASE_TESTS=isolated npm run test:isolated:m321`，不读取生产 URL。原生 PostgreSQL 多连接验证仍不等于 Supabase JWT/PostgREST 集成。
+- 偶数中位数取两项均值；requestedShift 表示反馈请求，shift 表示范围裁剪后实际变化。解释必须来自实际评分因素，换一轮降权也包含在因素中。
+- 偏好/授权变动时拒绝旧 revision 的在途推荐/画像；新反馈意图新 ID，未知结果重试沿用原 ID。复盘否定词不能反向变成知识方向加权，AI 总贡献不随复盘数量累加。
+- 近期窗口不代表长期全部能力，旧方向退出窗口不意味着掌握。人工教学评审必须由人填写，自动标签/难度断言不能冒充真实推荐价值。
+- 报告见 docs/M321_RECOMMENDATION_EVALUATION.md，人工表见 docs/M321_MANUAL_REVIEW.md；托管/真实用户评审未完成时不得宣称具备生产发布验收。

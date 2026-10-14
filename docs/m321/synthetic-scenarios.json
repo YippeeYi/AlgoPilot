@@ -1,0 +1,166 @@
+{
+  "version": "m321/1",
+  "qualification": "Automatic assertions on synthetic histories; not teaching-quality validation",
+  "rows": [
+    {
+      "scenario": "cold",
+      "source": "SYNTHETIC fixture",
+      "range": [
+        800,
+        1200
+      ],
+      "target": 1000,
+      "ratings": [
+        1000,
+        1000,
+        1000,
+        1000,
+        1000
+      ],
+      "distinctTopics": 5,
+      "uniqueProblems": 5,
+      "evidenceReferences": 0,
+      "elapsedMs": 9.154833999999994
+    },
+    {
+      "scenario": "sparse",
+      "source": "SYNTHETIC fixture",
+      "range": [
+        1000,
+        1600
+      ],
+      "target": 1300,
+      "ratings": [
+        1300,
+        1300,
+        1300,
+        1300,
+        1300
+      ],
+      "distinctTopics": 5,
+      "uniqueProblems": 5,
+      "evidenceReferences": 0,
+      "elapsedMs": 2.8178330000000074
+    },
+    {
+      "scenario": "beginner",
+      "source": "SYNTHETIC fixture",
+      "range": [
+        800,
+        1200
+      ],
+      "target": 1000,
+      "ratings": [
+        1000,
+        1000,
+        1000,
+        1000,
+        1000
+      ],
+      "distinctTopics": 5,
+      "uniqueProblems": 5,
+      "evidenceReferences": 80,
+      "elapsedMs": 4.67825000000002
+    },
+    {
+      "scenario": "intermediate",
+      "source": "SYNTHETIC fixture",
+      "range": [
+        1400,
+        1800
+      ],
+      "target": 1600,
+      "ratings": [
+        1600,
+        1600,
+        1600,
+        1600,
+        1600
+      ],
+      "distinctTopics": 5,
+      "uniqueProblems": 5,
+      "evidenceReferences": 100,
+      "elapsedMs": 5.398167000000001
+    },
+    {
+      "scenario": "advanced",
+      "source": "SYNTHETIC fixture",
+      "range": [
+        2000,
+        2600
+      ],
+      "target": 2300,
+      "ratings": [
+        2300,
+        2300,
+        2300,
+        2300,
+        2300
+      ],
+      "distinctTopics": 5,
+      "uniqueProblems": 5,
+      "evidenceReferences": 100,
+      "elapsedMs": 6.055709000000007
+    },
+    {
+      "scenario": "graphs",
+      "source": "SYNTHETIC fixture",
+      "range": [
+        1400,
+        1800
+      ],
+      "target": 1500,
+      "ratings": [
+        1500,
+        1500,
+        1500,
+        1500,
+        1500
+      ],
+      "distinctTopics": 1,
+      "uniqueProblems": 5,
+      "evidenceReferences": 45,
+      "elapsedMs": 3.988084000000015
+    },
+    {
+      "scenario": "dp",
+      "source": "SYNTHETIC fixture",
+      "range": [
+        1400,
+        1800
+      ],
+      "target": 1500,
+      "ratings": [
+        1500,
+        1500,
+        1500,
+        1500,
+        1500
+      ],
+      "distinctTopics": 1,
+      "uniqueProblems": 5,
+      "evidenceReferences": 45,
+      "elapsedMs": 3.050542000000007
+    },
+    {
+      "scenario": "extensive",
+      "source": "SYNTHETIC fixture",
+      "range": [
+        1400,
+        1800
+      ],
+      "target": 1600,
+      "ratings": [
+        1600,
+        1600,
+        1600,
+        1600,
+        1600
+      ],
+      "distinctTopics": 5,
+      "uniqueProblems": 5,
+      "evidenceReferences": 120,
+      "elapsedMs": 7.508082999999999
+    }
+  ]
+}
