@@ -79,7 +79,7 @@ describe("M3.2.2 fit safeguards, controlled comparison on fixed metadata", () =>
             const prepare = (rows: LearningCandidate[]) => rows.map(c => ({ ...c, inPlan: plans.has(c.id), practiced: scenario.e.sessions.some(s => s.problemId === c.id) }));
             const a = prepare(oldPool.items), b = prepare(newPool.items), original = before.recommend(scenario.e, a), filterOnly = before.recommend(scenario.e, b);
             const runs = [original, filterOnly, recommend(scenario.e, b)];
-            const keys = (r: typeof original) => r.items.map(i => `${i.problem.contestId}/${i.problem.index}`);
+            const keys = (r: { items: { problem: { contestId: number; index: string } }[] }) => r.items.map(i => `${i.problem.contestId}/${i.problem.index}`);
             expect(recommend(scenario.e, [...b].reverse())).toEqual(runs[2]);
             const known = new Set([...scenario.e.sessions, ...scenario.e.reviews, ...scenario.e.feedback].map(r => r.id));
             const metrics = runs.map(r => ({ keys: keys(r), ratings: r.items.map(i => i.problem.rating), target: r.target,

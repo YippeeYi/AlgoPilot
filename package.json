@@ -20,7 +20,9 @@
     "test:rls:m2": "bash scripts/test-m2-rls.sh",
     "test:recommendations": "vitest run --config vitest.evaluation.config.ts",
     "test:isolated:m321": "node scripts/m321-isolated.mjs",
-    "review:recommendations": "node scripts/m322-review.ts"
+    "review:recommendations": "node scripts/m322-review.ts",
+    "test:isolated:m33": "node scripts/m33-isolated.mjs",
+    "record:cf:public": "node scripts/m33-record-public.mjs"
   },
   "dependencies": {
     "@monaco-editor/react": "4.7.0",

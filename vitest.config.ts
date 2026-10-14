@@ -14,5 +14,8 @@ export default defineConfig({
       "tests/integration/**/*.test.{ts,tsx}",
     ],
     clearMocks: true,
+    // Bound simultaneous jsdom/PGlite runtimes. In the default parallel run the 12k-catalog
+    // replay exceeded 5s under contention, while the isolated file took 3.08s.
+    maxWorkers: 4,
   },
 });

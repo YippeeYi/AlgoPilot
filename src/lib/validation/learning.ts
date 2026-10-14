@@ -1,6 +1,11 @@
 import { z } from "zod";
 import { idSchema } from "./m1";
 import { catalogProblemSchema } from "./m3";
+import { cfHandleSchema } from "./cf-account";
+export const officialEvidenceSchema = z.object({ revision: z.number().int().nonnegative(), enabled: z.boolean(), handle: cfHandleSchema.nullable(), ownershipVerified: z.literal(false), totalAcceptedProblems: z.number().int().nonnegative(),
+    lastSyncedAt: z.string().nullable(), lastFullScanAt: z.string().nullable(), fullScanUpperId: z.number().nullable(), oldestObservedAt: z.string().nullable(),
+    items: z.array(z.object({ id: idSchema, submissionId: z.number().int().positive(), contestId: z.number().int().positive(), index: z.string(), problemId: idSchema.nullable(), rating: z.number().nullable(), tags: z.array(z.string()), createdAt: z.string(), observedAt: z.string() })).max(500),
+});
 // Public CF tag vocabulary; matching AI prose is a suggestion, never a verified weakness.
 export const learningTopics = ["implementation", "math", "greedy", "dp", "data structures", "graphs", "trees", "binary search", "number theory", "strings", "combinatorics", "geometry", "bitmasks", "two pointers", "sortings", "dfs and similar", "shortest paths", "flows", "dsu", "constructive algorithms"] as const;
 export const preferencesSchema = z.object({ min: z.number().int().min(800).max(3500), max: z.number().int().min(800).max(3500), themes: z.array(z.enum(learningTopics)).max(5).refine(v => new Set(v).size === v.length), goal: z.enum(["balanced", "independence", "explore"]), repeat: z.boolean(), reviewEvidence: z.boolean() }).strict().refine(v => v.min <= v.max);
@@ -10,6 +15,7 @@ export const savePreferencesSchema = z.object({ requestId: idSchema, revision: z
 export const feedbackSchema = z.object({ requestId: idSchema, problemId: idSchema, kind: z.enum(["too_easy", "too_hard", "off_goal"]) }).strict();
 export const recommendationQuerySchema = z.object({ exclude: z.array(idSchema).max(5).default([]) }).strict();
 export const evidenceSchema = z.object({
+    official: officialEvidenceSchema.optional(),
     preferences: preferencesSchema.nullable(), revision: z.number().int().nonnegative(), totalSessions: z.number().int().nonnegative(),
     sessions: z.array(z.object({ id: idSchema, problemId: idSchema.nullable(), status: z.enum(["active", "paused", "completed"]), outcome: z.string().nullable(), rating: z.number().nullable(), tags: z.array(z.string()), maxHint: z.number().int().min(0).max(5), externalEditorial: z.boolean().nullable(), thoughtCount: z.number().int().nonnegative(), createdAt: z.string() })),
     reviews: z.array(z.object({ id: idSchema, reviewId: idSchema, problemId: idSchema.nullable(), knowledge: z.string(), risks: z.string(), createdAt: z.string() })),

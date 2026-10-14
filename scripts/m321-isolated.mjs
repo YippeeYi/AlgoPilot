@@ -33,7 +33,7 @@ function percentile(values,p){const sorted=[...values].sort((a,b)=>a-b);if(p===.
 try {
  await pg.initialise();await pg.start();await pg.createDatabase('algopilot_m321');const admin=await connect();
  await admin.query("create role anon;create role authenticated;create schema auth;create table auth.users(id uuid primary key,email text);create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;grant usage on schema auth to anon,authenticated;grant execute on function auth.uid() to anon,authenticated;");
- const files=(await readdir('supabase/migrations')).filter(f=>f.endsWith('.sql')).sort();
+ const files=(await readdir('supabase/migrations')).filter(f=>f.endsWith('.sql')&&f<='202610140009_recommendation_fit.sql').sort();
  for(const f of files.filter(f=>f<'202610120006'))await admin.query(await readFile(`supabase/migrations/${f}`,'utf8'));
  await admin.query("insert into auth.users values($1,'a@fixture.invalid'),($2,'b@fixture.invalid')",[alice,bob]);
  const a=await connect(), b=await connect(), c=await connect();

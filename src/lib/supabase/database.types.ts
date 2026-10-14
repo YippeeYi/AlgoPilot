@@ -91,6 +91,9 @@ export type Database = {
     };
     Views: Record<string, never>;
     Functions: {
+      cf_account_state: {Args:Record<string,never>;Returns:unknown};
+      cf_account_command: {Args:{p_payload:string;p_signature:string};Returns:unknown};
+      learning_evidence_guard: {Args:{p_revision:number;p_official_revision:number};Returns:boolean};
       learning_evidence: {Args:Record<string, never>;Returns:unknown};
       learning_candidates: {Args:{p_query:unknown};Returns:unknown};
       learning_write: {Args:{p_input:unknown};Returns:unknown};

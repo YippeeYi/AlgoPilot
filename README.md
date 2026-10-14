@@ -2,7 +2,7 @@
 
 Codeforces / XCPC 算法竞赛学习与复盘助手，只聚焦三件事：推荐合适的题并解释原因、分析题目与代码、从真实证据分析选手能力。CF 已做好的排行榜、比赛展示和提交浏览不重复开发。用户在本地 VS Code 编写、编译、调试，在 Codeforces 官网手动提交；AlgoPilot 不执行代码，不提供在线判题或自动提交。
 
-当前交付 **M3.2.2：评审整合与推荐定向修复**，建立于已完成的 M3 CF 题库与多计划之上。M2.5 的 L0–L5 教练、单文件导入、独立 Review Orchestrator、不可变代码快照和深度复盘继续保留。Handle 与官方提交证据增量同步留给下一阶段，不开发提交列表或 Rating 历史图表，当前官方状态明确未同步，自报 AC 不等于官方验证。
+当前交付 **M3.3：官方解题证据与能力画像融合**，建立于 M3–M3.2.2 之上。原分级教练、代码快照、深度复盘与多计划保留。可主动关联公开 Handle、分页同步提交结果并单独授权用于分析；公开关联不验证本人身份，官方 OK 不证明独立完成或源码一致。不开发提交列表或 Rating 历史图表。
 
 ## 运行
 
@@ -14,7 +14,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-设置 Supabase 项目 URL、publishable key 和 APP_URL，获得目标环境授权后按顺序应用缺失的 001–009 迁移；只执行目标环境缺失的 SQL。Auth 使用 SSR Cookie、proxy 刷新与服务端 getUser 验证。没有配置时仅提供无数据页面壳和公开 `/practice/preview`，不会伪造登录或启用 AI。
+设置 Supabase 项目 URL、publishable key 和 APP_URL，获得目标环境授权后按顺序应用缺失的 001–010 迁移；只执行目标环境缺失的 SQL。Auth 使用 SSR Cookie、proxy 刷新与服务端 getUser 验证。没有配置时仅提供无数据页面壳和公开 `/practice/preview`，不会伪造登录或启用 AI。
 
 CF 签名默认从已有 Tutor 独立主密钥派生，也支持单独 `CODEFORCES_RPC_SIGNING_SECRET`。配置不等于连接验证。具体见 [M3 配置](docs/M3_SETUP.md)、[Supabase 设置](docs/SUPABASE_SETUP.md)、[M2 Provider](docs/M2_SETUP.md)、[M2.5 复盘配置](docs/M25_SETUP.md)。密钥仅在服务端/private DB，禁止 service-role 绕过。
 
@@ -30,7 +30,7 @@ CF 签名默认从已有 Tutor 独立主密钥派生，也支持单独 `CODEFORC
 - `/sessions`：从 CF 选题新建训练，查看与重新打开所有历史记录。已停止新建自定义题目，旧自建题与空训练继续可读。
 - `/practice/[sessionId]`：官方题面链接、用户补充的题面上下文、思路笔记/版本与 AI 教练；未解题默认隐藏 Tags。计时可选且由服务器保存，网页无需常开。旧 C++ 草稿保留在可展开兼容区，Monaco 不进入主流程。
 - `/reviews`：选择 CF 题目或关联旧训练，粘贴代码或读取显式选择的单个 .cpp/.cc/.cxx/.txt（UTF-8、64000 字节、类型/控制字符校验）。明确确认自报 AC 与发送 Provider 授权，保存代码快照，生成/编辑/重生成/追问。代码、题面与近期复盘在调用时发送给配置 Provider；请先清除敏感内容。
-- `/settings`：配置状态与账户辅助设置；不制造服务联通或官方事实。`/login`、`/register` 与邮箱验证恢复安全目标。
+- `/settings`：公开 Handle 关联/替换/解除、首次/增量/断点同步、官方证据授权与删除；仅展示覆盖状态。配置状态不代表外部联通。`/login`、`/register` 与邮箱验证恢复安全目标。
 
 复盘九项分析：算法总结、正确性证明与未证明假设、时空复杂度、具体行号、边界/潜在缺陷、实现改进、可选其他算法、可迁移知识和复习问题。每份分析绑定不可变 SHA-256 代码快照；改代码创建新复盘。通过 reviewId 恢复，用户编辑 CAS。AI 不宣称运行代码或系统验证自报 AC。公开提交状态也不能证明本地导入代码与提交源码一致。
 
@@ -54,6 +54,7 @@ npm run typecheck
 npm run test
 npm run build
 npm run test
+npm run test
 npm run test:e2e
 ```
 
@@ -67,7 +68,7 @@ npm run test:e2e
 
 确定性权重集中于 `src/features/learning/engine.ts`：难度适配、真实提示/自报待加强信号、明确目标、近期重复与新颖度、当轮多样性、活跃计划降权、反馈，以及低权重 AI 建议。数据库过滤和分层取最多 600 候选；不是全库最优保证，不推荐缺 Rating 的题。有主题则要求可信 Tags 匹配，默认隐藏未解题 Tags。
 
-画像取最近 500 次训练、每题最新完成记录；不同题目不足 5 为样本不足，更多也只有限可信。无提示不证明独立。复盘每题最新、最多 200，词汇匹配只是 AI 待验证建议；思路版本只计实际记录，不按文字量评估思考质量。用户自报、官方元数据和 AI 推测始终分开，官方提交目前未同步。
+画像取最近 500 次训练、每题最新完成记录；不同题目不足 5 为样本不足，更多也只有限可信。无提示不证明独立。复盘每题最新、最多 200，词汇匹配只是 AI 待验证建议；思路版本只计实际记录，不按文字量评估思考质量。官方提交、自报、实际提示与 AI 推测分栏；公开账号 OK 的独立性仍未知。
 
 部署新增 `supabase/migrations/202610140007_learning_recommendations.sql` 与 `202610140008_recommendation_audit.sql`，先核对 006 已应用，勿重跑历史 SQL；本轮没有部署托管 007/008。无需额外服务/模型/密钥，旧 HMAC、RLS、额度和租约继续保留。参见 [M3.2 设置与局限](docs/M32_SETUP.md)。
 
@@ -82,3 +83,11 @@ npm run test:e2e
 追加 009 在 600 候选预算前排除 interactive 与有官方来源确认的非 C++ 语言比赛；不全局排除 special。deterministic/1.2 用小型可追溯标注区分核心/Tags-only/相关任务，主权重与难度模型不变。数据库未安装 training-fit/1 时推荐返回安全 503，需要授权后的缺失迁移核验。
 
 `npm run review:recommendations` 校验并汇总原 40 条 AI 初评与独立真人覆写，默认保留审计历史；AI 33/2/5 不是真人验收，真人仍 0/40。`M322_EVALUATION_OUTPUT=docs/m322 npm run test:recommendations` 重放八类合成选手与 11,450 题录制，原人工表不覆盖。实测对照、来源与未验证项见 [M322 报告](docs/M322_RECOMMENDATION_REVIEW.md)。本轮无生产变更，匿名目标探测不能证明 007/008 的完整部署，真实 JWT/收益仍待验。
+
+## M3.3 官方证据
+
+新增 010（001–009 不改），复用用户 JWT、CF HMAC 和 PostgreSQL 全实例时隙。user.info 校验当前 Handle；user.status 不采集源码，200 条/页、40 条重叠、实际 EOF/断点、高水位与持续旧 Verdict 重扫。绑定默认关闭分析，撤销后新画像/推荐不使用官方信号，更换/删除清除个人关联数据及派生依据。原计划、训练、提示、复盘不回写。
+
+deterministic/1.3-official 保留原难度模型和主权重。全历史已知 AC 在 600 候选前排除；画像另取最近 500 道官方 OK 题补充覆盖，近期同难度覆盖影响原新颖度/探索因素。没有独立性证明、WA 次数能力判断、综合能力分或自动升难度。
+
+真实公开 API 录制、隔离数据库、回归及未验收边界见 [M33 验收](docs/M33_VERIFICATION.md)；迁移/密钥/恢复见 [M33 设置](docs/M33_SETUP.md)。007–010 托管状态未核实，本阶段没有生产变更。原 40 条 AI 评审与真人分离，真人仍 0/40；五道替代题列于 [待评审表](docs/m33/replacements-for-review.csv)，真人 0/5。

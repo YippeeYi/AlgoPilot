@@ -28,3 +28,9 @@ it("refuses stale recommendations when preferences or review consent changed dur
   repo.assertRevision.mockRejectedValue(new ApiError(409,"LEARNING_EVIDENCE_CHANGED","retry"));
   const r=await rec(req({}));expect(r.status).toBe(409);expect(await r.json()).not.toHaveProperty("items");expect(repo.assertRevision).toHaveBeenCalledWith(1);
 });
+
+it('guards official evidence revision on both profile and recommendations, returning no stale items after revoke',async()=>{
+  repo.evidence.mockResolvedValue({preferences:null,revision:0,totalSessions:0,sessions:[],reviews:[],feedback:[],official:{revision:7,enabled:false,handle:'Public_Handle',ownershipVerified:false,totalAcceptedProblems:0,lastSyncedAt:null,lastFullScanAt:null,fullScanUpperId:null,oldestObservedAt:null,items:[]}});
+  repo.assertRevision.mockRejectedValue(new ApiError(409,'LEARNING_EVIDENCE_CHANGED','retry'));
+  expect((await profile()).status).toBe(409);expect((await rec(req({}))).status).toBe(409);expect(repo.assertRevision).toHaveBeenCalledWith(0,7);
+});

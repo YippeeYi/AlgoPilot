@@ -1,0 +1,23 @@
+import { it, expect, beforeEach, vi } from 'vitest';
+import { ApiError } from '@/server/http';
+const auth=vi.hoisted(()=>vi.fn());
+const state=vi.hoisted(()=>vi.fn());
+const mutate=vi.hoisted(()=>vi.fn());
+const sync=vi.hoisted(()=>vi.fn());
+vi.mock('@/server/auth',()=>({requireContext:auth}));
+vi.mock('@/server/codeforces/account-repository',()=>({cfAccountRepository:()=>({state})}));
+vi.mock('@/server/codeforces/account-service',()=>({mutateCfAccount:mutate,synchronizeCfAccount:sync}));
+import { GET,POST } from '@/app/api/v1/codeforces-account/route';
+import { POST as refresh } from '@/app/api/v1/codeforces-account/sync/route';
+const id='70000000-0000-4000-8000-000000000001';
+const request=(body:unknown,origin?:string)=>new Request('http://localhost/api/v1/codeforces-account',{method:'POST',headers:{'Content-Type':'application/json',...(origin?{Origin:origin}:{})},body:JSON.stringify(body)});
+beforeEach(()=>{vi.clearAllMocks();auth.mockResolvedValue({client:{},user:{id}});state.mockResolvedValue({handle:null});mutate.mockResolvedValue({state:{handle:null}});sync.mockResolvedValue({state:{handle:null}});});
+it('requires server Auth before all reads and mutations',async()=>{auth.mockRejectedValue(new ApiError(401,'UNAUTHENTICATED','login'));expect((await GET()).status).toBe(401);expect((await POST(request({}))).status).toBe(401);expect((await refresh(request({}))).status).toBe(401);expect(state).not.toHaveBeenCalled();expect(sync).not.toHaveBeenCalled();});
+it('blocks cross-origin, identity/verdict/nonce forgery and only accepts whitelisted consent commands',async()=>{
+  const base={action:'bind',requestId:id,revision:0,handle:'Public_Handle'};
+  expect((await POST(request(base,'https://evil.invalid'))).status).toBe(403);
+  for(const extra of [{userId:id},{ownershipVerified:true},{submissionId:1,verdict:'OK'},{nonce:id},{registrationSeconds:10}])expect((await POST(request({...base,...extra}))).status).toBe(422);
+  expect((await refresh(request({requestId:id,revision:0,handle:'Other_Handle'}))).status).toBe(422);expect(mutate).not.toHaveBeenCalled();expect(sync).not.toHaveBeenCalled();
+  expect((await POST(request({action:'consent',requestId:id,revision:0,enabled:false}))).status).toBe(200);expect(mutate).toHaveBeenCalledWith(expect.anything(),{action:'consent',requestId:id,revision:0,enabled:false});
+});
+it('keeps unclassified external errors out of browser responses',async()=>{sync.mockRejectedValue(new Error('PRIVATE_SIGNING_KEY'));const r=await refresh(request({requestId:id,revision:0}));expect(r.status).toBe(503);expect(JSON.stringify(await r.json())).not.toContain('PRIVATE_SIGNING_KEY');});

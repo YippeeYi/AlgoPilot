@@ -6,6 +6,12 @@ import { z } from "zod";
 import { catalogPageSchema, type catalogQuerySchema } from "@/lib/validation/m3";
 import { signTutorPayload } from "@/server/tutor/repository";
 import { ApiError, databaseError } from "@/server/http";
+export function cfSigningSecret() {
+    const master = process.env.TUTOR_RPC_SIGNING_SECRET;
+    const secret = process.env.CODEFORCES_RPC_SIGNING_SECRET || (master && /^[a-fA-F0-9]{64,128}$/.test(master) ? createHmac("sha256", master).update("algopilot/cf/v1").digest("hex") : undefined);
+    if (!secret || !/^[a-f0-9]{64,128}$/.test(secret)) throw new ApiError(503, "CF_SYNC_NOT_CONFIGURED", "Codeforces 同步签名未配置，请检查配置指南。");
+    return secret;
+}
 export function cfRepository(client: SupabaseClient<Database>, userId: string) {
     return {
         async read(query: z.infer<typeof catalogQuerySchema>) {
@@ -14,10 +20,7 @@ export function cfRepository(client: SupabaseClient<Database>, userId: string) {
             return catalogPageSchema.parse(data);
         },
         async sync(payload: Record<string, unknown>) {
-            const master = process.env.TUTOR_RPC_SIGNING_SECRET;
-            const secret = process.env.CODEFORCES_RPC_SIGNING_SECRET || (master && /^[a-fA-F0-9]{64,128}$/.test(master) ? createHmac("sha256", master).update("algopilot/cf/v1").digest("hex") : undefined);
-            if (!secret || !/^[a-f0-9]{64,128}$/.test(secret))
-                throw new ApiError(503, "CF_SYNC_NOT_CONFIGURED", "题库同步签名未配置，请检查 M3 配置指南。");
+            const secret = cfSigningSecret();
             const { data, error } = await client.rpc("cf_sync", signTutorPayload({ operation: "cf_sync", ...payload }, userId, secret));
             if (error?.code === "42501")
                 throw new ApiError(503, "CF_SYNC_NOT_CONFIGURED", "题库同步签名配置不匹配。");

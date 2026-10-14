@@ -194,7 +194,7 @@ export function ReviewWorkspace({ initialSessionId = "", initialReviewId = "" }:
         <label className="block text-sm" htmlFor="review-url">Codeforces 题目 URL（可选）</label><Input id="review-url" value={url} maxLength={200} disabled={busy} onChange={e => setUrl(e.target.value)} placeholder="https://codeforces.com/problemset/problem/1234/A"/>
         <label className="block text-sm" htmlFor="review-statement">题面、约束与样例（可选，关联训练时默认使用原快照）</label><Textarea id="review-statement" value={statement} maxLength={16000} disabled={busy} onChange={e => setStatement(e.target.value)}/>
         <label className="block text-sm" htmlFor="review-submission">提交 ID（可选）</label><Input id="review-submission" value={submission} maxLength={18} inputMode="numeric" disabled={busy} onChange={e => setSubmission(e.target.value)}/>
-        <p className="text-xs text-muted-foreground">本轮结果为用户自报 AC，官方状态尚未同步。提交 ID 不证明 AC，也不证明导入代码与官方源码一致。</p>
+        <p className="text-xs text-muted-foreground">本轮结果为用户自报 AC，官方状态尚未同步到此代码快照。关联公开账号的结果在推荐/画像中单独使用；用户填写的提交 ID 本身不证明 AC，也不证明导入代码与官方源码一致。</p>
         <label className="block text-sm" htmlFor="review-file">选择本地代码文件（UTF-8，最多 64 KB）</label><input id="review-file" type="file" accept=".cpp,.cc,.cxx,.txt" disabled={busy} className="block w-full min-w-0 text-sm" onChange={async (e) => { const file = e.target.files?.[0]; e.target.value = ""; if (!file)
         return; setError(""); setBusy(true); try {
         const content = await readCodeFile(file);

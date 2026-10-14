@@ -2,7 +2,7 @@ import Link from "next/link";
 import { PageHeading } from "@/components/page-heading";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
+import { CfAccountSettings } from "@/components/learning/cf-account";
 import { Button } from "@/components/ui/button";
 import { readTutorConfig } from "@/server/tutor/config";
 import { getConfigurationStatus } from "@/server/config";
@@ -25,23 +25,7 @@ export default function SettingsPage() {
         description="管理训练偏好和数据来源。模型凭据仅由服务端读取。"
       />
       <div className="grid gap-6 xl:grid-cols-2">
-        <Card className="shadow-none">
-          <CardHeader>
-            <CardTitle className="text-base">Codeforces 公开资料</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <label htmlFor="cf-handle" className="mb-2 block text-sm">
-              CF Handle
-            </label>
-            <Input id="cf-handle" placeholder="尚未关联" disabled />
-            <p className="mt-3 text-xs leading-6 text-muted-foreground">
-              官方提交证据增量同步留下一阶段；推荐无需 Handle。填写 Handle 不等于验证账号归属。
-            </p>
-            <Button className="mt-5" disabled>
-              保存并同步
-            </Button>
-          </CardContent>
-        </Card>
+        <CfAccountSettings configured={status.supabase === "configured"} />
         <Card className="shadow-none">
           <CardHeader>
             <CardTitle className="text-base">服务配置状态</CardTitle>

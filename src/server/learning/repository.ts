@@ -7,7 +7,12 @@ import { candidatePolicyVersion } from "@/features/learning/problem-fit";
 import { ApiError, databaseError } from "@/server/http";
 export function learningRepository(client: SupabaseClient<Database>) {
     return {
-        async assertRevision(expected: number) {
+        async assertRevision(expected: number, officialRevision?: number) {
+            if (officialRevision !== undefined) {
+                const { error } = await client.rpc("learning_evidence_guard", { p_revision: expected, p_official_revision: officialRevision });
+                if (error?.code === "PT409") throw new ApiError(409, "LEARNING_EVIDENCE_CHANGED", "学习偏好或官方证据已变更，请重新请求。旧结果未展示。");
+                databaseError(error); return;
+            }
             const {data,error}=await client.from("learning_preferences").select("revision").maybeSingle();
             databaseError(error);
             const current=z.object({revision:z.number().int().nonnegative()}).nullable().parse(data);

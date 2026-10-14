@@ -1,0 +1,769 @@
+{
+  "version": "deterministic/1.3-official",
+  "baseline": "bc76e52",
+  "boundary": "Synthetic public submissions and 8 synthetic players on recorded official metadata; no teaching outcome claims",
+  "catalogSize": 11450,
+  "sha256": "fbcc43b5658f0cdd24fa412aafb2c18e05dadb0420ca293ad845af692dccf4eb",
+  "originalAI": 40,
+  "humanCompleted": 0,
+  "replacementsPending": 5,
+  "matrix": [
+    {
+      "scenario": "cold",
+      "officialKnown": 20,
+      "window": 20,
+      "target": 1000,
+      "beforePool": 2771,
+      "afterPool": 2751,
+      "beforeCoverage": 0.21652832912306028,
+      "afterCoverage": 0.21810250817884405,
+      "before": {
+        "keys": [
+          "1800/B",
+          "29/A",
+          "1765/E",
+          "672/B",
+          "2156/B"
+        ],
+        "ratings": [
+          1000,
+          1000,
+          1000,
+          1000,
+          1000
+        ],
+        "uniqueTags": 7,
+        "officialRefs": 0,
+        "coreMatch": []
+      },
+      "filterOnly": {
+        "keys": [
+          "1765/E",
+          "672/B",
+          "2254/C1",
+          "2156/B",
+          "1411/B"
+        ],
+        "ratings": [
+          1000,
+          1000,
+          1000,
+          1000,
+          1000
+        ],
+        "uniqueTags": 8,
+        "officialRefs": 0,
+        "coreMatch": []
+      },
+      "after": {
+        "keys": [
+          "2156/B",
+          "1411/B",
+          "17/A",
+          "1847/B",
+          "766/B"
+        ],
+        "ratings": [
+          1000,
+          1000,
+          1000,
+          1000,
+          1000
+        ],
+        "uniqueTags": 11,
+        "officialRefs": 49,
+        "coreMatch": []
+      },
+      "medianMs": 1.934270500000025,
+      "p95Ms": 3.493832999999995
+    },
+    {
+      "scenario": "sparse",
+      "officialKnown": 20,
+      "window": 20,
+      "target": 1300,
+      "beforePool": 3229,
+      "afterPool": 3209,
+      "beforeCoverage": 0.18581604211830288,
+      "afterCoverage": 0.1869741352446245,
+      "before": {
+        "keys": [
+          "1381/A1",
+          "298/A",
+          "1900/C",
+          "2129/A",
+          "1603/A"
+        ],
+        "ratings": [
+          1300,
+          1300,
+          1300,
+          1300,
+          1300
+        ],
+        "uniqueTags": 13,
+        "officialRefs": 0,
+        "coreMatch": []
+      },
+      "filterOnly": {
+        "keys": [
+          "1900/C",
+          "2129/A",
+          "1603/A",
+          "1555/C",
+          "1194/C"
+        ],
+        "ratings": [
+          1300,
+          1300,
+          1300,
+          1300,
+          1300
+        ],
+        "uniqueTags": 13,
+        "officialRefs": 0,
+        "coreMatch": []
+      },
+      "after": {
+        "keys": [
+          "1900/C",
+          "2129/A",
+          "1603/A",
+          "123/A",
+          "1534/C"
+        ],
+        "ratings": [
+          1300,
+          1300,
+          1300,
+          1300,
+          1300
+        ],
+        "uniqueTags": 13,
+        "officialRefs": 37,
+        "coreMatch": []
+      },
+      "medianMs": 1.6792709999999715,
+      "p95Ms": 2.5682079999999132
+    },
+    {
+      "scenario": "beginner",
+      "officialKnown": 20,
+      "window": 20,
+      "target": 1000,
+      "beforePool": 2771,
+      "afterPool": 2751,
+      "beforeCoverage": 0.21652832912306028,
+      "afterCoverage": 0.21810250817884405,
+      "before": {
+        "keys": [
+          "1800/B",
+          "29/A",
+          "1765/E",
+          "672/B",
+          "2156/B"
+        ],
+        "ratings": [
+          1000,
+          1000,
+          1000,
+          1000,
+          1000
+        ],
+        "uniqueTags": 7,
+        "officialRefs": 0,
+        "coreMatch": []
+      },
+      "filterOnly": {
+        "keys": [
+          "1765/E",
+          "672/B",
+          "2254/C1",
+          "2156/B",
+          "1411/B"
+        ],
+        "ratings": [
+          1000,
+          1000,
+          1000,
+          1000,
+          1000
+        ],
+        "uniqueTags": 8,
+        "officialRefs": 0,
+        "coreMatch": []
+      },
+      "after": {
+        "keys": [
+          "2156/B",
+          "1411/B",
+          "17/A",
+          "1847/B",
+          "766/B"
+        ],
+        "ratings": [
+          1000,
+          1000,
+          1000,
+          1000,
+          1000
+        ],
+        "uniqueTags": 11,
+        "officialRefs": 49,
+        "coreMatch": []
+      },
+      "medianMs": 2.262770499999874,
+      "p95Ms": 4.114957999999888
+    },
+    {
+      "scenario": "intermediate",
+      "officialKnown": 20,
+      "window": 20,
+      "target": 1600,
+      "beforePool": 2430,
+      "afterPool": 2410,
+      "beforeCoverage": 0.24691358024691357,
+      "afterCoverage": 0.24896265560165975,
+      "before": {
+        "keys": [
+          "1861/C",
+          "1327/C",
+          "253/C",
+          "1334/C",
+          "322/B"
+        ],
+        "ratings": [
+          1600,
+          1600,
+          1600,
+          1600,
+          1600
+        ],
+        "uniqueTags": 12,
+        "officialRefs": 0,
+        "coreMatch": []
+      },
+      "filterOnly": {
+        "keys": [
+          "253/C",
+          "1334/C",
+          "322/B",
+          "1539/D",
+          "171/G"
+        ],
+        "ratings": [
+          1600,
+          1600,
+          1600,
+          1600,
+          1600
+        ],
+        "uniqueTags": 14,
+        "officialRefs": 0,
+        "coreMatch": []
+      },
+      "after": {
+        "keys": [
+          "322/B",
+          "1539/D",
+          "171/G",
+          "2162/E",
+          "774/K"
+        ],
+        "ratings": [
+          1600,
+          1600,
+          1600,
+          1600,
+          1600
+        ],
+        "uniqueTags": 11,
+        "officialRefs": 35,
+        "coreMatch": []
+      },
+      "medianMs": 2.6829165000001467,
+      "p95Ms": 3.478834000000006
+    },
+    {
+      "scenario": "advanced",
+      "officialKnown": 20,
+      "window": 20,
+      "target": 2300,
+      "beforePool": 2953,
+      "afterPool": 2933,
+      "beforeCoverage": 0.2031832035218422,
+      "afterCoverage": 0.20456870098874871,
+      "before": {
+        "keys": [
+          "2028/E",
+          "727/F",
+          "1101/G",
+          "1658/D2",
+          "1895/E"
+        ],
+        "ratings": [
+          2300,
+          2300,
+          2300,
+          2300,
+          2300
+        ],
+        "uniqueTags": 17,
+        "officialRefs": 0,
+        "coreMatch": []
+      },
+      "filterOnly": {
+        "keys": [
+          "1101/G",
+          "1658/D2",
+          "1895/E",
+          "424/D",
+          "364/C"
+        ],
+        "ratings": [
+          2300,
+          2300,
+          2300,
+          2300,
+          2300
+        ],
+        "uniqueTags": 16,
+        "officialRefs": 0,
+        "coreMatch": []
+      },
+      "after": {
+        "keys": [
+          "1101/G",
+          "1895/E",
+          "2268/C",
+          "510/E",
+          "1790/G"
+        ],
+        "ratings": [
+          2300,
+          2300,
+          2300,
+          2300,
+          2300
+        ],
+        "uniqueTags": 19,
+        "officialRefs": 31,
+        "coreMatch": []
+      },
+      "medianMs": 2.7432499999997617,
+      "p95Ms": 3.5332499999999527
+    },
+    {
+      "scenario": "graphs",
+      "officialKnown": 20,
+      "window": 20,
+      "target": 1500,
+      "beforePool": 2430,
+      "afterPool": 2410,
+      "beforeCoverage": 0.24691358024691357,
+      "afterCoverage": 0.24896265560165975,
+      "before": {
+        "keys": [
+          "690/C2",
+          "114/B",
+          "402/C",
+          "177/C1",
+          "1106/D"
+        ],
+        "ratings": [
+          1500,
+          1500,
+          1500,
+          1500,
+          1500
+        ],
+        "uniqueTags": 10,
+        "officialRefs": 0,
+        "coreMatch": [
+          {
+            "key": "690/C2",
+            "strength": 1,
+            "basis": "source_checked",
+            "annotation": {
+              "key": "690/C2",
+              "coreTopics": [
+                "graphs",
+                "trees",
+                "dfs and similar"
+              ],
+              "relatedTopics": [],
+              "status": "source_checked_by_ai",
+              "checkedAt": "2026-10-14",
+              "checkedBy": "Codex / AI source audit (not human teaching review)",
+              "summary": "Official editorial presents tree diameter by two traversals and an alternative tree DP. Graph/tree traversal is a core supported training task.",
+              "sources": [
+                "https://codeforces.com/problemset/problem/690/C2",
+                "https://assets.codeforces.com/files/690/hc2-2016-editorial.pdf"
+              ]
+            }
+          },
+          {
+            "key": "114/B",
+            "strength": 0.75,
+            "basis": "tags_only"
+          },
+          {
+            "key": "402/C",
+            "strength": 0.75,
+            "basis": "tags_only"
+          },
+          {
+            "key": "177/C1",
+            "strength": 0.75,
+            "basis": "tags_only"
+          },
+          {
+            "key": "1106/D",
+            "strength": 0.75,
+            "basis": "tags_only"
+          }
+        ]
+      },
+      "filterOnly": {
+        "keys": [
+          "402/C",
+          "580/C",
+          "177/C1",
+          "1106/D",
+          "839/C"
+        ],
+        "ratings": [
+          1500,
+          1500,
+          1500,
+          1500,
+          1500
+        ],
+        "uniqueTags": 11,
+        "officialRefs": 0,
+        "coreMatch": [
+          {
+            "key": "402/C",
+            "strength": 0.75,
+            "basis": "tags_only"
+          },
+          {
+            "key": "580/C",
+            "strength": 0.75,
+            "basis": "tags_only"
+          },
+          {
+            "key": "177/C1",
+            "strength": 0.75,
+            "basis": "tags_only"
+          },
+          {
+            "key": "1106/D",
+            "strength": 0.75,
+            "basis": "tags_only"
+          },
+          {
+            "key": "839/C",
+            "strength": 0.75,
+            "basis": "tags_only"
+          }
+        ]
+      },
+      "after": {
+        "keys": [
+          "1106/D",
+          "839/C",
+          "2108/C",
+          "1552/B",
+          "770/C"
+        ],
+        "ratings": [
+          1500,
+          1500,
+          1500,
+          1500,
+          1500
+        ],
+        "uniqueTags": 15,
+        "officialRefs": 45,
+        "coreMatch": [
+          {
+            "key": "1106/D",
+            "strength": 0.75,
+            "basis": "tags_only"
+          },
+          {
+            "key": "839/C",
+            "strength": 0.75,
+            "basis": "tags_only"
+          },
+          {
+            "key": "2108/C",
+            "strength": 0.75,
+            "basis": "tags_only"
+          },
+          {
+            "key": "1552/B",
+            "strength": 0.75,
+            "basis": "tags_only"
+          },
+          {
+            "key": "770/C",
+            "strength": 0.75,
+            "basis": "tags_only"
+          }
+        ]
+      },
+      "medianMs": 2.420895499999915,
+      "p95Ms": 3.31899999999996
+    },
+    {
+      "scenario": "dp",
+      "officialKnown": 20,
+      "window": 20,
+      "target": 1500,
+      "beforePool": 2430,
+      "afterPool": 2410,
+      "beforeCoverage": 0.24691358024691357,
+      "afterCoverage": 0.24896265560165975,
+      "before": {
+        "keys": [
+          "264/B",
+          "1526/C1",
+          "1997/D",
+          "1253/C",
+          "2069/C"
+        ],
+        "ratings": [
+          1500,
+          1500,
+          1500,
+          1500,
+          1500
+        ],
+        "uniqueTags": 12,
+        "officialRefs": 0,
+        "coreMatch": [
+          {
+            "key": "264/B",
+            "strength": 1,
+            "basis": "source_checked",
+            "annotation": {
+              "key": "264/B",
+              "coreTopics": [
+                "dp",
+                "number theory"
+              ],
+              "relatedTopics": [],
+              "status": "source_checked_by_ai",
+              "checkedAt": "2026-10-14",
+              "checkedBy": "Codex / AI source audit (not human teaching review)",
+              "summary": "Official editorial defines maximum sequence length by last value and divisors, with explicit transitions.",
+              "sources": [
+                "https://codeforces.com/problemset/problem/264/B",
+                "https://codeforces.com/blog/entry/6478"
+              ]
+            }
+          },
+          {
+            "key": "1526/C1",
+            "strength": 1,
+            "basis": "source_checked",
+            "annotation": {
+              "key": "1526/C1",
+              "coreTopics": [
+                "dp",
+                "greedy"
+              ],
+              "relatedTopics": [],
+              "status": "source_checked_by_ai",
+              "checkedAt": "2026-10-14",
+              "checkedBy": "Codex / AI source audit (not human teaching review)",
+              "summary": "Official editorial explicitly supports quadratic position/count DP for the easy version and alternative greedy solutions; DP is suitable but not mandatory.",
+              "sources": [
+                "https://codeforces.com/problemset/problem/1526/C1",
+                "https://codeforces.com/blog/entry/91195"
+              ]
+            }
+          },
+          {
+            "key": "1997/D",
+            "strength": 0.75,
+            "basis": "tags_only"
+          },
+          {
+            "key": "1253/C",
+            "strength": 0.75,
+            "basis": "tags_only"
+          },
+          {
+            "key": "2069/C",
+            "strength": 0.75,
+            "basis": "tags_only"
+          }
+        ]
+      },
+      "filterOnly": {
+        "keys": [
+          "545/C",
+          "1997/D",
+          "1253/C",
+          "2069/C",
+          "550/A"
+        ],
+        "ratings": [
+          1500,
+          1500,
+          1500,
+          1500,
+          1500
+        ],
+        "uniqueTags": 12,
+        "officialRefs": 0,
+        "coreMatch": [
+          {
+            "key": "545/C",
+            "strength": 0.75,
+            "basis": "tags_only"
+          },
+          {
+            "key": "1997/D",
+            "strength": 0.75,
+            "basis": "tags_only"
+          },
+          {
+            "key": "1253/C",
+            "strength": 0.75,
+            "basis": "tags_only"
+          },
+          {
+            "key": "2069/C",
+            "strength": 0.75,
+            "basis": "tags_only"
+          },
+          {
+            "key": "550/A",
+            "strength": 0.75,
+            "basis": "tags_only"
+          }
+        ]
+      },
+      "after": {
+        "keys": [
+          "1997/D",
+          "2069/C",
+          "553/A",
+          "550/A",
+          "1767/D"
+        ],
+        "ratings": [
+          1500,
+          1500,
+          1500,
+          1500,
+          1500
+        ],
+        "uniqueTags": 12,
+        "officialRefs": 53,
+        "coreMatch": [
+          {
+            "key": "1997/D",
+            "strength": 0.75,
+            "basis": "tags_only"
+          },
+          {
+            "key": "2069/C",
+            "strength": 0.75,
+            "basis": "tags_only"
+          },
+          {
+            "key": "553/A",
+            "strength": 0.75,
+            "basis": "tags_only"
+          },
+          {
+            "key": "550/A",
+            "strength": 0.75,
+            "basis": "tags_only"
+          },
+          {
+            "key": "1767/D",
+            "strength": 0.75,
+            "basis": "tags_only"
+          }
+        ]
+      },
+      "medianMs": 2.589770999999928,
+      "p95Ms": 3.4907499999999345
+    },
+    {
+      "scenario": "extensive",
+      "officialKnown": 602,
+      "window": 500,
+      "target": 1600,
+      "beforePool": 2430,
+      "afterPool": 1828,
+      "beforeCoverage": 0.24691358024691357,
+      "afterCoverage": 0.3282275711159737,
+      "before": {
+        "keys": [
+          "2061/C",
+          "1980/E",
+          "1921/E",
+          "727/B",
+          "2157/D"
+        ],
+        "ratings": [
+          1600,
+          1600,
+          1600,
+          1600,
+          1600
+        ],
+        "uniqueTags": 18,
+        "officialRefs": 0,
+        "coreMatch": []
+      },
+      "filterOnly": {
+        "keys": [
+          "1921/E",
+          "727/B",
+          "1137/B",
+          "1175/B",
+          "2157/D"
+        ],
+        "ratings": [
+          1600,
+          1600,
+          1600,
+          1600,
+          1600
+        ],
+        "uniqueTags": 13,
+        "officialRefs": 0,
+        "coreMatch": []
+      },
+      "after": {
+        "keys": [
+          "1921/E",
+          "727/B",
+          "1137/B",
+          "1175/B",
+          "2157/D"
+        ],
+        "ratings": [
+          1600,
+          1600,
+          1600,
+          1600,
+          1600
+        ],
+        "uniqueTags": 13,
+        "officialRefs": 50,
+        "coreMatch": []
+      },
+      "medianMs": 3.476958500000137,
+      "p95Ms": 4.305833999999777
+    }
+  ]
+}
