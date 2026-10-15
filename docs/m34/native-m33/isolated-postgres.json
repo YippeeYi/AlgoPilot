@@ -1,0 +1,62 @@
+{
+  "boundary": "Native isolated PostgreSQL; auth.uid fixture, not hosted Supabase/JWT/PostgREST",
+  "version": "PostgreSQL 18.4 on x86_64-apple-darwin24.6.0, compiled by Apple clang version 17.0.0 (clang-1700.6.3.2), 64-bit",
+  "independentBackends": 3,
+  "migrations": [
+    "202610110001_m1_training.sql",
+    "202610110002_m2_tutor.sql",
+    "202610110003_gemini_usage.sql",
+    "202610120004_business_conflicts.sql",
+    "202610120005_ac_reviews.sql",
+    "202610120006_cf_catalog_plans.sql",
+    "202610140007_learning_recommendations.sql",
+    "202610140008_recommendation_audit.sql",
+    "202610140009_recommendation_fit.sql",
+    "202610150010_cf_official_evidence.sql"
+  ],
+  "checks": [
+    "006 clock captured before 3.2s lock wait permits consecutive slots: reproduced",
+    "010 replay rejected atomically; legacy history unchanged",
+    "3 independent backends; same-user lease serializes without duplicate run",
+    "concurrent identical batch stores once; same public Handle has private independent evidence",
+    "cross-connection consent invalidates in-flight snapshot; old worker cannot return official facts",
+    "private RLS/ACL tables deny direct read/write; cross-user signed payload rejected",
+    "010 re-reads clock after global lock; shared catalog slot remains >=2.5s after 3.2s contention",
+    "catalog and account share one global clock across distinct users/connections",
+    "deletion clears collection and scope only for owner"
+  ],
+  "security": [
+    {
+      "proname": "cf_account_command",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false
+    },
+    {
+      "proname": "cf_account_state",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false
+    },
+    {
+      "proname": "cf_sync",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false
+    },
+    {
+      "proname": "learning_evidence_guard",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false
+    }
+  ]
+}

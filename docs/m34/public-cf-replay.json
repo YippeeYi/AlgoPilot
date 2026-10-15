@@ -1,0 +1,135 @@
+{
+  "boundary": "Actual authorized public CF response + local service/PGlite/JWT claims fixture. Injected timeout/ACK loss; not hosted JWT or deployed runtime",
+  "handle": "YippeeYi",
+  "realApiCalls": 3,
+  "observedSubmissions": 93,
+  "distinctAccepted": 40,
+  "partial": {
+    "version": "cf-evidence/1",
+    "revision": 1,
+    "evidenceRevision": 3,
+    "handle": "YippeeYi",
+    "ownershipVerified": false,
+    "enabled": false,
+    "lastSyncedAt": "2026-10-15T13:24:51.26+08:00",
+    "lastFullScanAt": null,
+    "fullScanUpperId": null,
+    "oldestObservedAt": "2025-10-29T23:20:23+08:00",
+    "highWater": 394514245,
+    "historyFrom": 94,
+    "historyInProgress": true,
+    "observedSubmissions": 93,
+    "acceptedProblems": 40,
+    "pendingSubmissions": 0,
+    "status": "partial",
+    "errorCode": null
+  },
+  "failed": {
+    "version": "cf-evidence/1",
+    "revision": 2,
+    "evidenceRevision": 5,
+    "handle": "YippeeYi",
+    "ownershipVerified": false,
+    "enabled": true,
+    "lastSyncedAt": "2026-10-15T13:25:00.265+08:00",
+    "lastFullScanAt": null,
+    "fullScanUpperId": null,
+    "oldestObservedAt": "2025-10-29T23:20:23+08:00",
+    "highWater": 394514245,
+    "historyFrom": 94,
+    "historyInProgress": true,
+    "observedSubmissions": 93,
+    "acceptedProblems": 40,
+    "pendingSubmissions": 0,
+    "status": "failed",
+    "errorCode": "network"
+  },
+  "recovered": {
+    "version": "cf-evidence/1",
+    "revision": 2,
+    "evidenceRevision": 7,
+    "handle": "YippeeYi",
+    "ownershipVerified": false,
+    "enabled": true,
+    "lastSyncedAt": "2026-10-15T13:25:42.399+08:00",
+    "lastFullScanAt": "2026-10-15T13:25:42.399+08:00",
+    "fullScanUpperId": 394514245,
+    "oldestObservedAt": "2025-10-29T23:20:23+08:00",
+    "highWater": 394514245,
+    "historyFrom": 94,
+    "historyInProgress": false,
+    "observedSubmissions": 93,
+    "acceptedProblems": 40,
+    "pendingSubmissions": 0,
+    "status": "idle",
+    "errorCode": null
+  },
+  "beforePool": 2753,
+  "afterRevocationPool": 2771,
+  "enabledKeys": [
+    "2156/B",
+    "2120/B",
+    "1847/B",
+    "766/B",
+    "732/B"
+  ],
+  "revokedKeys": [
+    "1800/B",
+    "29/A",
+    "1765/E",
+    "672/B",
+    "2156/B"
+  ],
+  "enabledOfficialRefs": 47,
+  "afterRevocationOfficialRefs": 0,
+  "localReplayRequests": [
+    {
+      "method": "user.info",
+      "from": null
+    },
+    {
+      "method": "user.info",
+      "from": null
+    },
+    {
+      "method": "user.status",
+      "from": 1
+    },
+    {
+      "method": "user.status",
+      "from": 1
+    },
+    {
+      "method": "user.info",
+      "from": null
+    },
+    {
+      "method": "user.info",
+      "from": null
+    },
+    {
+      "method": "user.status",
+      "from": 1
+    },
+    {
+      "method": "user.status",
+      "from": 94
+    },
+    {
+      "method": "user.status",
+      "from": 94
+    },
+    {
+      "method": "user.info",
+      "from": null
+    },
+    {
+      "method": "user.status",
+      "from": 1
+    },
+    {
+      "method": "user.status",
+      "from": 94
+    }
+  ]
+}

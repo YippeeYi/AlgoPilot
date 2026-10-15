@@ -1,0 +1,3651 @@
+{
+  "boundary": "catalog metadata only; not JWT, HMAC or data compatibility acceptance",
+  "migrations": [
+    {
+      "file": "202610110001_m1_training.sql",
+      "sha256": "e0ae87a804f0dc14fda1d54b646ee29f4da8d0e4e9f9de48d154de8f027d4ca7"
+    },
+    {
+      "file": "202610110002_m2_tutor.sql",
+      "sha256": "d27691a0e3b0b3fcc6998c7fc5c120696c29b33fa2b94e7a900ccded5b8850d2"
+    },
+    {
+      "file": "202610110003_gemini_usage.sql",
+      "sha256": "0bc06c8305655f475f5ae893eec5d333714a257127d79cdbdaad3a1481881093"
+    },
+    {
+      "file": "202610120004_business_conflicts.sql",
+      "sha256": "7055e9c94fbbe93f50bfeec82b0324df382c4b9cfc13345fcbd74f0c651ec68f"
+    },
+    {
+      "file": "202610120005_ac_reviews.sql",
+      "sha256": "44c6f2b11943e1d3428ce7103cc6f2657dd2e9bf8dc5495db99e48ec28944c92"
+    },
+    {
+      "file": "202610120006_cf_catalog_plans.sql",
+      "sha256": "94817343f8a98ce8af1f5aa56762cf1f2a2e051e5efc4a1d1c00da4684e4af43"
+    },
+    {
+      "file": "202610140007_learning_recommendations.sql",
+      "sha256": "c50ed33ab82dda95530a2dea348396080f81a8d4a00c4da3a1471185b98bdd0c"
+    },
+    {
+      "file": "202610140008_recommendation_audit.sql",
+      "sha256": "3e7a99a920825d2d1f9ce99fbccc0b0bdd66248e65f7d375035335eea90e88c4"
+    },
+    {
+      "file": "202610140009_recommendation_fit.sql",
+      "sha256": "95b26bf784ed84858037a6e4762076d7d3cc762e6376273c6a1eb6480c2e4897"
+    },
+    {
+      "file": "202610150010_cf_official_evidence.sql",
+      "sha256": "5ca7c5cb6ddb31351d79ba6782fd51b2508310b2225be74cdd2985bbb5809184"
+    }
+  ],
+  "columns": [
+    {
+      "name": "user_id",
+      "type": "uuid",
+      "table": "cf_account_receipts",
+      "schema": "algopilot_private",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "request_id",
+      "type": "uuid",
+      "table": "cf_account_receipts",
+      "schema": "algopilot_private",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "fingerprint",
+      "type": "text",
+      "table": "cf_account_receipts",
+      "schema": "algopilot_private",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "result",
+      "type": "jsonb",
+      "table": "cf_account_receipts",
+      "schema": "algopilot_private",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "user_id",
+      "type": "uuid",
+      "table": "cf_accounts",
+      "schema": "algopilot_private",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "scope_id",
+      "type": "uuid",
+      "table": "cf_accounts",
+      "schema": "algopilot_private",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "handle",
+      "type": "text",
+      "table": "cf_accounts",
+      "schema": "algopilot_private",
+      "notNull": false,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "registration_seconds",
+      "type": "bigint",
+      "table": "cf_accounts",
+      "schema": "algopilot_private",
+      "notNull": false,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "enabled",
+      "type": "boolean",
+      "table": "cf_accounts",
+      "schema": "algopilot_private",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "revision",
+      "type": "integer",
+      "table": "cf_accounts",
+      "schema": "algopilot_private",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "evidence_revision",
+      "type": "bigint",
+      "table": "cf_accounts",
+      "schema": "algopilot_private",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "last_synced_at",
+      "type": "timestamp with time zone",
+      "table": "cf_accounts",
+      "schema": "algopilot_private",
+      "notNull": false,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "last_full_scan_at",
+      "type": "timestamp with time zone",
+      "table": "cf_accounts",
+      "schema": "algopilot_private",
+      "notNull": false,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "full_scan_upper_id",
+      "type": "bigint",
+      "table": "cf_accounts",
+      "schema": "algopilot_private",
+      "notNull": false,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "oldest_observed_at",
+      "type": "timestamp with time zone",
+      "table": "cf_accounts",
+      "schema": "algopilot_private",
+      "notNull": false,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "high_water",
+      "type": "bigint",
+      "table": "cf_accounts",
+      "schema": "algopilot_private",
+      "notNull": false,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "head",
+      "type": "jsonb",
+      "table": "cf_accounts",
+      "schema": "algopilot_private",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "history",
+      "type": "jsonb",
+      "table": "cf_accounts",
+      "schema": "algopilot_private",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "status",
+      "type": "text",
+      "table": "cf_accounts",
+      "schema": "algopilot_private",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "error_code",
+      "type": "text",
+      "table": "cf_accounts",
+      "schema": "algopilot_private",
+      "notNull": false,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "lease_nonce",
+      "type": "uuid",
+      "table": "cf_accounts",
+      "schema": "algopilot_private",
+      "notNull": false,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "lease_until",
+      "type": "timestamp with time zone",
+      "table": "cf_accounts",
+      "schema": "algopilot_private",
+      "notNull": false,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "run_id",
+      "type": "uuid",
+      "table": "cf_accounts",
+      "schema": "algopilot_private",
+      "notNull": false,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "lease_kind",
+      "type": "text",
+      "table": "cf_accounts",
+      "schema": "algopilot_private",
+      "notNull": false,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "requested_handle",
+      "type": "text",
+      "table": "cf_accounts",
+      "schema": "algopilot_private",
+      "notNull": false,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "intent",
+      "type": "jsonb",
+      "table": "cf_accounts",
+      "schema": "algopilot_private",
+      "notNull": false,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "next_attempt_at",
+      "type": "timestamp with time zone",
+      "table": "cf_accounts",
+      "schema": "algopilot_private",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "singleton",
+      "type": "boolean",
+      "table": "cf_settings",
+      "schema": "algopilot_private",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "signing_secret",
+      "type": "text",
+      "table": "cf_settings",
+      "schema": "algopilot_private",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "cf_submissions",
+      "schema": "algopilot_private",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "user_id",
+      "type": "uuid",
+      "table": "cf_submissions",
+      "schema": "algopilot_private",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "scope_id",
+      "type": "uuid",
+      "table": "cf_submissions",
+      "schema": "algopilot_private",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "submission_id",
+      "type": "bigint",
+      "table": "cf_submissions",
+      "schema": "algopilot_private",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "contest_id",
+      "type": "integer",
+      "table": "cf_submissions",
+      "schema": "algopilot_private",
+      "notNull": false,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "problem_index",
+      "type": "text",
+      "table": "cf_submissions",
+      "schema": "algopilot_private",
+      "notNull": false,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "created_at",
+      "type": "timestamp with time zone",
+      "table": "cf_submissions",
+      "schema": "algopilot_private",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "verdict",
+      "type": "text",
+      "table": "cf_submissions",
+      "schema": "algopilot_private",
+      "notNull": false,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "observed_from",
+      "type": "integer",
+      "table": "cf_submissions",
+      "schema": "algopilot_private",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "collected_at",
+      "type": "timestamp with time zone",
+      "table": "cf_submissions",
+      "schema": "algopilot_private",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "updated_at",
+      "type": "timestamp with time zone",
+      "table": "cf_submissions",
+      "schema": "algopilot_private",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "scan_cycle",
+      "type": "uuid",
+      "table": "cf_submissions",
+      "schema": "algopilot_private",
+      "notNull": false,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "active",
+      "type": "boolean",
+      "table": "cf_submissions",
+      "schema": "algopilot_private",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "code_reviews",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "user_id",
+      "type": "uuid",
+      "table": "code_reviews",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "session_id",
+      "type": "uuid",
+      "table": "code_reviews",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "problem_id",
+      "type": "uuid",
+      "table": "code_reviews",
+      "schema": "public",
+      "notNull": false,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "problem_url",
+      "type": "text",
+      "table": "code_reviews",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "statement_snapshot",
+      "type": "text",
+      "table": "code_reviews",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "code_snapshot",
+      "type": "text",
+      "table": "code_reviews",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "code_hash",
+      "type": "text",
+      "table": "code_reviews",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "source",
+      "type": "text",
+      "table": "code_reviews",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "file_name",
+      "type": "text",
+      "table": "code_reviews",
+      "schema": "public",
+      "notNull": false,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "submission_id",
+      "type": "text",
+      "table": "code_reviews",
+      "schema": "public",
+      "notNull": false,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "verdict_source",
+      "type": "text",
+      "table": "code_reviews",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "official_verdict",
+      "type": "text",
+      "table": "code_reviews",
+      "schema": "public",
+      "notNull": false,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "source_match",
+      "type": "text",
+      "table": "code_reviews",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "authorization_event",
+      "type": "jsonb",
+      "table": "code_reviews",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "notes",
+      "type": "text",
+      "table": "code_reviews",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "revision",
+      "type": "integer",
+      "table": "code_reviews",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "create_fingerprint",
+      "type": "text",
+      "table": "code_reviews",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "created_at",
+      "type": "timestamp with time zone",
+      "table": "code_reviews",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "edited_at",
+      "type": "timestamp with time zone",
+      "table": "code_reviews",
+      "schema": "public",
+      "notNull": false,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "user_id",
+      "type": "uuid",
+      "table": "learning_preferences",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "preferences",
+      "type": "jsonb",
+      "table": "learning_preferences",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "revision",
+      "type": "integer",
+      "table": "learning_preferences",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "updated_at",
+      "type": "timestamp with time zone",
+      "table": "learning_preferences",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "problems",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "owner_id",
+      "type": "uuid",
+      "table": "problems",
+      "schema": "public",
+      "notNull": false,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "platform",
+      "type": "text",
+      "table": "problems",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "contest_id",
+      "type": "integer",
+      "table": "problems",
+      "schema": "public",
+      "notNull": false,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "problem_index",
+      "type": "text",
+      "table": "problems",
+      "schema": "public",
+      "notNull": false,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "title",
+      "type": "text",
+      "table": "problems",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "statement",
+      "type": "text",
+      "table": "problems",
+      "schema": "public",
+      "notNull": false,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "rating",
+      "type": "integer",
+      "table": "problems",
+      "schema": "public",
+      "notNull": false,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "tags",
+      "type": "text[]",
+      "table": "problems",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "canonical_url",
+      "type": "text",
+      "table": "problems",
+      "schema": "public",
+      "notNull": false,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "create_request_id",
+      "type": "uuid",
+      "table": "problems",
+      "schema": "public",
+      "notNull": false,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "created_at",
+      "type": "timestamp with time zone",
+      "table": "problems",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "solved_count",
+      "type": "integer",
+      "table": "problems",
+      "schema": "public",
+      "notNull": false,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "metadata_synced_at",
+      "type": "timestamp with time zone",
+      "table": "problems",
+      "schema": "public",
+      "notNull": false,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "catalog_version",
+      "type": "uuid",
+      "table": "problems",
+      "schema": "public",
+      "notNull": false,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "recommendation_feedback",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "user_id",
+      "type": "uuid",
+      "table": "recommendation_feedback",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "problem_id",
+      "type": "uuid",
+      "table": "recommendation_feedback",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "kind",
+      "type": "text",
+      "table": "recommendation_feedback",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "created_at",
+      "type": "timestamp with time zone",
+      "table": "recommendation_feedback",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "review_requests",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "review_id",
+      "type": "uuid",
+      "table": "review_requests",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "user_id",
+      "type": "uuid",
+      "table": "review_requests",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "fingerprint",
+      "type": "text",
+      "table": "review_requests",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "question",
+      "type": "text",
+      "table": "review_requests",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "status",
+      "type": "text",
+      "table": "review_requests",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "lease_nonce",
+      "type": "uuid",
+      "table": "review_requests",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "lease_until",
+      "type": "timestamp with time zone",
+      "table": "review_requests",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "analysis",
+      "type": "jsonb",
+      "table": "review_requests",
+      "schema": "public",
+      "notNull": false,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "model",
+      "type": "text",
+      "table": "review_requests",
+      "schema": "public",
+      "notNull": false,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "prompt_version",
+      "type": "text",
+      "table": "review_requests",
+      "schema": "public",
+      "notNull": false,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "usage",
+      "type": "jsonb",
+      "table": "review_requests",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "created_at",
+      "type": "timestamp with time zone",
+      "table": "review_requests",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "finished_at",
+      "type": "timestamp with time zone",
+      "table": "review_requests",
+      "schema": "public",
+      "notNull": false,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "thought_snapshots",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "session_id",
+      "type": "uuid",
+      "table": "thought_snapshots",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "version",
+      "type": "integer",
+      "table": "thought_snapshots",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "content",
+      "type": "text",
+      "table": "thought_snapshots",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "request_id",
+      "type": "uuid",
+      "table": "thought_snapshots",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "created_at",
+      "type": "timestamp with time zone",
+      "table": "thought_snapshots",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "training_plan_items",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "plan_id",
+      "type": "uuid",
+      "table": "training_plan_items",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "user_id",
+      "type": "uuid",
+      "table": "training_plan_items",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "problem_id",
+      "type": "uuid",
+      "table": "training_plan_items",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "position",
+      "type": "integer",
+      "table": "training_plan_items",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "manual_status",
+      "type": "text",
+      "table": "training_plan_items",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "created_at",
+      "type": "timestamp with time zone",
+      "table": "training_plan_items",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "training_plans",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "user_id",
+      "type": "uuid",
+      "table": "training_plans",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "name",
+      "type": "text",
+      "table": "training_plans",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "description",
+      "type": "text",
+      "table": "training_plans",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "archived",
+      "type": "boolean",
+      "table": "training_plans",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "revision",
+      "type": "integer",
+      "table": "training_plans",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "created_at",
+      "type": "timestamp with time zone",
+      "table": "training_plans",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "updated_at",
+      "type": "timestamp with time zone",
+      "table": "training_plans",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "training_sessions",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "user_id",
+      "type": "uuid",
+      "table": "training_sessions",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "problem_id",
+      "type": "uuid",
+      "table": "training_sessions",
+      "schema": "public",
+      "notNull": false,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "statement_snapshot",
+      "type": "text",
+      "table": "training_sessions",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "mode",
+      "type": "text",
+      "table": "training_sessions",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "phase",
+      "type": "text",
+      "table": "training_sessions",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "status",
+      "type": "text",
+      "table": "training_sessions",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "started_at",
+      "type": "timestamp with time zone",
+      "table": "training_sessions",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "resumed_at",
+      "type": "timestamp with time zone",
+      "table": "training_sessions",
+      "schema": "public",
+      "notNull": false,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "active_seconds",
+      "type": "integer",
+      "table": "training_sessions",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "ended_at",
+      "type": "timestamp with time zone",
+      "table": "training_sessions",
+      "schema": "public",
+      "notNull": false,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "max_hint_seen",
+      "type": "smallint",
+      "table": "training_sessions",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "outcome",
+      "type": "text",
+      "table": "training_sessions",
+      "schema": "public",
+      "notNull": false,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "used_external_editorial",
+      "type": "boolean",
+      "table": "training_sessions",
+      "schema": "public",
+      "notNull": false,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "code_draft",
+      "type": "text",
+      "table": "training_sessions",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "code_revision",
+      "type": "integer",
+      "table": "training_sessions",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "thought_draft",
+      "type": "text",
+      "table": "training_sessions",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "thought_revision",
+      "type": "integer",
+      "table": "training_sessions",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "state_revision",
+      "type": "integer",
+      "table": "training_sessions",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "create_request_id",
+      "type": "uuid",
+      "table": "training_sessions",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "created_at",
+      "type": "timestamp with time zone",
+      "table": "training_sessions",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "updated_at",
+      "type": "timestamp with time zone",
+      "table": "training_sessions",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    },
+    {
+      "name": "timer_enabled",
+      "type": "boolean",
+      "table": "training_sessions",
+      "schema": "public",
+      "notNull": true,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false
+    }
+  ],
+  "indexes": [
+    {
+      "name": "cf_account_receipts_pkey",
+      "table": "cf_account_receipts",
+      "schema": "algopilot_private",
+      "definition": "CREATE UNIQUE INDEX cf_account_receipts_pkey ON algopilot_private.cf_account_receipts USING btree (user_id, request_id)"
+    },
+    {
+      "name": "cf_accounts_pkey",
+      "table": "cf_accounts",
+      "schema": "algopilot_private",
+      "definition": "CREATE UNIQUE INDEX cf_accounts_pkey ON algopilot_private.cf_accounts USING btree (user_id)"
+    },
+    {
+      "name": "cf_submissions_accepted",
+      "table": "cf_submissions",
+      "schema": "algopilot_private",
+      "definition": "CREATE INDEX cf_submissions_accepted ON algopilot_private.cf_submissions USING btree (user_id, scope_id, contest_id, problem_index, submission_id DESC) WHERE ((verdict = 'OK'::text) AND active)"
+    },
+    {
+      "name": "cf_submissions_id_key",
+      "table": "cf_submissions",
+      "schema": "algopilot_private",
+      "definition": "CREATE UNIQUE INDEX cf_submissions_id_key ON algopilot_private.cf_submissions USING btree (id)"
+    },
+    {
+      "name": "cf_submissions_pending",
+      "table": "cf_submissions",
+      "schema": "algopilot_private",
+      "definition": "CREATE INDEX cf_submissions_pending ON algopilot_private.cf_submissions USING btree (user_id, scope_id, updated_at) WHERE ((verdict IS NULL) OR (verdict = ANY (ARRAY['TESTING'::text, 'SUBMITTED'::text])))"
+    },
+    {
+      "name": "cf_submissions_pkey",
+      "table": "cf_submissions",
+      "schema": "algopilot_private",
+      "definition": "CREATE UNIQUE INDEX cf_submissions_pkey ON algopilot_private.cf_submissions USING btree (user_id, scope_id, submission_id)"
+    },
+    {
+      "name": "learning_receipts_pkey",
+      "table": "learning_receipts",
+      "schema": "algopilot_private",
+      "definition": "CREATE UNIQUE INDEX learning_receipts_pkey ON algopilot_private.learning_receipts USING btree (user_id, request_id)"
+    },
+    {
+      "name": "recommendation_restriction_contest",
+      "table": "recommendation_restrictions",
+      "schema": "algopilot_private",
+      "definition": "CREATE INDEX recommendation_restriction_contest ON algopilot_private.recommendation_restrictions USING btree (contest_id)"
+    },
+    {
+      "name": "recommendation_restrictions_pkey",
+      "table": "recommendation_restrictions",
+      "schema": "algopilot_private",
+      "definition": "CREATE UNIQUE INDEX recommendation_restrictions_pkey ON algopilot_private.recommendation_restrictions USING btree (key)"
+    },
+    {
+      "name": "code_reviews_owner_history",
+      "table": "code_reviews",
+      "schema": "public",
+      "definition": "CREATE INDEX code_reviews_owner_history ON public.code_reviews USING btree (user_id, created_at DESC)"
+    },
+    {
+      "name": "code_reviews_pkey",
+      "table": "code_reviews",
+      "schema": "public",
+      "definition": "CREATE UNIQUE INDEX code_reviews_pkey ON public.code_reviews USING btree (id)"
+    },
+    {
+      "name": "reviews_learning_problem",
+      "table": "code_reviews",
+      "schema": "public",
+      "definition": "CREATE INDEX reviews_learning_problem ON public.code_reviews USING btree (user_id, problem_id)"
+    },
+    {
+      "name": "learning_preferences_pkey",
+      "table": "learning_preferences",
+      "schema": "public",
+      "definition": "CREATE UNIQUE INDEX learning_preferences_pkey ON public.learning_preferences USING btree (user_id)"
+    },
+    {
+      "name": "recommendation_feedback_owner",
+      "table": "recommendation_feedback",
+      "schema": "public",
+      "definition": "CREATE INDEX recommendation_feedback_owner ON public.recommendation_feedback USING btree (user_id, created_at DESC, id)"
+    },
+    {
+      "name": "recommendation_feedback_pkey",
+      "table": "recommendation_feedback",
+      "schema": "public",
+      "definition": "CREATE UNIQUE INDEX recommendation_feedback_pkey ON public.recommendation_feedback USING btree (id)"
+    },
+    {
+      "name": "review_one_pending",
+      "table": "review_requests",
+      "schema": "public",
+      "definition": "CREATE UNIQUE INDEX review_one_pending ON public.review_requests USING btree (user_id) WHERE (status = 'pending'::text)"
+    },
+    {
+      "name": "review_requests_daily",
+      "table": "review_requests",
+      "schema": "public",
+      "definition": "CREATE INDEX review_requests_daily ON public.review_requests USING btree (user_id, created_at)"
+    },
+    {
+      "name": "review_requests_pkey",
+      "table": "review_requests",
+      "schema": "public",
+      "definition": "CREATE UNIQUE INDEX review_requests_pkey ON public.review_requests USING btree (id)"
+    },
+    {
+      "name": "thought_snapshots_pkey",
+      "table": "thought_snapshots",
+      "schema": "public",
+      "definition": "CREATE UNIQUE INDEX thought_snapshots_pkey ON public.thought_snapshots USING btree (id)"
+    },
+    {
+      "name": "thought_snapshots_session_id_request_id_key",
+      "table": "thought_snapshots",
+      "schema": "public",
+      "definition": "CREATE UNIQUE INDEX thought_snapshots_session_id_request_id_key ON public.thought_snapshots USING btree (session_id, request_id)"
+    },
+    {
+      "name": "thought_snapshots_session_id_version_key",
+      "table": "thought_snapshots",
+      "schema": "public",
+      "definition": "CREATE UNIQUE INDEX thought_snapshots_session_id_version_key ON public.thought_snapshots USING btree (session_id, version)"
+    },
+    {
+      "name": "thoughts_session_created",
+      "table": "thought_snapshots",
+      "schema": "public",
+      "definition": "CREATE INDEX thoughts_session_created ON public.thought_snapshots USING btree (session_id, created_at DESC)"
+    },
+    {
+      "name": "training_plan_items_id_user_id_key",
+      "table": "training_plan_items",
+      "schema": "public",
+      "definition": "CREATE UNIQUE INDEX training_plan_items_id_user_id_key ON public.training_plan_items USING btree (id, user_id)"
+    },
+    {
+      "name": "training_plan_items_pkey",
+      "table": "training_plan_items",
+      "schema": "public",
+      "definition": "CREATE UNIQUE INDEX training_plan_items_pkey ON public.training_plan_items USING btree (id)"
+    },
+    {
+      "name": "training_plan_items_plan_id_position_key",
+      "table": "training_plan_items",
+      "schema": "public",
+      "definition": "CREATE UNIQUE INDEX training_plan_items_plan_id_position_key ON public.training_plan_items USING btree (plan_id, \"position\")"
+    },
+    {
+      "name": "training_plan_items_plan_id_problem_id_key",
+      "table": "training_plan_items",
+      "schema": "public",
+      "definition": "CREATE UNIQUE INDEX training_plan_items_plan_id_problem_id_key ON public.training_plan_items USING btree (plan_id, problem_id)"
+    },
+    {
+      "name": "plans_owner_updated",
+      "table": "training_plans",
+      "schema": "public",
+      "definition": "CREATE INDEX plans_owner_updated ON public.training_plans USING btree (user_id, updated_at DESC)"
+    },
+    {
+      "name": "training_plans_id_user_id_key",
+      "table": "training_plans",
+      "schema": "public",
+      "definition": "CREATE UNIQUE INDEX training_plans_id_user_id_key ON public.training_plans USING btree (id, user_id)"
+    },
+    {
+      "name": "training_plans_pkey",
+      "table": "training_plans",
+      "schema": "public",
+      "definition": "CREATE UNIQUE INDEX training_plans_pkey ON public.training_plans USING btree (id)"
+    },
+    {
+      "name": "sessions_learning_problem",
+      "table": "training_sessions",
+      "schema": "public",
+      "definition": "CREATE INDEX sessions_learning_problem ON public.training_sessions USING btree (user_id, problem_id, outcome)"
+    },
+    {
+      "name": "sessions_owner_created",
+      "table": "training_sessions",
+      "schema": "public",
+      "definition": "CREATE INDEX sessions_owner_created ON public.training_sessions USING btree (user_id, created_at DESC, id)"
+    },
+    {
+      "name": "sessions_owner_status",
+      "table": "training_sessions",
+      "schema": "public",
+      "definition": "CREATE INDEX sessions_owner_status ON public.training_sessions USING btree (user_id, status)"
+    },
+    {
+      "name": "sessions_problem",
+      "table": "training_sessions",
+      "schema": "public",
+      "definition": "CREATE INDEX sessions_problem ON public.training_sessions USING btree (problem_id)"
+    },
+    {
+      "name": "training_sessions_pkey",
+      "table": "training_sessions",
+      "schema": "public",
+      "definition": "CREATE UNIQUE INDEX training_sessions_pkey ON public.training_sessions USING btree (id)"
+    },
+    {
+      "name": "training_sessions_user_id_create_request_id_key",
+      "table": "training_sessions",
+      "schema": "public",
+      "definition": "CREATE UNIQUE INDEX training_sessions_user_id_create_request_id_key ON public.training_sessions USING btree (user_id, create_request_id)"
+    }
+  ],
+  "policies": [
+    {
+      "name": "code_reviews_owner",
+      "check": null,
+      "roles": [
+        "authenticated"
+      ],
+      "table": "code_reviews",
+      "using": "(user_id = auth.uid())",
+      "schema": "public",
+      "command": "SELECT"
+    },
+    {
+      "name": "learning_preferences_owner",
+      "check": null,
+      "roles": [
+        "authenticated"
+      ],
+      "table": "learning_preferences",
+      "using": "(user_id = auth.uid())",
+      "schema": "public",
+      "command": "SELECT"
+    },
+    {
+      "name": "problems_visible_read",
+      "check": null,
+      "roles": [
+        "anon",
+        "authenticated"
+      ],
+      "table": "problems",
+      "using": "((platform = 'codeforces'::text) OR (owner_id = ( SELECT auth.uid() AS uid)))",
+      "schema": "public",
+      "command": "SELECT"
+    },
+    {
+      "name": "recommendation_feedback_owner",
+      "check": null,
+      "roles": [
+        "authenticated"
+      ],
+      "table": "recommendation_feedback",
+      "using": "(user_id = auth.uid())",
+      "schema": "public",
+      "command": "SELECT"
+    },
+    {
+      "name": "review_requests_owner",
+      "check": null,
+      "roles": [
+        "authenticated"
+      ],
+      "table": "review_requests",
+      "using": "(user_id = auth.uid())",
+      "schema": "public",
+      "command": "SELECT"
+    },
+    {
+      "name": "thoughts_owner_read",
+      "check": null,
+      "roles": [
+        "authenticated"
+      ],
+      "table": "thought_snapshots",
+      "using": "(EXISTS ( SELECT 1\n   FROM training_sessions s\n  WHERE ((s.id = thought_snapshots.session_id) AND (s.user_id = ( SELECT auth.uid() AS uid)))))",
+      "schema": "public",
+      "command": "SELECT"
+    },
+    {
+      "name": "plan_items_owner",
+      "check": null,
+      "roles": [
+        "authenticated"
+      ],
+      "table": "training_plan_items",
+      "using": "(user_id = auth.uid())",
+      "schema": "public",
+      "command": "SELECT"
+    },
+    {
+      "name": "plans_owner",
+      "check": null,
+      "roles": [
+        "authenticated"
+      ],
+      "table": "training_plans",
+      "using": "(user_id = auth.uid())",
+      "schema": "public",
+      "command": "SELECT"
+    },
+    {
+      "name": "sessions_owner_read",
+      "check": null,
+      "roles": [
+        "authenticated"
+      ],
+      "table": "training_sessions",
+      "using": "(user_id = ( SELECT auth.uid() AS uid))",
+      "schema": "public",
+      "command": "SELECT"
+    }
+  ],
+  "functions": [
+    {
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "bodyMd5": "f2ff263f17374c8f23e113b4859861fa",
+      "signature": "algopilot_private.cf_advance_cursor(c jsonb, ids bigint[], new_cycle uuid, is_head boolean)",
+      "anonExecute": false,
+      "definitionMd5": "12156db4dddbab772571c625feda6bae",
+      "publicExecute": false,
+      "securityDefiner": false,
+      "authenticatedExecute": false
+    },
+    {
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "bodyMd5": "147e672c02b4e0a7e40d61c3a0d009db",
+      "signature": "algopilot_private.cf_new_cursor(p_stop bigint)",
+      "anonExecute": false,
+      "definitionMd5": "c535e4b6daf79de6a40bf23657c96deb",
+      "publicExecute": false,
+      "securityDefiner": false,
+      "authenticatedExecute": false
+    },
+    {
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "bodyMd5": "81a58948b84dbf99597b37eecec16479",
+      "signature": "algopilot_private.cf_official_evidence()",
+      "anonExecute": false,
+      "definitionMd5": "8c823fb5fc402c98b81b83b68f137efb",
+      "publicExecute": false,
+      "securityDefiner": true,
+      "authenticatedExecute": false
+    },
+    {
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "bodyMd5": "fb6c57015791a99b6768f385021b7c8d",
+      "signature": "algopilot_private.cf_problem(p problems)",
+      "anonExecute": false,
+      "definitionMd5": "249a587b15bd8d8d9e79194df6fd62d3",
+      "publicExecute": false,
+      "securityDefiner": false,
+      "authenticatedExecute": false
+    },
+    {
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "bodyMd5": "a5231861c9c76ad6b1c1f90179ccc651",
+      "signature": "algopilot_private.verify_cf(p_payload text, p_signature text, p_operation text)",
+      "anonExecute": false,
+      "definitionMd5": "908080f2c8bba6afaf7cdae1759e40a8",
+      "publicExecute": false,
+      "securityDefiner": true,
+      "authenticatedExecute": false
+    },
+    {
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "bodyMd5": "06510b094023a2160f3a0b7a608b72c9",
+      "signature": "public.cf_account_command(p_payload text, p_signature text)",
+      "anonExecute": false,
+      "definitionMd5": "9deab8a440f5c2cb9ab318ea81f63b9c",
+      "publicExecute": false,
+      "securityDefiner": true,
+      "authenticatedExecute": true
+    },
+    {
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "bodyMd5": "53fea6bf2b4dbe6ef8ecf6ad292047e6",
+      "signature": "public.cf_account_state()",
+      "anonExecute": false,
+      "definitionMd5": "84567e8fa7ca768d073a4bb0cec5ba82",
+      "publicExecute": false,
+      "securityDefiner": true,
+      "authenticatedExecute": true
+    },
+    {
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "bodyMd5": "c063849993a8a548604e37676786824f",
+      "signature": "public.cf_catalog(p_query jsonb)",
+      "anonExecute": false,
+      "definitionMd5": "eed4770b4bd2baf713cb43261d1ccd59",
+      "publicExecute": false,
+      "securityDefiner": true,
+      "authenticatedExecute": true
+    },
+    {
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "bodyMd5": "0f2cb1a2b187ecff4926b92fb5a04f4a",
+      "signature": "public.cf_sync(p_payload text, p_signature text)",
+      "anonExecute": false,
+      "definitionMd5": "cd71df3bbed1229caf549b3649c8e91d",
+      "publicExecute": false,
+      "securityDefiner": true,
+      "authenticatedExecute": true
+    },
+    {
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "bodyMd5": "46151a33350fe9ccd31dd4794920307b",
+      "signature": "public.learning_candidates(p_query jsonb)",
+      "anonExecute": false,
+      "definitionMd5": "1adf7aad841d052dfbca801010e4c012",
+      "publicExecute": false,
+      "securityDefiner": true,
+      "authenticatedExecute": true
+    },
+    {
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "bodyMd5": "d3193fabe9383057dd5cd3a2b7bfeb60",
+      "signature": "public.learning_evidence()",
+      "anonExecute": false,
+      "definitionMd5": "1d0589f8a064b0392fb0e28937339592",
+      "publicExecute": false,
+      "securityDefiner": true,
+      "authenticatedExecute": true
+    },
+    {
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "bodyMd5": "99950b6291bacbf9adf4596b7ceef150",
+      "signature": "public.learning_evidence_guard(p_revision integer, p_official_revision bigint)",
+      "anonExecute": false,
+      "definitionMd5": "e5c14d4b06277ac9bd6abe40399cea3e",
+      "publicExecute": false,
+      "securityDefiner": true,
+      "authenticatedExecute": true
+    },
+    {
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "bodyMd5": "dd3953888173b0f8f461534983ca2ede",
+      "signature": "public.learning_write(p_input jsonb)",
+      "anonExecute": false,
+      "definitionMd5": "70ad094f2b781d9ba3a7814722744058",
+      "publicExecute": false,
+      "securityDefiner": true,
+      "authenticatedExecute": true
+    },
+    {
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "bodyMd5": "f8c753ab1b28ffa7613bb61034aeaa9e",
+      "signature": "public.review_finish(p_payload text, p_signature text)",
+      "anonExecute": false,
+      "definitionMd5": "19186e986aa407d8cd1d8f653376064e",
+      "publicExecute": false,
+      "securityDefiner": true,
+      "authenticatedExecute": true
+    },
+    {
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "bodyMd5": "38c0945e011c5aded01c82f17a3037d9",
+      "signature": "public.review_reserve(p_payload text, p_signature text)",
+      "anonExecute": false,
+      "definitionMd5": "7bc3bd6a95bfe6563186b77efba6d3a1",
+      "publicExecute": false,
+      "securityDefiner": true,
+      "authenticatedExecute": true
+    },
+    {
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "bodyMd5": "d5e46b5d10de873d16e938485c9181e4",
+      "signature": "public.tutor_finish(p_payload text, p_signature text)",
+      "anonExecute": false,
+      "definitionMd5": "473759c1e1b4659beac07b13cf16d13a",
+      "publicExecute": false,
+      "securityDefiner": true,
+      "authenticatedExecute": true
+    },
+    {
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "bodyMd5": "eb201c10803d6ed056da5e7e16823e70",
+      "signature": "public.tutor_hint(p_id uuid, p_operation text, p_revision integer, p_request_id uuid, p_challenge uuid)",
+      "anonExecute": false,
+      "definitionMd5": "13d07c1065236eddac63d7ce80ecf925",
+      "publicExecute": false,
+      "securityDefiner": true,
+      "authenticatedExecute": true
+    },
+    {
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "bodyMd5": "193b70165ed7219e2f8ad569cebc3b8d",
+      "signature": "public.tutor_reserve(p_payload text, p_signature text)",
+      "anonExecute": false,
+      "definitionMd5": "48c33d31f913248421886360909e0933",
+      "publicExecute": false,
+      "securityDefiner": true,
+      "authenticatedExecute": true
+    }
+  ],
+  "relations": [
+    {
+      "rls": true,
+      "name": "cf_account_receipts",
+      "owner": "postgres",
+      "schema": "algopilot_private",
+      "forceRls": false,
+      "anonSelect": false,
+      "userDelete": false,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false,
+      "schemaUserUsage": false
+    },
+    {
+      "rls": true,
+      "name": "cf_accounts",
+      "owner": "postgres",
+      "schema": "algopilot_private",
+      "forceRls": false,
+      "anonSelect": false,
+      "userDelete": false,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false,
+      "schemaUserUsage": false
+    },
+    {
+      "rls": true,
+      "name": "cf_cache_state",
+      "owner": "postgres",
+      "schema": "algopilot_private",
+      "forceRls": false,
+      "anonSelect": false,
+      "userDelete": false,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false,
+      "schemaUserUsage": false
+    },
+    {
+      "rls": true,
+      "name": "cf_settings",
+      "owner": "postgres",
+      "schema": "algopilot_private",
+      "forceRls": false,
+      "anonSelect": false,
+      "userDelete": false,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false,
+      "schemaUserUsage": false
+    },
+    {
+      "rls": true,
+      "name": "cf_submissions",
+      "owner": "postgres",
+      "schema": "algopilot_private",
+      "forceRls": false,
+      "anonSelect": false,
+      "userDelete": false,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false,
+      "schemaUserUsage": false
+    },
+    {
+      "rls": true,
+      "name": "learning_receipts",
+      "owner": "postgres",
+      "schema": "algopilot_private",
+      "forceRls": false,
+      "anonSelect": false,
+      "userDelete": false,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false,
+      "schemaUserUsage": false
+    },
+    {
+      "rls": true,
+      "name": "recommendation_restrictions",
+      "owner": "postgres",
+      "schema": "algopilot_private",
+      "forceRls": false,
+      "anonSelect": false,
+      "userDelete": false,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false,
+      "schemaUserUsage": false
+    },
+    {
+      "rls": true,
+      "name": "tutor_settings",
+      "owner": "postgres",
+      "schema": "algopilot_private",
+      "forceRls": false,
+      "anonSelect": false,
+      "userDelete": false,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false,
+      "schemaUserUsage": false
+    },
+    {
+      "rls": true,
+      "name": "code_reviews",
+      "owner": "postgres",
+      "schema": "public",
+      "forceRls": false,
+      "anonSelect": false,
+      "userDelete": false,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false,
+      "schemaUserUsage": true
+    },
+    {
+      "rls": true,
+      "name": "learning_preferences",
+      "owner": "postgres",
+      "schema": "public",
+      "forceRls": false,
+      "anonSelect": false,
+      "userDelete": false,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false,
+      "schemaUserUsage": true
+    },
+    {
+      "rls": true,
+      "name": "problems",
+      "owner": "postgres",
+      "schema": "public",
+      "forceRls": false,
+      "anonSelect": false,
+      "userDelete": false,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false,
+      "schemaUserUsage": true
+    },
+    {
+      "rls": true,
+      "name": "recommendation_feedback",
+      "owner": "postgres",
+      "schema": "public",
+      "forceRls": false,
+      "anonSelect": false,
+      "userDelete": false,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false,
+      "schemaUserUsage": true
+    },
+    {
+      "rls": true,
+      "name": "review_requests",
+      "owner": "postgres",
+      "schema": "public",
+      "forceRls": false,
+      "anonSelect": false,
+      "userDelete": false,
+      "userInsert": false,
+      "userSelect": false,
+      "userUpdate": false,
+      "schemaUserUsage": true
+    },
+    {
+      "rls": true,
+      "name": "thought_snapshots",
+      "owner": "postgres",
+      "schema": "public",
+      "forceRls": false,
+      "anonSelect": false,
+      "userDelete": false,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false,
+      "schemaUserUsage": true
+    },
+    {
+      "rls": true,
+      "name": "training_plan_items",
+      "owner": "postgres",
+      "schema": "public",
+      "forceRls": false,
+      "anonSelect": false,
+      "userDelete": false,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false,
+      "schemaUserUsage": true
+    },
+    {
+      "rls": true,
+      "name": "training_plans",
+      "owner": "postgres",
+      "schema": "public",
+      "forceRls": false,
+      "anonSelect": false,
+      "userDelete": false,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false,
+      "schemaUserUsage": true
+    },
+    {
+      "rls": true,
+      "name": "training_sessions",
+      "owner": "postgres",
+      "schema": "public",
+      "forceRls": false,
+      "anonSelect": false,
+      "userDelete": false,
+      "userInsert": false,
+      "userSelect": true,
+      "userUpdate": false,
+      "schemaUserUsage": true
+    }
+  ],
+  "constraints": [
+    {
+      "name": "cf_account_receipts_fingerprint_not_null",
+      "table": "cf_account_receipts",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "NOT NULL fingerprint"
+    },
+    {
+      "name": "cf_account_receipts_pkey",
+      "table": "cf_account_receipts",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "PRIMARY KEY (user_id, request_id)"
+    },
+    {
+      "name": "cf_account_receipts_request_id_not_null",
+      "table": "cf_account_receipts",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "NOT NULL request_id"
+    },
+    {
+      "name": "cf_account_receipts_result_not_null",
+      "table": "cf_account_receipts",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "NOT NULL result"
+    },
+    {
+      "name": "cf_account_receipts_user_id_fkey",
+      "table": "cf_account_receipts",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "cf_account_receipts_user_id_not_null",
+      "table": "cf_account_receipts",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "NOT NULL user_id"
+    },
+    {
+      "name": "cf_accounts_check",
+      "table": "cf_accounts",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "CHECK (((handle IS NULL) = (registration_seconds IS NULL)))"
+    },
+    {
+      "name": "cf_accounts_enabled_not_null",
+      "table": "cf_accounts",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "NOT NULL enabled"
+    },
+    {
+      "name": "cf_accounts_evidence_revision_not_null",
+      "table": "cf_accounts",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "NOT NULL evidence_revision"
+    },
+    {
+      "name": "cf_accounts_handle_check",
+      "table": "cf_accounts",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "CHECK (((handle IS NULL) OR (handle ~ '^[A-Za-z0-9_.-]{3,24}$'::text)))"
+    },
+    {
+      "name": "cf_accounts_head_not_null",
+      "table": "cf_accounts",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "NOT NULL head"
+    },
+    {
+      "name": "cf_accounts_history_not_null",
+      "table": "cf_accounts",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "NOT NULL history"
+    },
+    {
+      "name": "cf_accounts_next_attempt_at_not_null",
+      "table": "cf_accounts",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "NOT NULL next_attempt_at"
+    },
+    {
+      "name": "cf_accounts_pkey",
+      "table": "cf_accounts",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "PRIMARY KEY (user_id)"
+    },
+    {
+      "name": "cf_accounts_revision_check",
+      "table": "cf_accounts",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "CHECK ((revision >= 0))"
+    },
+    {
+      "name": "cf_accounts_revision_not_null",
+      "table": "cf_accounts",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "NOT NULL revision"
+    },
+    {
+      "name": "cf_accounts_scope_id_not_null",
+      "table": "cf_accounts",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "NOT NULL scope_id"
+    },
+    {
+      "name": "cf_accounts_status_check",
+      "table": "cf_accounts",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "CHECK ((status = ANY (ARRAY['unlinked'::text, 'never'::text, 'partial'::text, 'idle'::text, 'syncing'::text, 'failed'::text])))"
+    },
+    {
+      "name": "cf_accounts_status_not_null",
+      "table": "cf_accounts",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "NOT NULL status"
+    },
+    {
+      "name": "cf_accounts_user_id_fkey",
+      "table": "cf_accounts",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "cf_accounts_user_id_not_null",
+      "table": "cf_accounts",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "NOT NULL user_id"
+    },
+    {
+      "name": "cf_submissions_active_not_null",
+      "table": "cf_submissions",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "NOT NULL active"
+    },
+    {
+      "name": "cf_submissions_check",
+      "table": "cf_submissions",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "CHECK (((contest_id IS NULL) = (problem_index IS NULL)))"
+    },
+    {
+      "name": "cf_submissions_collected_at_not_null",
+      "table": "cf_submissions",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "NOT NULL collected_at"
+    },
+    {
+      "name": "cf_submissions_contest_id_check",
+      "table": "cf_submissions",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "CHECK (((contest_id IS NULL) OR (contest_id > 0)))"
+    },
+    {
+      "name": "cf_submissions_created_at_not_null",
+      "table": "cf_submissions",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "NOT NULL created_at"
+    },
+    {
+      "name": "cf_submissions_id_key",
+      "table": "cf_submissions",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "UNIQUE (id)"
+    },
+    {
+      "name": "cf_submissions_id_not_null",
+      "table": "cf_submissions",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "NOT NULL id"
+    },
+    {
+      "name": "cf_submissions_observed_from_check",
+      "table": "cf_submissions",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "CHECK ((observed_from > 0))"
+    },
+    {
+      "name": "cf_submissions_observed_from_not_null",
+      "table": "cf_submissions",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "NOT NULL observed_from"
+    },
+    {
+      "name": "cf_submissions_pkey",
+      "table": "cf_submissions",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "PRIMARY KEY (user_id, scope_id, submission_id)"
+    },
+    {
+      "name": "cf_submissions_problem_index_check",
+      "table": "cf_submissions",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "CHECK (((problem_index IS NULL) OR (problem_index ~ '^[A-Z0-9]{1,12}$'::text)))"
+    },
+    {
+      "name": "cf_submissions_scope_id_not_null",
+      "table": "cf_submissions",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "NOT NULL scope_id"
+    },
+    {
+      "name": "cf_submissions_submission_id_check",
+      "table": "cf_submissions",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "CHECK (((submission_id >= 1) AND (submission_id <= '9007199254740991'::bigint)))"
+    },
+    {
+      "name": "cf_submissions_submission_id_not_null",
+      "table": "cf_submissions",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "NOT NULL submission_id"
+    },
+    {
+      "name": "cf_submissions_updated_at_not_null",
+      "table": "cf_submissions",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "NOT NULL updated_at"
+    },
+    {
+      "name": "cf_submissions_user_id_fkey",
+      "table": "cf_submissions",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "cf_submissions_user_id_not_null",
+      "table": "cf_submissions",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "NOT NULL user_id"
+    },
+    {
+      "name": "cf_submissions_verdict_check",
+      "table": "cf_submissions",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "CHECK (((verdict IS NULL) OR (verdict ~ '^[A-Z_]{1,60}$'::text)))"
+    },
+    {
+      "name": "learning_receipts_fingerprint_not_null",
+      "table": "learning_receipts",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "NOT NULL fingerprint"
+    },
+    {
+      "name": "learning_receipts_pkey",
+      "table": "learning_receipts",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "PRIMARY KEY (user_id, request_id)"
+    },
+    {
+      "name": "learning_receipts_request_id_not_null",
+      "table": "learning_receipts",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "NOT NULL request_id"
+    },
+    {
+      "name": "learning_receipts_user_id_fkey",
+      "table": "learning_receipts",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "learning_receipts_user_id_not_null",
+      "table": "learning_receipts",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "NOT NULL user_id"
+    },
+    {
+      "name": "recommendation_restrictions_checked_at_not_null",
+      "table": "recommendation_restrictions",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "NOT NULL checked_at"
+    },
+    {
+      "name": "recommendation_restrictions_contest_id_check",
+      "table": "recommendation_restrictions",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "CHECK ((contest_id > 0))"
+    },
+    {
+      "name": "recommendation_restrictions_contest_id_not_null",
+      "table": "recommendation_restrictions",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "NOT NULL contest_id"
+    },
+    {
+      "name": "recommendation_restrictions_key_not_null",
+      "table": "recommendation_restrictions",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "NOT NULL key"
+    },
+    {
+      "name": "recommendation_restrictions_language_not_null",
+      "table": "recommendation_restrictions",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "NOT NULL language"
+    },
+    {
+      "name": "recommendation_restrictions_pkey",
+      "table": "recommendation_restrictions",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "PRIMARY KEY (key)"
+    },
+    {
+      "name": "recommendation_restrictions_restriction_check",
+      "table": "recommendation_restrictions",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "CHECK ((restriction = 'language_not_cpp'::text))"
+    },
+    {
+      "name": "recommendation_restrictions_restriction_not_null",
+      "table": "recommendation_restrictions",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "NOT NULL restriction"
+    },
+    {
+      "name": "recommendation_restrictions_sources_check",
+      "table": "recommendation_restrictions",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "CHECK ((cardinality(sources) > 0))"
+    },
+    {
+      "name": "recommendation_restrictions_sources_not_null",
+      "table": "recommendation_restrictions",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "NOT NULL sources"
+    },
+    {
+      "name": "recommendation_restrictions_status_check",
+      "table": "recommendation_restrictions",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "CHECK ((status = 'source_checked_by_ai'::text))"
+    },
+    {
+      "name": "recommendation_restrictions_status_not_null",
+      "table": "recommendation_restrictions",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "NOT NULL status"
+    },
+    {
+      "name": "recommendation_restrictions_summary_not_null",
+      "table": "recommendation_restrictions",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "NOT NULL summary"
+    },
+    {
+      "name": "recommendation_restrictions_version_not_null",
+      "table": "recommendation_restrictions",
+      "schema": "algopilot_private",
+      "validated": true,
+      "definition": "NOT NULL version"
+    },
+    {
+      "name": "code_reviews_authorization_event_check",
+      "table": "code_reviews",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK ((jsonb_typeof(authorization_event) = 'object'::text))"
+    },
+    {
+      "name": "code_reviews_authorization_event_not_null",
+      "table": "code_reviews",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL authorization_event"
+    },
+    {
+      "name": "code_reviews_check",
+      "table": "code_reviews",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK ((((source = 'paste'::text) AND (file_name IS NULL)) OR ((source = 'file'::text) AND (file_name IS NOT NULL) AND (file_name ~* '^[^/\\\\]+\\.(cpp|cc|cxx|txt)$'::text) AND (length(file_name) <= 160) AND (file_name !~ '[\\x01-\\x1F\\x7F]'::text))))"
+    },
+    {
+      "name": "code_reviews_code_hash_check",
+      "table": "code_reviews",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK ((code_hash ~ '^[a-f0-9]{64}$'::text))"
+    },
+    {
+      "name": "code_reviews_code_hash_not_null",
+      "table": "code_reviews",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL code_hash"
+    },
+    {
+      "name": "code_reviews_code_snapshot_check",
+      "table": "code_reviews",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK ((((octet_length(code_snapshot) >= 1) AND (octet_length(code_snapshot) <= 64000)) AND (length(btrim(code_snapshot)) > 0)))"
+    },
+    {
+      "name": "code_reviews_code_snapshot_not_null",
+      "table": "code_reviews",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL code_snapshot"
+    },
+    {
+      "name": "code_reviews_create_fingerprint_not_null",
+      "table": "code_reviews",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL create_fingerprint"
+    },
+    {
+      "name": "code_reviews_created_at_not_null",
+      "table": "code_reviews",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL created_at"
+    },
+    {
+      "name": "code_reviews_id_not_null",
+      "table": "code_reviews",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL id"
+    },
+    {
+      "name": "code_reviews_notes_check",
+      "table": "code_reviews",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK ((length(notes) <= 16000))"
+    },
+    {
+      "name": "code_reviews_notes_not_null",
+      "table": "code_reviews",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL notes"
+    },
+    {
+      "name": "code_reviews_official_verdict_check",
+      "table": "code_reviews",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK ((official_verdict IS NULL))"
+    },
+    {
+      "name": "code_reviews_pkey",
+      "table": "code_reviews",
+      "schema": "public",
+      "validated": true,
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "name": "code_reviews_problem_id_fkey",
+      "table": "code_reviews",
+      "schema": "public",
+      "validated": true,
+      "definition": "FOREIGN KEY (problem_id) REFERENCES problems(id)"
+    },
+    {
+      "name": "code_reviews_problem_url_check",
+      "table": "code_reviews",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK ((length(problem_url) <= 200))"
+    },
+    {
+      "name": "code_reviews_problem_url_not_null",
+      "table": "code_reviews",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL problem_url"
+    },
+    {
+      "name": "code_reviews_revision_check",
+      "table": "code_reviews",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK ((revision >= 0))"
+    },
+    {
+      "name": "code_reviews_revision_not_null",
+      "table": "code_reviews",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL revision"
+    },
+    {
+      "name": "code_reviews_session_id_fkey",
+      "table": "code_reviews",
+      "schema": "public",
+      "validated": true,
+      "definition": "FOREIGN KEY (session_id) REFERENCES training_sessions(id)"
+    },
+    {
+      "name": "code_reviews_session_id_not_null",
+      "table": "code_reviews",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL session_id"
+    },
+    {
+      "name": "code_reviews_source_check",
+      "table": "code_reviews",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK ((source = ANY (ARRAY['paste'::text, 'file'::text])))"
+    },
+    {
+      "name": "code_reviews_source_match_check",
+      "table": "code_reviews",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK ((source_match = 'unverified'::text))"
+    },
+    {
+      "name": "code_reviews_source_match_not_null",
+      "table": "code_reviews",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL source_match"
+    },
+    {
+      "name": "code_reviews_source_not_null",
+      "table": "code_reviews",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL source"
+    },
+    {
+      "name": "code_reviews_statement_snapshot_check",
+      "table": "code_reviews",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK ((length(statement_snapshot) <= 64000))"
+    },
+    {
+      "name": "code_reviews_statement_snapshot_not_null",
+      "table": "code_reviews",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL statement_snapshot"
+    },
+    {
+      "name": "code_reviews_submission_id_check",
+      "table": "code_reviews",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK ((submission_id ~ '^[1-9][0-9]{0,17}$'::text))"
+    },
+    {
+      "name": "code_reviews_user_id_fkey",
+      "table": "code_reviews",
+      "schema": "public",
+      "validated": true,
+      "definition": "FOREIGN KEY (user_id) REFERENCES auth.users(id)"
+    },
+    {
+      "name": "code_reviews_user_id_not_null",
+      "table": "code_reviews",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL user_id"
+    },
+    {
+      "name": "code_reviews_verdict_source_check",
+      "table": "code_reviews",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK ((verdict_source = 'user_reported'::text))"
+    },
+    {
+      "name": "code_reviews_verdict_source_not_null",
+      "table": "code_reviews",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL verdict_source"
+    },
+    {
+      "name": "learning_preferences_pkey",
+      "table": "learning_preferences",
+      "schema": "public",
+      "validated": true,
+      "definition": "PRIMARY KEY (user_id)"
+    },
+    {
+      "name": "learning_preferences_preferences_not_null",
+      "table": "learning_preferences",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL preferences"
+    },
+    {
+      "name": "learning_preferences_revision_check",
+      "table": "learning_preferences",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK ((revision >= 0))"
+    },
+    {
+      "name": "learning_preferences_revision_not_null",
+      "table": "learning_preferences",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL revision"
+    },
+    {
+      "name": "learning_preferences_updated_at_not_null",
+      "table": "learning_preferences",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL updated_at"
+    },
+    {
+      "name": "learning_preferences_user_id_fkey",
+      "table": "learning_preferences",
+      "schema": "public",
+      "validated": true,
+      "definition": "FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "learning_preferences_user_id_not_null",
+      "table": "learning_preferences",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL user_id"
+    },
+    {
+      "name": "recommendation_feedback_created_at_not_null",
+      "table": "recommendation_feedback",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL created_at"
+    },
+    {
+      "name": "recommendation_feedback_id_not_null",
+      "table": "recommendation_feedback",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL id"
+    },
+    {
+      "name": "recommendation_feedback_kind_check",
+      "table": "recommendation_feedback",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK ((kind = ANY (ARRAY['too_easy'::text, 'too_hard'::text, 'off_goal'::text])))"
+    },
+    {
+      "name": "recommendation_feedback_kind_not_null",
+      "table": "recommendation_feedback",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL kind"
+    },
+    {
+      "name": "recommendation_feedback_pkey",
+      "table": "recommendation_feedback",
+      "schema": "public",
+      "validated": true,
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "name": "recommendation_feedback_problem_id_fkey",
+      "table": "recommendation_feedback",
+      "schema": "public",
+      "validated": true,
+      "definition": "FOREIGN KEY (problem_id) REFERENCES problems(id)"
+    },
+    {
+      "name": "recommendation_feedback_problem_id_not_null",
+      "table": "recommendation_feedback",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL problem_id"
+    },
+    {
+      "name": "recommendation_feedback_user_id_fkey",
+      "table": "recommendation_feedback",
+      "schema": "public",
+      "validated": true,
+      "definition": "FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "recommendation_feedback_user_id_not_null",
+      "table": "recommendation_feedback",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL user_id"
+    },
+    {
+      "name": "review_requests_created_at_not_null",
+      "table": "review_requests",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL created_at"
+    },
+    {
+      "name": "review_requests_fingerprint_not_null",
+      "table": "review_requests",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL fingerprint"
+    },
+    {
+      "name": "review_requests_id_not_null",
+      "table": "review_requests",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL id"
+    },
+    {
+      "name": "review_requests_lease_nonce_not_null",
+      "table": "review_requests",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL lease_nonce"
+    },
+    {
+      "name": "review_requests_lease_until_not_null",
+      "table": "review_requests",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL lease_until"
+    },
+    {
+      "name": "review_requests_pkey",
+      "table": "review_requests",
+      "schema": "public",
+      "validated": true,
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "name": "review_requests_question_check",
+      "table": "review_requests",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK ((length(question) <= 3000))"
+    },
+    {
+      "name": "review_requests_question_not_null",
+      "table": "review_requests",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL question"
+    },
+    {
+      "name": "review_requests_review_id_fkey",
+      "table": "review_requests",
+      "schema": "public",
+      "validated": true,
+      "definition": "FOREIGN KEY (review_id) REFERENCES code_reviews(id)"
+    },
+    {
+      "name": "review_requests_review_id_not_null",
+      "table": "review_requests",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL review_id"
+    },
+    {
+      "name": "review_requests_status_check",
+      "table": "review_requests",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK ((status = ANY (ARRAY['pending'::text, 'completed'::text, 'failed'::text])))"
+    },
+    {
+      "name": "review_requests_status_not_null",
+      "table": "review_requests",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL status"
+    },
+    {
+      "name": "review_requests_usage_not_null",
+      "table": "review_requests",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL usage"
+    },
+    {
+      "name": "review_requests_user_id_fkey",
+      "table": "review_requests",
+      "schema": "public",
+      "validated": true,
+      "definition": "FOREIGN KEY (user_id) REFERENCES auth.users(id)"
+    },
+    {
+      "name": "review_requests_user_id_not_null",
+      "table": "review_requests",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL user_id"
+    },
+    {
+      "name": "thought_snapshots_content_check",
+      "table": "thought_snapshots",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK (((char_length(content) >= 1) AND (char_length(content) <= 64000)))"
+    },
+    {
+      "name": "thought_snapshots_content_not_null",
+      "table": "thought_snapshots",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL content"
+    },
+    {
+      "name": "thought_snapshots_created_at_not_null",
+      "table": "thought_snapshots",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL created_at"
+    },
+    {
+      "name": "thought_snapshots_id_not_null",
+      "table": "thought_snapshots",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL id"
+    },
+    {
+      "name": "thought_snapshots_pkey",
+      "table": "thought_snapshots",
+      "schema": "public",
+      "validated": true,
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "name": "thought_snapshots_request_id_not_null",
+      "table": "thought_snapshots",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL request_id"
+    },
+    {
+      "name": "thought_snapshots_session_id_fkey",
+      "table": "thought_snapshots",
+      "schema": "public",
+      "validated": true,
+      "definition": "FOREIGN KEY (session_id) REFERENCES training_sessions(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "thought_snapshots_session_id_not_null",
+      "table": "thought_snapshots",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL session_id"
+    },
+    {
+      "name": "thought_snapshots_session_id_request_id_key",
+      "table": "thought_snapshots",
+      "schema": "public",
+      "validated": true,
+      "definition": "UNIQUE (session_id, request_id)"
+    },
+    {
+      "name": "thought_snapshots_session_id_version_key",
+      "table": "thought_snapshots",
+      "schema": "public",
+      "validated": true,
+      "definition": "UNIQUE (session_id, version)"
+    },
+    {
+      "name": "thought_snapshots_version_check",
+      "table": "thought_snapshots",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK ((version > 0))"
+    },
+    {
+      "name": "thought_snapshots_version_not_null",
+      "table": "thought_snapshots",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL version"
+    },
+    {
+      "name": "training_plan_items_created_at_not_null",
+      "table": "training_plan_items",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL created_at"
+    },
+    {
+      "name": "training_plan_items_id_not_null",
+      "table": "training_plan_items",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL id"
+    },
+    {
+      "name": "training_plan_items_id_user_id_key",
+      "table": "training_plan_items",
+      "schema": "public",
+      "validated": true,
+      "definition": "UNIQUE (id, user_id)"
+    },
+    {
+      "name": "training_plan_items_manual_status_check",
+      "table": "training_plan_items",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK ((manual_status = ANY (ARRAY['planned'::text, 'in_progress'::text, 'completed'::text])))"
+    },
+    {
+      "name": "training_plan_items_manual_status_not_null",
+      "table": "training_plan_items",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL manual_status"
+    },
+    {
+      "name": "training_plan_items_pkey",
+      "table": "training_plan_items",
+      "schema": "public",
+      "validated": true,
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "name": "training_plan_items_plan_id_not_null",
+      "table": "training_plan_items",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL plan_id"
+    },
+    {
+      "name": "training_plan_items_plan_id_position_key",
+      "table": "training_plan_items",
+      "schema": "public",
+      "validated": true,
+      "definition": "UNIQUE (plan_id, \"position\") DEFERRABLE INITIALLY DEFERRED"
+    },
+    {
+      "name": "training_plan_items_plan_id_problem_id_key",
+      "table": "training_plan_items",
+      "schema": "public",
+      "validated": true,
+      "definition": "UNIQUE (plan_id, problem_id)"
+    },
+    {
+      "name": "training_plan_items_plan_id_user_id_fkey",
+      "table": "training_plan_items",
+      "schema": "public",
+      "validated": true,
+      "definition": "FOREIGN KEY (plan_id, user_id) REFERENCES training_plans(id, user_id) ON DELETE CASCADE"
+    },
+    {
+      "name": "training_plan_items_position_check",
+      "table": "training_plan_items",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK ((\"position\" >= 0))"
+    },
+    {
+      "name": "training_plan_items_position_not_null",
+      "table": "training_plan_items",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL \"position\""
+    },
+    {
+      "name": "training_plan_items_problem_id_fkey",
+      "table": "training_plan_items",
+      "schema": "public",
+      "validated": true,
+      "definition": "FOREIGN KEY (problem_id) REFERENCES problems(id)"
+    },
+    {
+      "name": "training_plan_items_problem_id_not_null",
+      "table": "training_plan_items",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL problem_id"
+    },
+    {
+      "name": "training_plan_items_user_id_not_null",
+      "table": "training_plan_items",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL user_id"
+    },
+    {
+      "name": "training_plans_archived_not_null",
+      "table": "training_plans",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL archived"
+    },
+    {
+      "name": "training_plans_created_at_not_null",
+      "table": "training_plans",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL created_at"
+    },
+    {
+      "name": "training_plans_description_check",
+      "table": "training_plans",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK ((char_length(description) <= 2000))"
+    },
+    {
+      "name": "training_plans_description_not_null",
+      "table": "training_plans",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL description"
+    },
+    {
+      "name": "training_plans_id_not_null",
+      "table": "training_plans",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL id"
+    },
+    {
+      "name": "training_plans_id_user_id_key",
+      "table": "training_plans",
+      "schema": "public",
+      "validated": true,
+      "definition": "UNIQUE (id, user_id)"
+    },
+    {
+      "name": "training_plans_name_check",
+      "table": "training_plans",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK (((char_length(btrim(name)) >= 1) AND (char_length(btrim(name)) <= 100)))"
+    },
+    {
+      "name": "training_plans_name_not_null",
+      "table": "training_plans",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL name"
+    },
+    {
+      "name": "training_plans_pkey",
+      "table": "training_plans",
+      "schema": "public",
+      "validated": true,
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "name": "training_plans_revision_check",
+      "table": "training_plans",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK ((revision >= 0))"
+    },
+    {
+      "name": "training_plans_revision_not_null",
+      "table": "training_plans",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL revision"
+    },
+    {
+      "name": "training_plans_updated_at_not_null",
+      "table": "training_plans",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL updated_at"
+    },
+    {
+      "name": "training_plans_user_id_fkey",
+      "table": "training_plans",
+      "schema": "public",
+      "validated": true,
+      "definition": "FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "training_plans_user_id_not_null",
+      "table": "training_plans",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL user_id"
+    },
+    {
+      "name": "training_sessions_active_seconds_check",
+      "table": "training_sessions",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK ((active_seconds >= 0))"
+    },
+    {
+      "name": "training_sessions_active_seconds_not_null",
+      "table": "training_sessions",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL active_seconds"
+    },
+    {
+      "name": "training_sessions_check",
+      "table": "training_sessions",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK ((((status = 'active'::text) AND (resumed_at IS NOT NULL) AND (ended_at IS NULL) AND (outcome IS NULL)) OR ((status = 'paused'::text) AND (resumed_at IS NULL) AND (ended_at IS NULL) AND (outcome IS NULL)) OR ((status = 'completed'::text) AND (resumed_at IS NULL) AND (ended_at IS NOT NULL) AND (outcome IS NOT NULL) AND (phase = 'finished'::text))))"
+    },
+    {
+      "name": "training_sessions_check1",
+      "table": "training_sessions",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK (((ended_at IS NULL) OR (ended_at >= started_at)))"
+    },
+    {
+      "name": "training_sessions_code_draft_check",
+      "table": "training_sessions",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK ((char_length(code_draft) <= 64000))"
+    },
+    {
+      "name": "training_sessions_code_draft_not_null",
+      "table": "training_sessions",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL code_draft"
+    },
+    {
+      "name": "training_sessions_code_revision_check",
+      "table": "training_sessions",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK ((code_revision >= 0))"
+    },
+    {
+      "name": "training_sessions_code_revision_not_null",
+      "table": "training_sessions",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL code_revision"
+    },
+    {
+      "name": "training_sessions_create_request_id_not_null",
+      "table": "training_sessions",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL create_request_id"
+    },
+    {
+      "name": "training_sessions_created_at_not_null",
+      "table": "training_sessions",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL created_at"
+    },
+    {
+      "name": "training_sessions_id_not_null",
+      "table": "training_sessions",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL id"
+    },
+    {
+      "name": "training_sessions_max_hint_seen_check",
+      "table": "training_sessions",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK (((max_hint_seen >= 0) AND (max_hint_seen <= 5)))"
+    },
+    {
+      "name": "training_sessions_max_hint_seen_not_null",
+      "table": "training_sessions",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL max_hint_seen"
+    },
+    {
+      "name": "training_sessions_mode_check",
+      "table": "training_sessions",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK ((mode = ANY (ARRAY['practice'::text, 'contest'::text])))"
+    },
+    {
+      "name": "training_sessions_mode_not_null",
+      "table": "training_sessions",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL mode"
+    },
+    {
+      "name": "training_sessions_outcome_check",
+      "table": "training_sessions",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK ((outcome = ANY (ARRAY['not_recorded'::text, 'solved_self_reported'::text, 'unsolved'::text, 'abandoned'::text])))"
+    },
+    {
+      "name": "training_sessions_phase_check",
+      "table": "training_sessions",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK ((phase = ANY (ARRAY['thinking'::text, 'implementing'::text, 'checking'::text, 'finished'::text])))"
+    },
+    {
+      "name": "training_sessions_phase_not_null",
+      "table": "training_sessions",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL phase"
+    },
+    {
+      "name": "training_sessions_pkey",
+      "table": "training_sessions",
+      "schema": "public",
+      "validated": true,
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "name": "training_sessions_problem_id_fkey",
+      "table": "training_sessions",
+      "schema": "public",
+      "validated": true,
+      "definition": "FOREIGN KEY (problem_id) REFERENCES problems(id) ON DELETE SET NULL"
+    },
+    {
+      "name": "training_sessions_started_at_not_null",
+      "table": "training_sessions",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL started_at"
+    },
+    {
+      "name": "training_sessions_state_revision_check",
+      "table": "training_sessions",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK ((state_revision >= 0))"
+    },
+    {
+      "name": "training_sessions_state_revision_not_null",
+      "table": "training_sessions",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL state_revision"
+    },
+    {
+      "name": "training_sessions_statement_snapshot_check",
+      "table": "training_sessions",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK ((char_length(statement_snapshot) <= 64000))"
+    },
+    {
+      "name": "training_sessions_statement_snapshot_not_null",
+      "table": "training_sessions",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL statement_snapshot"
+    },
+    {
+      "name": "training_sessions_status_check",
+      "table": "training_sessions",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK ((status = ANY (ARRAY['active'::text, 'paused'::text, 'completed'::text])))"
+    },
+    {
+      "name": "training_sessions_status_not_null",
+      "table": "training_sessions",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL status"
+    },
+    {
+      "name": "training_sessions_thought_draft_check",
+      "table": "training_sessions",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK ((char_length(thought_draft) <= 64000))"
+    },
+    {
+      "name": "training_sessions_thought_draft_not_null",
+      "table": "training_sessions",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL thought_draft"
+    },
+    {
+      "name": "training_sessions_thought_revision_check",
+      "table": "training_sessions",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK ((thought_revision >= 0))"
+    },
+    {
+      "name": "training_sessions_thought_revision_not_null",
+      "table": "training_sessions",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL thought_revision"
+    },
+    {
+      "name": "training_sessions_timer_enabled_not_null",
+      "table": "training_sessions",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL timer_enabled"
+    },
+    {
+      "name": "training_sessions_updated_at_not_null",
+      "table": "training_sessions",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL updated_at"
+    },
+    {
+      "name": "training_sessions_user_id_create_request_id_key",
+      "table": "training_sessions",
+      "schema": "public",
+      "validated": true,
+      "definition": "UNIQUE (user_id, create_request_id)"
+    },
+    {
+      "name": "training_sessions_user_id_fkey",
+      "table": "training_sessions",
+      "schema": "public",
+      "validated": true,
+      "definition": "FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "training_sessions_user_id_not_null",
+      "table": "training_sessions",
+      "schema": "public",
+      "validated": true,
+      "definition": "NOT NULL user_id"
+    }
+  ],
+  "serverVersion": "18.3",
+  "migrationHistoryExists": false,
+  "migrationHistoryVisible": false
+}

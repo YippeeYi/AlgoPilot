@@ -91,3 +91,9 @@ npm run test:e2e
 deterministic/1.3-official 保留原难度模型和主权重。全历史已知 AC 在 600 候选前排除；画像另取最近 500 道官方 OK 题补充覆盖，近期同难度覆盖影响原新颖度/探索因素。没有独立性证明、WA 次数能力判断、综合能力分或自动升难度。
 
 真实公开 API 录制、隔离数据库、回归及未验收边界见 [M33 验收](docs/M33_VERIFICATION.md)；迁移/密钥/恢复见 [M33 设置](docs/M33_SETUP.md)。007–010 托管状态未核实，本阶段没有生产变更。原 40 条 AI 评审与真人分离，真人仍 0/40；五道替代题列于 [待评审表](docs/m33/replacements-for-review.csv)，真人 0/5。
+
+## M3.4 验收与推荐研究
+
+本轮不扩展 M3.3 功能或调整 deterministic/1.3-official。专用 Supabase 测试项目尚未就绪，真实 JWT/远端写入与部署仍待授权；只读核验 SQL、实际公开 YippeeYi 取证、本地/原生隔离结果见 [验收矩阵](docs/M34_ACCEPTANCE.md)。原生多连接不等于跨应用实例。
+
+[推荐研究方案](docs/M34_RECOMMENDATION_STUDY.md) 提供五题评审包、等约束 Rating/Tags 基线、成对 AB/BA 顺序与私有记录模板。真人仍 0/40、替代题 0/5、真实参与者 0；AI 复核和合成对照不代表教学收益。离线脚本只在真实同意后准备材料，不联网或发送模型。

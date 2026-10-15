@@ -1,0 +1,6 @@
+{
+  "operation": "study_cli_invalid_json",
+  "actualExitCode": 1,
+  "redacted": true,
+  "boundary": "Local synthetic private marker, not participant data"
+}

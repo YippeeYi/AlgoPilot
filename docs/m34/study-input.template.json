@@ -1,0 +1,20 @@
+{
+  "participantId": null,
+  "consentId": null,
+  "consented": false,
+  "seed": null,
+  "enrollmentIndex": null,
+  "block": null,
+  "engineVersion": "deterministic/1.3-official",
+  "policyVersion": "training-fit/1",
+  "evidenceRevision": null,
+  "officialRevision": null,
+  "min": null,
+  "max": null,
+  "target": null,
+  "themes": [],
+  "goal": null,
+  "eligiblePool": [],
+  "personalizedIds": [],
+  "eligibilitySource": "authorized_current_learning_candidates_snapshot"
+}

@@ -1,0 +1,17 @@
+{
+  "checkedAt": "2026-10-15T05:03:21.370Z",
+  "configured": true,
+  "boundary": "Anonymous read-only probe; cannot verify complete migrations, 008 definition/hash, JWT or isolation. No user data or production changes.",
+  "result": [
+    {
+      "operation": "learning_evidence",
+      "status": 404,
+      "code": "PGRST202"
+    },
+    {
+      "operation": "learning_candidates",
+      "status": 404,
+      "code": "PGRST202"
+    }
+  ]
+}

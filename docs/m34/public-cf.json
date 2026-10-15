@@ -1,0 +1,1536 @@
+{
+  "recordedAt": "2026-10-15T05:06:21.394Z",
+  "handle": "YippeeYi",
+  "authorization": "M3.4 explicit public read only; local/isolated storage only",
+  "boundary": "Actual public responses minimized; no hosted writes, no ownership proof, not a complete history",
+  "maxCalls": 3,
+  "calls": [
+    {
+      "method": "user.info",
+      "url": "https://codeforces.com/api/user.info?handles=YippeeYi&checkHistoricHandles=false",
+      "startedAt": "2026-10-15T05:05:18.461Z",
+      "httpStatus": 200,
+      "sha256": "02288a70e4ef0e8f6de253f87d08b269bb912f3e74a24a21b89bf92bcb90da2a",
+      "response": {
+        "status": "OK",
+        "result": [
+          {
+            "handle": "YippeeYi",
+            "registrationTimeSeconds": 1761618995
+          }
+        ]
+      }
+    },
+    {
+      "method": "user.status",
+      "url": "https://codeforces.com/api/user.status?handle=YippeeYi&from=1&count=200&includeSources=false",
+      "startedAt": "2026-10-15T05:05:21.562Z",
+      "httpStatus": 200,
+      "sha256": "50165163ebe15f4ca36720d045ea8f68944fe9b8b062f0c6690c96cc821345e7",
+      "response": {
+        "status": "OK",
+        "result": [
+          {
+            "id": 394514245,
+            "creationTimeSeconds": 1791981607,
+            "problem": {
+              "contestId": 1519,
+              "index": "D"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "OK"
+          },
+          {
+            "id": 394508067,
+            "creationTimeSeconds": 1791978161,
+            "problem": {
+              "contestId": 1851,
+              "index": "D"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "OK"
+          },
+          {
+            "id": 394506808,
+            "creationTimeSeconds": 1791977437,
+            "problem": {
+              "contestId": 1851,
+              "index": "D"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "WRONG_ANSWER"
+          },
+          {
+            "id": 394503917,
+            "creationTimeSeconds": 1791975747,
+            "problem": {
+              "contestId": 1618,
+              "index": "D"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "OK"
+          },
+          {
+            "id": 394489711,
+            "creationTimeSeconds": 1791967061,
+            "problem": {
+              "contestId": 2275,
+              "index": "A"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "OK"
+          },
+          {
+            "id": 394403128,
+            "creationTimeSeconds": 1791898586,
+            "problem": {
+              "contestId": 1256,
+              "index": "C"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "OK"
+          },
+          {
+            "id": 394402903,
+            "creationTimeSeconds": 1791898486,
+            "problem": {
+              "contestId": 1256,
+              "index": "C"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "WRONG_ANSWER"
+          },
+          {
+            "id": 394400107,
+            "creationTimeSeconds": 1791897212,
+            "problem": {
+              "contestId": 1353,
+              "index": "C"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "OK"
+          },
+          {
+            "id": 394398392,
+            "creationTimeSeconds": 1791896398,
+            "problem": {
+              "contestId": 1606,
+              "index": "A"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "OK"
+          },
+          {
+            "id": 394085661,
+            "creationTimeSeconds": 1791702113,
+            "problem": {
+              "contestId": 1732,
+              "index": "C1"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "OK"
+          },
+          {
+            "id": 394084161,
+            "creationTimeSeconds": 1791701362,
+            "problem": {
+              "contestId": 1732,
+              "index": "C1"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "WRONG_ANSWER"
+          },
+          {
+            "id": 393950791,
+            "creationTimeSeconds": 1791634220,
+            "problem": {
+              "contestId": 1732,
+              "index": "C1"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "WRONG_ANSWER"
+          },
+          {
+            "id": 393950275,
+            "creationTimeSeconds": 1791633944,
+            "problem": {
+              "contestId": 1732,
+              "index": "C1"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "WRONG_ANSWER"
+          },
+          {
+            "id": 393841796,
+            "creationTimeSeconds": 1791552636,
+            "problem": {
+              "contestId": 1538,
+              "index": "D"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "OK"
+          },
+          {
+            "id": 393841459,
+            "creationTimeSeconds": 1791552476,
+            "problem": {
+              "contestId": 1538,
+              "index": "D"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "WRONG_ANSWER"
+          },
+          {
+            "id": 393839713,
+            "creationTimeSeconds": 1791551653,
+            "problem": {
+              "contestId": 1538,
+              "index": "D"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "WRONG_ANSWER"
+          },
+          {
+            "id": 393839197,
+            "creationTimeSeconds": 1791551411,
+            "problem": {
+              "contestId": 1538,
+              "index": "D"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "WRONG_ANSWER"
+          },
+          {
+            "id": 393443215,
+            "creationTimeSeconds": 1791316816,
+            "problem": {
+              "contestId": 1709,
+              "index": "D"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "OK"
+          },
+          {
+            "id": 393437393,
+            "creationTimeSeconds": 1791311989,
+            "problem": {
+              "contestId": 431,
+              "index": "C"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "OK"
+          },
+          {
+            "id": 393332469,
+            "creationTimeSeconds": 1791228518,
+            "problem": {
+              "contestId": 1526,
+              "index": "C2"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "OK"
+          },
+          {
+            "id": 393324615,
+            "creationTimeSeconds": 1791223296,
+            "problem": {
+              "contestId": 1458,
+              "index": "A"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "OK"
+          },
+          {
+            "id": 393321809,
+            "creationTimeSeconds": 1791221833,
+            "problem": {
+              "contestId": 1516,
+              "index": "B"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "OK"
+          },
+          {
+            "id": 393321641,
+            "creationTimeSeconds": 1791221744,
+            "problem": {
+              "contestId": 1516,
+              "index": "B"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "WRONG_ANSWER"
+          },
+          {
+            "id": 393321547,
+            "creationTimeSeconds": 1791221691,
+            "problem": {
+              "contestId": 1516,
+              "index": "B"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "WRONG_ANSWER"
+          },
+          {
+            "id": 393321284,
+            "creationTimeSeconds": 1791221544,
+            "problem": {
+              "contestId": 1516,
+              "index": "B"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "WRONG_ANSWER"
+          },
+          {
+            "id": 393320989,
+            "creationTimeSeconds": 1791221391,
+            "problem": {
+              "contestId": 1516,
+              "index": "B"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "WRONG_ANSWER"
+          },
+          {
+            "id": 393317996,
+            "creationTimeSeconds": 1791219712,
+            "problem": {
+              "contestId": 1516,
+              "index": "B"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "WRONG_ANSWER"
+          },
+          {
+            "id": 393317261,
+            "creationTimeSeconds": 1791219327,
+            "problem": {
+              "contestId": 1516,
+              "index": "B"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "WRONG_ANSWER"
+          },
+          {
+            "id": 393317051,
+            "creationTimeSeconds": 1791219213,
+            "problem": {
+              "contestId": 1516,
+              "index": "B"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "WRONG_ANSWER"
+          },
+          {
+            "id": 393219457,
+            "creationTimeSeconds": 1791135390,
+            "problem": {
+              "contestId": 1547,
+              "index": "E"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "OK"
+          },
+          {
+            "id": 393170683,
+            "creationTimeSeconds": 1791113635,
+            "problem": {
+              "contestId": 1338,
+              "index": "A"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "OK"
+          },
+          {
+            "id": 393169910,
+            "creationTimeSeconds": 1791113163,
+            "problem": {
+              "contestId": 1338,
+              "index": "A"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "WRONG_ANSWER"
+          },
+          {
+            "id": 393169575,
+            "creationTimeSeconds": 1791112982,
+            "problem": {
+              "contestId": 1338,
+              "index": "A"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "WRONG_ANSWER"
+          },
+          {
+            "id": 393167768,
+            "creationTimeSeconds": 1791112056,
+            "problem": {
+              "contestId": 1338,
+              "index": "A"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "WRONG_ANSWER"
+          },
+          {
+            "id": 393166918,
+            "creationTimeSeconds": 1791111568,
+            "problem": {
+              "contestId": 1338,
+              "index": "A"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "WRONG_ANSWER"
+          },
+          {
+            "id": 393166849,
+            "creationTimeSeconds": 1791111524,
+            "problem": {
+              "contestId": 1338,
+              "index": "A"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "WRONG_ANSWER"
+          },
+          {
+            "id": 393166784,
+            "creationTimeSeconds": 1791111491,
+            "problem": {
+              "contestId": 1338,
+              "index": "A"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "WRONG_ANSWER"
+          },
+          {
+            "id": 393166648,
+            "creationTimeSeconds": 1791111402,
+            "problem": {
+              "contestId": 1338,
+              "index": "A"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "WRONG_ANSWER"
+          },
+          {
+            "id": 393133850,
+            "creationTimeSeconds": 1791090952,
+            "problem": {
+              "contestId": 2259,
+              "index": "A"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "OK"
+          },
+          {
+            "id": 392210396,
+            "creationTimeSeconds": 1790437383,
+            "problem": {
+              "contestId": 2269,
+              "index": "E"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "WRONG_ANSWER"
+          },
+          {
+            "id": 392204244,
+            "creationTimeSeconds": 1790436464,
+            "problem": {
+              "contestId": 2269,
+              "index": "D"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "OK"
+          },
+          {
+            "id": 392198870,
+            "creationTimeSeconds": 1790435720,
+            "problem": {
+              "contestId": 2269,
+              "index": "C"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "OK"
+          },
+          {
+            "id": 392198443,
+            "creationTimeSeconds": 1790435667,
+            "problem": {
+              "contestId": 2269,
+              "index": "C"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "RUNTIME_ERROR"
+          },
+          {
+            "id": 392192606,
+            "creationTimeSeconds": 1790434939,
+            "problem": {
+              "contestId": 2269,
+              "index": "B"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "OK"
+          },
+          {
+            "id": 392182996,
+            "creationTimeSeconds": 1790433946,
+            "problem": {
+              "contestId": 2269,
+              "index": "A"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "OK"
+          },
+          {
+            "id": 392144420,
+            "creationTimeSeconds": 1790417111,
+            "problem": {
+              "contestId": 2267,
+              "index": "E"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "OK"
+          },
+          {
+            "id": 392144389,
+            "creationTimeSeconds": 1790417090,
+            "problem": {
+              "contestId": 2267,
+              "index": "E"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "WRONG_ANSWER"
+          },
+          {
+            "id": 392144272,
+            "creationTimeSeconds": 1790417025,
+            "problem": {
+              "contestId": 2267,
+              "index": "E"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "WRONG_ANSWER"
+          },
+          {
+            "id": 392126918,
+            "creationTimeSeconds": 1790407564,
+            "problem": {
+              "contestId": 2267,
+              "index": "D"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "OK"
+          },
+          {
+            "id": 392072133,
+            "creationTimeSeconds": 1790356046,
+            "problem": {
+              "contestId": 2267,
+              "index": "D"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "WRONG_ANSWER"
+          },
+          {
+            "id": 392056477,
+            "creationTimeSeconds": 1790352608,
+            "problem": {
+              "contestId": 2267,
+              "index": "C"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "OK"
+          },
+          {
+            "id": 392048762,
+            "creationTimeSeconds": 1790351453,
+            "problem": {
+              "contestId": 2267,
+              "index": "C"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "WRONG_ANSWER"
+          },
+          {
+            "id": 392046838,
+            "creationTimeSeconds": 1790351191,
+            "problem": {
+              "contestId": 2267,
+              "index": "C"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "TIME_LIMIT_EXCEEDED"
+          },
+          {
+            "id": 392045707,
+            "creationTimeSeconds": 1790351035,
+            "problem": {
+              "contestId": 2267,
+              "index": "C"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "TIME_LIMIT_EXCEEDED"
+          },
+          {
+            "id": 392038422,
+            "creationTimeSeconds": 1790350152,
+            "problem": {
+              "contestId": 2267,
+              "index": "C"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "TIME_LIMIT_EXCEEDED"
+          },
+          {
+            "id": 392036359,
+            "creationTimeSeconds": 1790349920,
+            "problem": {
+              "contestId": 2267,
+              "index": "C"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "TIME_LIMIT_EXCEEDED"
+          },
+          {
+            "id": 392012125,
+            "creationTimeSeconds": 1790347812,
+            "problem": {
+              "contestId": 2267,
+              "index": "B"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "OK"
+          },
+          {
+            "id": 392004593,
+            "creationTimeSeconds": 1790347353,
+            "problem": {
+              "contestId": 2267,
+              "index": "A"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "OK"
+          },
+          {
+            "id": 391772700,
+            "creationTimeSeconds": 1790165958,
+            "problem": {
+              "contestId": 2266,
+              "index": "D"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "OK"
+          },
+          {
+            "id": 391769252,
+            "creationTimeSeconds": 1790164108,
+            "problem": {
+              "contestId": 2266,
+              "index": "C"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "OK"
+          },
+          {
+            "id": 391767676,
+            "creationTimeSeconds": 1790163117,
+            "problem": {
+              "contestId": 2266,
+              "index": "B"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "OK"
+          },
+          {
+            "id": 391766239,
+            "creationTimeSeconds": 1790162134,
+            "problem": {
+              "contestId": 2266,
+              "index": "A"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "OK"
+          },
+          {
+            "id": 391763073,
+            "creationTimeSeconds": 1790159874,
+            "problem": {
+              "contestId": 2262,
+              "index": "A1"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "OK"
+          },
+          {
+            "id": 391762941,
+            "creationTimeSeconds": 1790159782,
+            "problem": {
+              "contestId": 2262,
+              "index": "A1"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "RUNTIME_ERROR"
+          },
+          {
+            "id": 391758840,
+            "creationTimeSeconds": 1790156819,
+            "problem": {
+              "contestId": 2262,
+              "index": "A1"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "WRONG_ANSWER"
+          },
+          {
+            "id": 391757928,
+            "creationTimeSeconds": 1790156164,
+            "problem": {
+              "contestId": 2262,
+              "index": "A1"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "WRONG_ANSWER"
+          },
+          {
+            "id": 391757783,
+            "creationTimeSeconds": 1790156061,
+            "problem": {
+              "contestId": 2262,
+              "index": "A1"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "WRONG_ANSWER"
+          },
+          {
+            "id": 391220346,
+            "creationTimeSeconds": 1789816064,
+            "problem": {
+              "contestId": 2260,
+              "index": "C"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "OK"
+          },
+          {
+            "id": 391220110,
+            "creationTimeSeconds": 1789815929,
+            "problem": {
+              "contestId": 2260,
+              "index": "C"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "WRONG_ANSWER"
+          },
+          {
+            "id": 391219441,
+            "creationTimeSeconds": 1789815487,
+            "problem": {
+              "contestId": 2260,
+              "index": "C"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "WRONG_ANSWER"
+          },
+          {
+            "id": 391218553,
+            "creationTimeSeconds": 1789814947,
+            "problem": {
+              "contestId": 2260,
+              "index": "C"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "WRONG_ANSWER"
+          },
+          {
+            "id": 391217426,
+            "creationTimeSeconds": 1789814237,
+            "problem": {
+              "contestId": 2260,
+              "index": "C"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "WRONG_ANSWER"
+          },
+          {
+            "id": 391217184,
+            "creationTimeSeconds": 1789814112,
+            "problem": {
+              "contestId": 2260,
+              "index": "C"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "WRONG_ANSWER"
+          },
+          {
+            "id": 391216339,
+            "creationTimeSeconds": 1789813572,
+            "problem": {
+              "contestId": 2260,
+              "index": "C"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "WRONG_ANSWER"
+          },
+          {
+            "id": 391210168,
+            "creationTimeSeconds": 1789809838,
+            "problem": {
+              "contestId": 2260,
+              "index": "C"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "WRONG_ANSWER"
+          },
+          {
+            "id": 391209770,
+            "creationTimeSeconds": 1789809557,
+            "problem": {
+              "contestId": 2260,
+              "index": "C"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "WRONG_ANSWER"
+          },
+          {
+            "id": 391204782,
+            "creationTimeSeconds": 1789806279,
+            "problem": {
+              "contestId": 2260,
+              "index": "B"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "OK"
+          },
+          {
+            "id": 391201774,
+            "creationTimeSeconds": 1789804004,
+            "problem": {
+              "contestId": 2260,
+              "index": "A"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "OK"
+          },
+          {
+            "id": 390887284,
+            "creationTimeSeconds": 1789536717,
+            "problem": {
+              "contestId": 2264,
+              "index": "C"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "OK"
+          },
+          {
+            "id": 390887225,
+            "creationTimeSeconds": 1789536658,
+            "problem": {
+              "contestId": 2264,
+              "index": "C"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "WRONG_ANSWER"
+          },
+          {
+            "id": 390887163,
+            "creationTimeSeconds": 1789536599,
+            "problem": {
+              "contestId": 2264,
+              "index": "C"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "WRONG_ANSWER"
+          },
+          {
+            "id": 390887118,
+            "creationTimeSeconds": 1789536548,
+            "problem": {
+              "contestId": 2264,
+              "index": "C"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "WRONG_ANSWER"
+          },
+          {
+            "id": 390847843,
+            "creationTimeSeconds": 1789489649,
+            "problem": {
+              "contestId": 2264,
+              "index": "C"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "WRONG_ANSWER"
+          },
+          {
+            "id": 390787492,
+            "creationTimeSeconds": 1789448879,
+            "problem": {
+              "contestId": 2264,
+              "index": "B"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "OK"
+          },
+          {
+            "id": 390787357,
+            "creationTimeSeconds": 1789448743,
+            "problem": {
+              "contestId": 2264,
+              "index": "B"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "WRONG_ANSWER"
+          },
+          {
+            "id": 390787319,
+            "creationTimeSeconds": 1789448706,
+            "problem": {
+              "contestId": 2264,
+              "index": "B"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "WRONG_ANSWER"
+          },
+          {
+            "id": 390786710,
+            "creationTimeSeconds": 1789447946,
+            "problem": {
+              "contestId": 2264,
+              "index": "B"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "RUNTIME_ERROR"
+          },
+          {
+            "id": 390778959,
+            "creationTimeSeconds": 1789443305,
+            "problem": {
+              "contestId": 2264,
+              "index": "A"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "OK"
+          },
+          {
+            "id": 390548046,
+            "creationTimeSeconds": 1789298306,
+            "problem": {
+              "contestId": 2263,
+              "index": "B"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "OK"
+          },
+          {
+            "id": 390520396,
+            "creationTimeSeconds": 1789281360,
+            "problem": {
+              "contestId": 2263,
+              "index": "A"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "OK"
+          },
+          {
+            "id": 390517690,
+            "creationTimeSeconds": 1789279015,
+            "problem": {
+              "contestId": 607,
+              "index": "B"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "OK"
+          },
+          {
+            "id": 346487319,
+            "creationTimeSeconds": 1761751372,
+            "problem": {
+              "contestId": 607,
+              "index": "B"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "OK"
+          },
+          {
+            "id": 346486915,
+            "creationTimeSeconds": 1761751223,
+            "problem": {
+              "contestId": 607,
+              "index": "B"
+            },
+            "author": {
+              "members": [
+                {
+                  "handle": "YippeeYi"
+                }
+              ]
+            },
+            "verdict": "COMPILATION_ERROR"
+          }
+        ]
+      }
+    },
+    {
+      "method": "user.status",
+      "url": "https://codeforces.com/api/user.status?handle=YippeeYi&from=94&count=200&includeSources=false",
+      "startedAt": "2026-10-15T05:06:19.759Z",
+      "httpStatus": 200,
+      "sha256": "e76aeeda588651f2b383be1a61a153db93b795ffc5df6ea38aa7f42ba5e3bc8f",
+      "response": {
+        "status": "OK",
+        "result": []
+      }
+    }
+  ]
+}
