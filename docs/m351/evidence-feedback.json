@@ -1,0 +1,226 @@
+{
+  "boundary": "Real getUser/JWT/RPC read; existing stale cache; deterministic offline recommendation, not new sync or model result",
+  "capturedAt": "2026-10-17T19:17:37.173Z",
+  "sourceSha256": "1b2d6954526f955e41710f75b17769c7f378e58e3138f4a0ae46e894d974699b",
+  "project": "qmlsgwbiiqpbelgkgsdw/main/PRODUCTION",
+  "state": {
+    "version": "cf-evidence/1",
+    "revision": 4,
+    "evidenceRevision": 10,
+    "handle": "YippeeYi",
+    "ownershipVerified": false,
+    "enabled": true,
+    "lastSyncedAt": "2026-10-17T10:50:31.010098+00:00",
+    "lastFullScanAt": "2026-10-17T10:45:30.670717+00:00",
+    "fullScanUpperId": 394514245,
+    "oldestObservedAt": "2025-10-29T15:20:23+00:00",
+    "highWater": 394514245,
+    "historyFrom": 94,
+    "historyInProgress": true,
+    "observedSubmissions": 93,
+    "acceptedProblems": 40,
+    "pendingSubmissions": 0,
+    "status": "partial",
+    "errorCode": null
+  },
+  "preferences": {
+    "min": 1200,
+    "max": 2000,
+    "themes": [],
+    "goal": "independence",
+    "repeat": false,
+    "reviewEvidence": false
+  },
+  "cache": {
+    "syncedAt": "2026-10-17T10:30:19.469325+00:00",
+    "stale": true
+  },
+  "poolSha256": "deb5f966d3cba43da264bfc4982aa3f3f6150b49abd2be65e6a759fbbef1e4c5",
+  "totalEligible": 4334,
+  "candidateCount": 600,
+  "target": 1600,
+  "official615B": 0,
+  "training615B": 0,
+  "totalSessions": 7,
+  "distinctCompletedProblems": 0,
+  "reviews": 0,
+  "equalsM35": {
+    "evidence": true,
+    "pool": true,
+    "recommendation": true
+  },
+  "recommendations": [
+    {
+      "key": "727/B",
+      "rating": 1600,
+      "factors": {
+        "difficulty": 40,
+        "weakness": 0,
+        "goal": 0,
+        "novelty": 10,
+        "diversity": 12,
+        "plan": 0,
+        "feedback": 0,
+        "review": 0,
+        "reroll": 0
+      },
+      "score": 62,
+      "officialSubmissionIds": [
+        394514245,
+        394508067,
+        393437393,
+        393219457
+      ],
+      "reasons": [
+        "CF 题目 Rating 1600，位于你选择的 1200–2000 区间；本轮参考难度 1600。",
+        "关联公开账号 YippeeYi 在所选难度区间有 4 道相关方向的已观察官方 OK，参与近期覆盖与新颖度判断；不证明属于本人或独立完成。（未解题方向隐藏）",
+        "可拓宽已记录的近期知识覆盖；方向标签默认隐藏。",
+        "补充本轮此前尚未覆盖的知识方向，获得多样性加权；标签默认隐藏。"
+      ]
+    },
+    {
+      "key": "1348/C",
+      "rating": 1600,
+      "factors": {
+        "difficulty": 40,
+        "weakness": 0,
+        "goal": 0,
+        "novelty": 10,
+        "diversity": 12,
+        "plan": 0,
+        "feedback": 0,
+        "review": 0,
+        "reroll": 0
+      },
+      "score": 62,
+      "officialSubmissionIds": [
+        394503917,
+        394403128,
+        394085661,
+        393841796,
+        393443215,
+        393332469,
+        393321809,
+        393219457,
+        393170683,
+        392126918,
+        392056477,
+        391772700,
+        391763073,
+        391220346,
+        390887284
+      ],
+      "reasons": [
+        "CF 题目 Rating 1600，位于你选择的 1200–2000 区间；本轮参考难度 1600。",
+        "关联公开账号 YippeeYi 在所选难度区间有 15 道相关方向的已观察官方 OK，参与近期覆盖与新颖度判断；不证明属于本人或独立完成。（未解题方向隐藏）",
+        "可拓宽已记录的近期知识覆盖；方向标签默认隐藏。",
+        "补充本轮此前尚未覆盖的知识方向，获得多样性加权；标签默认隐藏。"
+      ]
+    },
+    {
+      "key": "1363/C",
+      "rating": 1600,
+      "factors": {
+        "difficulty": 40,
+        "weakness": 0,
+        "goal": 0,
+        "novelty": 10,
+        "diversity": 12,
+        "plan": 0,
+        "feedback": 0,
+        "review": 0,
+        "reroll": 0
+      },
+      "score": 62,
+      "officialSubmissionIds": [
+        393437393
+      ],
+      "reasons": [
+        "CF 题目 Rating 1600，位于你选择的 1200–2000 区间；本轮参考难度 1600。",
+        "关联公开账号 YippeeYi 在所选难度区间有 1 道相关方向的已观察官方 OK，参与近期覆盖与新颖度判断；不证明属于本人或独立完成。（未解题方向隐藏）",
+        "可拓宽已记录的近期知识覆盖；方向标签默认隐藏。",
+        "补充本轮此前尚未覆盖的知识方向，获得多样性加权；标签默认隐藏。"
+      ]
+    },
+    {
+      "key": "615/B",
+      "rating": 1600,
+      "factors": {
+        "difficulty": 40,
+        "weakness": 0,
+        "goal": 0,
+        "novelty": 10,
+        "diversity": 12,
+        "plan": 0,
+        "feedback": 0,
+        "review": 0,
+        "reroll": 0
+      },
+      "score": 62,
+      "officialSubmissionIds": [
+        394514245,
+        394503917,
+        393437393,
+        393321809,
+        393219457,
+        392126918
+      ],
+      "reasons": [
+        "CF 题目 Rating 1600，位于你选择的 1200–2000 区间；本轮参考难度 1600。",
+        "关联公开账号 YippeeYi 在所选难度区间有 6 道相关方向的已观察官方 OK，参与近期覆盖与新颖度判断；不证明属于本人或独立完成。（未解题方向隐藏）",
+        "可拓宽已记录的近期知识覆盖；方向标签默认隐藏。",
+        "补充本轮此前尚未覆盖的知识方向，获得多样性加权；标签默认隐藏。"
+      ]
+    },
+    {
+      "key": "150/B",
+      "rating": 1600,
+      "factors": {
+        "difficulty": 40,
+        "weakness": 0,
+        "goal": 0,
+        "novelty": 10,
+        "diversity": 12,
+        "plan": 0,
+        "feedback": 0,
+        "review": 0,
+        "reroll": 0
+      },
+      "score": 62,
+      "officialSubmissionIds": [
+        394514245,
+        394508067,
+        394503917,
+        393841796,
+        393443215,
+        393324615,
+        393170683,
+        392144420,
+        392056477,
+        391772700,
+        390887284
+      ],
+      "reasons": [
+        "CF 题目 Rating 1600，位于你选择的 1200–2000 区间；本轮参考难度 1600。",
+        "关联公开账号 YippeeYi 在所选难度区间有 11 道相关方向的已观察官方 OK，参与近期覆盖与新颖度判断；不证明属于本人或独立完成。（未解题方向隐藏）",
+        "可拓宽已记录的近期知识覆盖；方向标签默认隐藏。",
+        "补充本轮此前尚未覆盖的知识方向，获得多样性加权；标签默认隐藏。"
+      ]
+    }
+  ],
+  "sourceRefsExistInOfficialEvidence": true,
+  "new615BAcEffect": "NOT_RUN: not synchronized; no causal before/after claim",
+  "selfReportLocation": "Conversation and acceptance report only; no production writes",
+  "providerCalls": 0,
+  "cfSyncCalls": 0,
+  "finalReadChecks": {
+    "allHttp200": true,
+    "accountLearningAndInventoryResponsesEqualInitial": true,
+    "sessions": 7,
+    "reviews": 0,
+    "plans": 0,
+    "sessionsArraySha256": "b13c67c7fa96ff567ba57f35d026112c4b9bd24484f4b6293bf46b789fdfda38",
+    "temporaryCaptureRouteRemovedStatus": 404,
+    "olderM35InventoryHashDiffers": "Old raw inventory unavailable; no cross-stage full-content equality claim"
+  }
+}
