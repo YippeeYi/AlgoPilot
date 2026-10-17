@@ -1,0 +1,1004 @@
+{
+  "boundary": "Actual single-user technical snapshots; not a human outcome or completed training experiment. Raw histories/UUIDs stay private.",
+  "targetRef": "qmlsgwbiiqpbelgkgsdw",
+  "phases": [
+    {
+      "phase": "B-enabled-fixed",
+      "status": 200,
+      "preferences": {
+        "min": 1200,
+        "max": 2000,
+        "themes": [],
+        "goal": "independence",
+        "repeat": false,
+        "reviewEvidence": false
+      },
+      "target": 1600,
+      "candidateCount": 4334,
+      "catalogSyncedAt": "2026-10-17T10:30:19.469325+00:00",
+      "officialEnabled": true,
+      "collectedSubmissions": 93,
+      "collectedDistinctOK": 40,
+      "profileOfficialAnalyzed": 40,
+      "totalTrainingRecords": 7,
+      "completedLocatableProblems": 0,
+      "recommendations": [
+        {
+          "key": "727/B",
+          "name": "Bill Total Value",
+          "rating": 1600,
+          "score": 62,
+          "factors": {
+            "difficulty": 40,
+            "weakness": 0,
+            "goal": 0,
+            "novelty": 10,
+            "diversity": 12,
+            "plan": 0,
+            "feedback": 0,
+            "review": 0,
+            "reroll": 0
+          },
+          "reasons": [
+            "CF 题目 Rating 1600，位于你选择的 1200–2000 区间；本轮参考难度 1600。",
+            "关联公开账号 YippeeYi 在所选难度区间有 4 道相关方向的已观察官方 OK，参与近期覆盖与新颖度判断；不证明属于本人或独立完成。（未解题方向隐藏）",
+            "可拓宽已记录的近期知识覆盖；方向标签默认隐藏。",
+            "补充本轮此前尚未覆盖的知识方向，获得多样性加权；标签默认隐藏。"
+          ],
+          "sources": [
+            {
+              "kind": "official_submission",
+              "problemKey": "1519/D",
+              "submissionId": 394514245,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "1851/D",
+              "submissionId": 394508067,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "431/C",
+              "submissionId": 393437393,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "1547/E",
+              "submissionId": 393219457,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            }
+          ]
+        },
+        {
+          "key": "1348/C",
+          "name": "Phoenix and Distribution",
+          "rating": 1600,
+          "score": 62,
+          "factors": {
+            "difficulty": 40,
+            "weakness": 0,
+            "goal": 0,
+            "novelty": 10,
+            "diversity": 12,
+            "plan": 0,
+            "feedback": 0,
+            "review": 0,
+            "reroll": 0
+          },
+          "reasons": [
+            "CF 题目 Rating 1600，位于你选择的 1200–2000 区间；本轮参考难度 1600。",
+            "关联公开账号 YippeeYi 在所选难度区间有 15 道相关方向的已观察官方 OK，参与近期覆盖与新颖度判断；不证明属于本人或独立完成。（未解题方向隐藏）",
+            "可拓宽已记录的近期知识覆盖；方向标签默认隐藏。",
+            "补充本轮此前尚未覆盖的知识方向，获得多样性加权；标签默认隐藏。"
+          ],
+          "sources": [
+            {
+              "kind": "official_submission",
+              "problemKey": "1618/D",
+              "submissionId": 394503917,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "1256/C",
+              "submissionId": 394403128,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "1732/C1",
+              "submissionId": 394085661,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "1538/D",
+              "submissionId": 393841796,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "1709/D",
+              "submissionId": 393443215,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "1526/C2",
+              "submissionId": 393332469,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "1516/B",
+              "submissionId": 393321809,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "1547/E",
+              "submissionId": 393219457,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "1338/A",
+              "submissionId": 393170683,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "2267/D",
+              "submissionId": 392126918,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "2267/C",
+              "submissionId": 392056477,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "2266/D",
+              "submissionId": 391772700,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "2262/A1",
+              "submissionId": 391763073,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "2260/C",
+              "submissionId": 391220346,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "2264/C",
+              "submissionId": 390887284,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            }
+          ]
+        },
+        {
+          "key": "1363/C",
+          "name": "Game On Leaves",
+          "rating": 1600,
+          "score": 62,
+          "factors": {
+            "difficulty": 40,
+            "weakness": 0,
+            "goal": 0,
+            "novelty": 10,
+            "diversity": 12,
+            "plan": 0,
+            "feedback": 0,
+            "review": 0,
+            "reroll": 0
+          },
+          "reasons": [
+            "CF 题目 Rating 1600，位于你选择的 1200–2000 区间；本轮参考难度 1600。",
+            "关联公开账号 YippeeYi 在所选难度区间有 1 道相关方向的已观察官方 OK，参与近期覆盖与新颖度判断；不证明属于本人或独立完成。（未解题方向隐藏）",
+            "可拓宽已记录的近期知识覆盖；方向标签默认隐藏。",
+            "补充本轮此前尚未覆盖的知识方向，获得多样性加权；标签默认隐藏。"
+          ],
+          "sources": [
+            {
+              "kind": "official_submission",
+              "problemKey": "431/C",
+              "submissionId": 393437393,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            }
+          ]
+        },
+        {
+          "key": "615/B",
+          "name": "Longtail Hedgehog",
+          "rating": 1600,
+          "score": 62,
+          "factors": {
+            "difficulty": 40,
+            "weakness": 0,
+            "goal": 0,
+            "novelty": 10,
+            "diversity": 12,
+            "plan": 0,
+            "feedback": 0,
+            "review": 0,
+            "reroll": 0
+          },
+          "reasons": [
+            "CF 题目 Rating 1600，位于你选择的 1200–2000 区间；本轮参考难度 1600。",
+            "关联公开账号 YippeeYi 在所选难度区间有 6 道相关方向的已观察官方 OK，参与近期覆盖与新颖度判断；不证明属于本人或独立完成。（未解题方向隐藏）",
+            "可拓宽已记录的近期知识覆盖；方向标签默认隐藏。",
+            "补充本轮此前尚未覆盖的知识方向，获得多样性加权；标签默认隐藏。"
+          ],
+          "sources": [
+            {
+              "kind": "official_submission",
+              "problemKey": "1519/D",
+              "submissionId": 394514245,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "1618/D",
+              "submissionId": 394503917,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "431/C",
+              "submissionId": 393437393,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "1516/B",
+              "submissionId": 393321809,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "1547/E",
+              "submissionId": 393219457,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "2267/D",
+              "submissionId": 392126918,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            }
+          ]
+        },
+        {
+          "key": "150/B",
+          "name": "Quantity of Strings",
+          "rating": 1600,
+          "score": 62,
+          "factors": {
+            "difficulty": 40,
+            "weakness": 0,
+            "goal": 0,
+            "novelty": 10,
+            "diversity": 12,
+            "plan": 0,
+            "feedback": 0,
+            "review": 0,
+            "reroll": 0
+          },
+          "reasons": [
+            "CF 题目 Rating 1600，位于你选择的 1200–2000 区间；本轮参考难度 1600。",
+            "关联公开账号 YippeeYi 在所选难度区间有 11 道相关方向的已观察官方 OK，参与近期覆盖与新颖度判断；不证明属于本人或独立完成。（未解题方向隐藏）",
+            "可拓宽已记录的近期知识覆盖；方向标签默认隐藏。",
+            "补充本轮此前尚未覆盖的知识方向，获得多样性加权；标签默认隐藏。"
+          ],
+          "sources": [
+            {
+              "kind": "official_submission",
+              "problemKey": "1519/D",
+              "submissionId": 394514245,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "1851/D",
+              "submissionId": 394508067,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "1618/D",
+              "submissionId": 394503917,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "1538/D",
+              "submissionId": 393841796,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "1709/D",
+              "submissionId": 393443215,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "1458/A",
+              "submissionId": 393324615,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "1338/A",
+              "submissionId": 393170683,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "2267/E",
+              "submissionId": 392144420,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "2267/C",
+              "submissionId": 392056477,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "2266/D",
+              "submissionId": 391772700,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "2264/C",
+              "submissionId": 390887284,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "A-disabled",
+      "status": 200,
+      "preferences": {
+        "min": 1200,
+        "max": 2000,
+        "themes": [],
+        "goal": "independence",
+        "repeat": false,
+        "reviewEvidence": false
+      },
+      "target": 1600,
+      "candidateCount": 4355,
+      "catalogSyncedAt": "2026-10-17T10:30:19.469325+00:00",
+      "officialEnabled": false,
+      "collectedSubmissions": 93,
+      "collectedDistinctOK": 40,
+      "profileOfficialAnalyzed": 0,
+      "totalTrainingRecords": 7,
+      "completedLocatableProblems": 0,
+      "recommendations": [
+        {
+          "key": "649/D",
+          "name": "Дефрагментация памяти",
+          "rating": 1600,
+          "score": 62,
+          "factors": {
+            "difficulty": 40,
+            "weakness": 0,
+            "goal": 0,
+            "novelty": 10,
+            "diversity": 12,
+            "plan": 0,
+            "feedback": 0,
+            "review": 0,
+            "reroll": 0
+          },
+          "reasons": [
+            "CF 题目 Rating 1600，位于你选择的 1200–2000 区间；本轮参考难度 1600。",
+            "本轮考虑知识覆盖；尚无可比较的近期知识记录，方向标签默认隐藏。",
+            "补充本轮此前尚未覆盖的知识方向，获得多样性加权；标签默认隐藏。"
+          ],
+          "sources": []
+        },
+        {
+          "key": "538/C",
+          "name": "Tourist's Notes",
+          "rating": 1600,
+          "score": 62,
+          "factors": {
+            "difficulty": 40,
+            "weakness": 0,
+            "goal": 0,
+            "novelty": 10,
+            "diversity": 12,
+            "plan": 0,
+            "feedback": 0,
+            "review": 0,
+            "reroll": 0
+          },
+          "reasons": [
+            "CF 题目 Rating 1600，位于你选择的 1200–2000 区间；本轮参考难度 1600。",
+            "本轮考虑知识覆盖；尚无可比较的近期知识记录，方向标签默认隐藏。",
+            "补充本轮此前尚未覆盖的知识方向，获得多样性加权；标签默认隐藏。"
+          ],
+          "sources": []
+        },
+        {
+          "key": "727/B",
+          "name": "Bill Total Value",
+          "rating": 1600,
+          "score": 62,
+          "factors": {
+            "difficulty": 40,
+            "weakness": 0,
+            "goal": 0,
+            "novelty": 10,
+            "diversity": 12,
+            "plan": 0,
+            "feedback": 0,
+            "review": 0,
+            "reroll": 0
+          },
+          "reasons": [
+            "CF 题目 Rating 1600，位于你选择的 1200–2000 区间；本轮参考难度 1600。",
+            "本轮考虑知识覆盖；尚无可比较的近期知识记录，方向标签默认隐藏。",
+            "补充本轮此前尚未覆盖的知识方向，获得多样性加权；标签默认隐藏。"
+          ],
+          "sources": []
+        },
+        {
+          "key": "1348/C",
+          "name": "Phoenix and Distribution",
+          "rating": 1600,
+          "score": 62,
+          "factors": {
+            "difficulty": 40,
+            "weakness": 0,
+            "goal": 0,
+            "novelty": 10,
+            "diversity": 12,
+            "plan": 0,
+            "feedback": 0,
+            "review": 0,
+            "reroll": 0
+          },
+          "reasons": [
+            "CF 题目 Rating 1600，位于你选择的 1200–2000 区间；本轮参考难度 1600。",
+            "本轮考虑知识覆盖；尚无可比较的近期知识记录，方向标签默认隐藏。",
+            "补充本轮此前尚未覆盖的知识方向，获得多样性加权；标签默认隐藏。"
+          ],
+          "sources": []
+        },
+        {
+          "key": "660/C",
+          "name": "Hard Process",
+          "rating": 1600,
+          "score": 62,
+          "factors": {
+            "difficulty": 40,
+            "weakness": 0,
+            "goal": 0,
+            "novelty": 10,
+            "diversity": 12,
+            "plan": 0,
+            "feedback": 0,
+            "review": 0,
+            "reroll": 0
+          },
+          "reasons": [
+            "CF 题目 Rating 1600，位于你选择的 1200–2000 区间；本轮参考难度 1600。",
+            "本轮考虑知识覆盖；尚无可比较的近期知识记录，方向标签默认隐藏。",
+            "补充本轮此前尚未覆盖的知识方向，获得多样性加权；标签默认隐藏。"
+          ],
+          "sources": []
+        }
+      ]
+    },
+    {
+      "phase": "B-restored",
+      "status": 200,
+      "preferences": {
+        "min": 1200,
+        "max": 2000,
+        "themes": [],
+        "goal": "independence",
+        "repeat": false,
+        "reviewEvidence": false
+      },
+      "target": 1600,
+      "candidateCount": 4334,
+      "catalogSyncedAt": "2026-10-17T10:30:19.469325+00:00",
+      "officialEnabled": true,
+      "collectedSubmissions": 93,
+      "collectedDistinctOK": 40,
+      "profileOfficialAnalyzed": 40,
+      "totalTrainingRecords": 7,
+      "completedLocatableProblems": 0,
+      "recommendations": [
+        {
+          "key": "727/B",
+          "name": "Bill Total Value",
+          "rating": 1600,
+          "score": 62,
+          "factors": {
+            "difficulty": 40,
+            "weakness": 0,
+            "goal": 0,
+            "novelty": 10,
+            "diversity": 12,
+            "plan": 0,
+            "feedback": 0,
+            "review": 0,
+            "reroll": 0
+          },
+          "reasons": [
+            "CF 题目 Rating 1600，位于你选择的 1200–2000 区间；本轮参考难度 1600。",
+            "关联公开账号 YippeeYi 在所选难度区间有 4 道相关方向的已观察官方 OK，参与近期覆盖与新颖度判断；不证明属于本人或独立完成。（未解题方向隐藏）",
+            "可拓宽已记录的近期知识覆盖；方向标签默认隐藏。",
+            "补充本轮此前尚未覆盖的知识方向，获得多样性加权；标签默认隐藏。"
+          ],
+          "sources": [
+            {
+              "kind": "official_submission",
+              "problemKey": "1519/D",
+              "submissionId": 394514245,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "1851/D",
+              "submissionId": 394508067,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "431/C",
+              "submissionId": 393437393,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "1547/E",
+              "submissionId": 393219457,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            }
+          ]
+        },
+        {
+          "key": "1348/C",
+          "name": "Phoenix and Distribution",
+          "rating": 1600,
+          "score": 62,
+          "factors": {
+            "difficulty": 40,
+            "weakness": 0,
+            "goal": 0,
+            "novelty": 10,
+            "diversity": 12,
+            "plan": 0,
+            "feedback": 0,
+            "review": 0,
+            "reroll": 0
+          },
+          "reasons": [
+            "CF 题目 Rating 1600，位于你选择的 1200–2000 区间；本轮参考难度 1600。",
+            "关联公开账号 YippeeYi 在所选难度区间有 15 道相关方向的已观察官方 OK，参与近期覆盖与新颖度判断；不证明属于本人或独立完成。（未解题方向隐藏）",
+            "可拓宽已记录的近期知识覆盖；方向标签默认隐藏。",
+            "补充本轮此前尚未覆盖的知识方向，获得多样性加权；标签默认隐藏。"
+          ],
+          "sources": [
+            {
+              "kind": "official_submission",
+              "problemKey": "1618/D",
+              "submissionId": 394503917,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "1256/C",
+              "submissionId": 394403128,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "1732/C1",
+              "submissionId": 394085661,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "1538/D",
+              "submissionId": 393841796,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "1709/D",
+              "submissionId": 393443215,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "1526/C2",
+              "submissionId": 393332469,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "1516/B",
+              "submissionId": 393321809,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "1547/E",
+              "submissionId": 393219457,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "1338/A",
+              "submissionId": 393170683,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "2267/D",
+              "submissionId": 392126918,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "2267/C",
+              "submissionId": 392056477,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "2266/D",
+              "submissionId": 391772700,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "2262/A1",
+              "submissionId": 391763073,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "2260/C",
+              "submissionId": 391220346,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "2264/C",
+              "submissionId": 390887284,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            }
+          ]
+        },
+        {
+          "key": "1363/C",
+          "name": "Game On Leaves",
+          "rating": 1600,
+          "score": 62,
+          "factors": {
+            "difficulty": 40,
+            "weakness": 0,
+            "goal": 0,
+            "novelty": 10,
+            "diversity": 12,
+            "plan": 0,
+            "feedback": 0,
+            "review": 0,
+            "reroll": 0
+          },
+          "reasons": [
+            "CF 题目 Rating 1600，位于你选择的 1200–2000 区间；本轮参考难度 1600。",
+            "关联公开账号 YippeeYi 在所选难度区间有 1 道相关方向的已观察官方 OK，参与近期覆盖与新颖度判断；不证明属于本人或独立完成。（未解题方向隐藏）",
+            "可拓宽已记录的近期知识覆盖；方向标签默认隐藏。",
+            "补充本轮此前尚未覆盖的知识方向，获得多样性加权；标签默认隐藏。"
+          ],
+          "sources": [
+            {
+              "kind": "official_submission",
+              "problemKey": "431/C",
+              "submissionId": 393437393,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            }
+          ]
+        },
+        {
+          "key": "615/B",
+          "name": "Longtail Hedgehog",
+          "rating": 1600,
+          "score": 62,
+          "factors": {
+            "difficulty": 40,
+            "weakness": 0,
+            "goal": 0,
+            "novelty": 10,
+            "diversity": 12,
+            "plan": 0,
+            "feedback": 0,
+            "review": 0,
+            "reroll": 0
+          },
+          "reasons": [
+            "CF 题目 Rating 1600，位于你选择的 1200–2000 区间；本轮参考难度 1600。",
+            "关联公开账号 YippeeYi 在所选难度区间有 6 道相关方向的已观察官方 OK，参与近期覆盖与新颖度判断；不证明属于本人或独立完成。（未解题方向隐藏）",
+            "可拓宽已记录的近期知识覆盖；方向标签默认隐藏。",
+            "补充本轮此前尚未覆盖的知识方向，获得多样性加权；标签默认隐藏。"
+          ],
+          "sources": [
+            {
+              "kind": "official_submission",
+              "problemKey": "1519/D",
+              "submissionId": 394514245,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "1618/D",
+              "submissionId": 394503917,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "431/C",
+              "submissionId": 393437393,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "1516/B",
+              "submissionId": 393321809,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "1547/E",
+              "submissionId": 393219457,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "2267/D",
+              "submissionId": 392126918,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            }
+          ]
+        },
+        {
+          "key": "150/B",
+          "name": "Quantity of Strings",
+          "rating": 1600,
+          "score": 62,
+          "factors": {
+            "difficulty": 40,
+            "weakness": 0,
+            "goal": 0,
+            "novelty": 10,
+            "diversity": 12,
+            "plan": 0,
+            "feedback": 0,
+            "review": 0,
+            "reroll": 0
+          },
+          "reasons": [
+            "CF 题目 Rating 1600，位于你选择的 1200–2000 区间；本轮参考难度 1600。",
+            "关联公开账号 YippeeYi 在所选难度区间有 11 道相关方向的已观察官方 OK，参与近期覆盖与新颖度判断；不证明属于本人或独立完成。（未解题方向隐藏）",
+            "可拓宽已记录的近期知识覆盖；方向标签默认隐藏。",
+            "补充本轮此前尚未覆盖的知识方向，获得多样性加权；标签默认隐藏。"
+          ],
+          "sources": [
+            {
+              "kind": "official_submission",
+              "problemKey": "1519/D",
+              "submissionId": 394514245,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "1851/D",
+              "submissionId": 394508067,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "1618/D",
+              "submissionId": 394503917,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "1538/D",
+              "submissionId": 393841796,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "1709/D",
+              "submissionId": 393443215,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "1458/A",
+              "submissionId": 393324615,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "1338/A",
+              "submissionId": 393170683,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "2267/E",
+              "submissionId": 392144420,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "2267/C",
+              "submissionId": 392056477,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "2266/D",
+              "submissionId": 391772700,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            },
+            {
+              "kind": "official_submission",
+              "problemKey": "2264/C",
+              "submissionId": 390887284,
+              "observedAt": "2026-10-17T10:50:31.010098+00:00"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "checks": {
+    "samePreferences": true,
+    "sameCatalogTime": true,
+    "sameTarget": true,
+    "restoredSameFiveInOrder": true,
+    "restoredSameFactors": true,
+    "enabledRecommendationsContainKnownOK": false,
+    "disabledOfficialRefs": 0,
+    "sourceReferencesResolve": true,
+    "records": {
+      "/api/v1/sessions?limit=50": {
+        "counts": [
+          7,
+          7,
+          7
+        ],
+        "allStatus200": true,
+        "sameSha256": true,
+        "allPagesObserved": true,
+        "observations": 3
+      },
+      "/api/v1/plans": {
+        "counts": [
+          0,
+          0,
+          0
+        ],
+        "allStatus200": true,
+        "sameSha256": true,
+        "allPagesObserved": true,
+        "observations": 3
+      },
+      "/api/v1/reviews": {
+        "counts": [
+          0,
+          0,
+          0
+        ],
+        "allStatus200": true,
+        "sameSha256": true,
+        "allPagesObserved": true,
+        "observations": 3
+      }
+    }
+  },
+  "race": {
+    "startedAt": "2026-10-17T10:53:38.639Z",
+    "revokeClickedAt": "2026-10-17T10:53:39.372Z",
+    "finishedAt": "2026-10-17T10:53:43.998Z",
+    "status": 200,
+    "officialEnabled": false
+  },
+  "samePoolBaseline": {
+    "boundary": "Technical comparison only; no participant enrollment, blind human review or teaching outcome",
+    "seed": "algopilot-m35-technical-1",
+    "sharedCandidateCount": 600,
+    "totalEligible": 4334,
+    "sharedPoolSha256": "deb5f966d3cba43da264bfc4982aa3f3f6150b49abd2be65e6a759fbbef1e4c5",
+    "catalogSyncedAt": "2026-10-17T10:30:19.469325+00:00",
+    "target": 1600,
+    "sameOutputCount": true,
+    "allFromSamePool": true,
+    "knownOKInEitherArm": false,
+    "personalizedMatchesRestoredAPI": true,
+    "personalized": [
+      {
+        "key": "727/B",
+        "rating": 1600
+      },
+      {
+        "key": "1348/C",
+        "rating": 1600
+      },
+      {
+        "key": "1363/C",
+        "rating": 1600
+      },
+      {
+        "key": "615/B",
+        "rating": 1600
+      },
+      {
+        "key": "150/B",
+        "rating": 1600
+      }
+    ],
+    "baseline": [
+      {
+        "key": "149/B",
+        "rating": 1600
+      },
+      {
+        "key": "1373/D",
+        "rating": 1600
+      },
+      {
+        "key": "525/C",
+        "rating": 1600
+      },
+      {
+        "key": "660/C",
+        "rating": 1600
+      },
+      {
+        "key": "1015/D",
+        "rating": 1600
+      }
+    ],
+    "sharedKeys": []
+  },
+  "sourceLimitations": {
+    "officialItems": 40,
+    "distinctOfficialProblemKeys": 40,
+    "missingRating": 3,
+    "missingTags": 2,
+    "completedTrainingRecords": 2,
+    "completedLocatableOfficialOverlap": 0
+  },
+  "privateSnapshotSha256": "9ab6a2300d9ba96dea4a552b1c0c0140f9ba6ccfa6a1f8963d70bb1ccf52797e",
+  "privateFrozenCandidateSha256": "39ff7bab3ec12a11bdaf8ff51c45a2015447f0b2ef3d0565d504c4d305e2c801"
+}
