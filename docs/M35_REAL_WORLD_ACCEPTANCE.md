@@ -310,3 +310,24 @@ n≤100000 时 l,d 都可存 int；答案上界 n(n−1)=**9,999,900,000**，需
 复查结束再次 GET：账号、learning、sessions、reviews、plans 均 200，与本节第一次读取逐字相同；sessions 数组 SHA-256 仍为 `b13c67c7fa96ff567ba57f35d026112c4b9bd24484f4b6293bf46b789fdfda38`，与同步前第 10 节相同。原 7 条训练正文/草稿 DTO 在此次用户同步前后未变；review/plan 仍为空。没有将同步采集等同于已保存 AC 复盘。
 
 本次补充实跑：`npm run lint` PASS、`npm run typecheck` PASS、`npm run test` **286/286（38 文件）PASS**、相同业务源码临时副本 `npm run build` PASS、`git diff --check` PASS。纯文档/脱敏结果更新未改变业务代码；没有重复 E2E、推荐专项和原生隔离，它们的本轮已执行结果保持第 10.7 节的 52/52、36/36、9 组/12 组，通过不冒充本次重新运行。临时入口已移除，Next 生成的对应临时类型与 next-env.d.ts 工具改动已清理。
+
+## 12. M3.5.1 补充：用户 AC 代码快照保存已确认（2026-10-18）
+
+用户澄清“已在 615B 的 AC 复盘入口保存代码快照”后，继续**仅现有 GET** 复查。基线 c80e7e3，开始时工作区干净；没有临时接口、文件采集、远端写入、额外同步或 Provider 调用。当前页面显示已保存复盘；列表、详情、learning、关联 session、sessions 清单均 HTTP 200。
+
+快照实际创建于 `2026-10-17T19:32:47.415252Z`（北京时间 **03:32:47**），晚于第 11 节的读取快照；本节读取确认时间 `19:34:23.825Z`。先前“复盘 0”是当时的数据，不是这次保存失败，也没有依据将其诊断成缓存/Auth/RLS 故障。
+
+| 项目 | 实核结果 |
+| --- | --- |
+| 615B 复盘快照 | **PASS**，列表从 0→1；文件导入、40 行，代码 SHA-256 `fc6f94db826fe1d1cba686aeb2a90c963fa8040e77487cfadea3585667d8c460`，在浏览器重算一致；不输出或提交源码 |
+| 授权与真实性 | 保存了明确的自报 AC/Provider 发送授权事件；原状态 paused、原 outcome NULL、allowedLevel/maxSeenLevel 均 0。当前快照 official_verdict=NULL、source_match=unverified，submission_id 未填（合法可选项）；不能自动把官方 OK 与导入源码等同 |
+| 新自报记录 | **PASS**，独立关联 session 为 615B、completed/solved_self_reported；总训练 **7→8**、可定位不同已完成题 **0→1**。由用户创建快照时的现有 RPC 正常创建并结束，不改写 731/C |
+| 计时与过程 | active_seconds=0；创建/结束均为本次保存时刻，不代表实际解题 0 分钟。自报 60 分钟仍未补成服务器计时；notes 为空，帮助使用、建模与事后优化过程尚未保存为用户备注 |
+| 同题双来源去重 | **PASS（真实）**：graphs samples=1、trainingSamples=1、officialAccepted=1、selfReportedSolved=1，训练引用与 395043322 官方引用均保留，仍“样本不足”；dp samples=8、训练 1、官方 8，不膨胀成 9。highHints/unresolved 均 0，不据此推断独立或熟练 |
+| 原历史保护 | 新清单 8 条，去除新 session 后的原 7 条数组 SHA-256 仍为 `b13c67c7fa96ff567ba57f35d026112c4b9bd24484f4b6293bf46b789fdfda38`，与前轮一致 |
+| AI 分析与画像授权 | completed results **0**、reviewDirections=0、reviewEvidence=false；**真实 Provider/质量评价仍 NOT_RUN**。保存发送授权不等于模型已运行，也不授权代理自动发起付费调用 |
+| 首轮上下文 | statement_snapshot 长度 **0**。可由用户在现有“后续复盘问题”补充中性的题目定义、约束与样例，再点击“生成 AI 复盘”；生成按钮会携带该问题。不要为了补上下文重复创建快照，也不要把标准答案/已有诊断附入首轮盲评 |
+
+本次没有调用推荐接口或再次采集候选，不能冒充已完成“新增自报训练后”的又一轮真实推荐比较；第 11 节的官方采集反馈结论保留。用户在确认内容发送与费用后自行生成首轮分析，再由本人评价，才补真实复盘质量与后续证据反馈。独立性、原 RE 根因、源码与官方提交一致性仍不作无依据认定。个人训练反馈仍 1，已保存真实复盘快照改为 **1**，已完成 AI 分析/本人质量评价仍 **0/0**；原题目人工 0/40、替代题 0/5 不变，整体 M3.5 仍 BLOCKED。
+
+只更新验收文档，未改业务/测试代码；`git diff --check` PASS。本次不重复上轮已通过的 lint/typecheck/286 项测试/build、52 项 E2E、36 项推荐评测与原生隔离；未将它们记为本次新执行。首段浏览器只读诊断脚本曾因多余括号 SyntaxError 而未执行，修正后完成上述 GET 核验，无写入或模型请求。
