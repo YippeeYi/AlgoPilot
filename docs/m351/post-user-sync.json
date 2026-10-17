@@ -1,0 +1,432 @@
+{
+  "boundary": "Existing getUser/JWT reads and already completed local snapshot; no new CF sync/Provider/remote data writes. Not independent raw-submission inventory or human review.",
+  "capturedAt": "2026-10-17T19:29:51.136Z",
+  "sourceSha256": "51cd857f30ad16d0c86ffa7891a222359a971e1b2f9a98e2d25ebf3de08ef7f6",
+  "stateBefore": {
+    "version": "cf-evidence/1",
+    "revision": 4,
+    "evidenceRevision": 10,
+    "handle": "YippeeYi",
+    "ownershipVerified": false,
+    "enabled": true,
+    "lastSyncedAt": "2026-10-17T10:50:31.010098+00:00",
+    "lastFullScanAt": "2026-10-17T10:45:30.670717+00:00",
+    "fullScanUpperId": 394514245,
+    "oldestObservedAt": "2025-10-29T15:20:23+00:00",
+    "highWater": 394514245,
+    "historyFrom": 94,
+    "historyInProgress": true,
+    "observedSubmissions": 93,
+    "acceptedProblems": 40,
+    "pendingSubmissions": 0,
+    "status": "partial",
+    "errorCode": null
+  },
+  "stateAfter": {
+    "version": "cf-evidence/1",
+    "revision": 4,
+    "evidenceRevision": 12,
+    "handle": "YippeeYi",
+    "ownershipVerified": false,
+    "enabled": true,
+    "lastSyncedAt": "2026-10-17T19:27:44.457067+00:00",
+    "lastFullScanAt": "2026-10-17T10:45:30.670717+00:00",
+    "fullScanUpperId": 394514245,
+    "oldestObservedAt": "2025-10-29T15:20:23+00:00",
+    "highWater": 395043322,
+    "historyFrom": 1,
+    "historyInProgress": true,
+    "observedSubmissions": 108,
+    "acceptedProblems": 42,
+    "pendingSubmissions": 0,
+    "status": "partial",
+    "errorCode": null
+  },
+  "preferencesUnchanged": true,
+  "preferences": {
+    "min": 1200,
+    "max": 2000,
+    "themes": [],
+    "goal": "independence",
+    "repeat": false,
+    "reviewEvidence": false
+  },
+  "cacheUnchanged": true,
+  "cache": {
+    "syncedAt": "2026-10-17T10:30:19.469325+00:00",
+    "stale": true
+  },
+  "trainingEvidenceUnchanged": true,
+  "feedbackUnchanged": true,
+  "totalSessions": 7,
+  "distinctCompletedProblems": 0,
+  "targetReviewSnapshots": 0,
+  "authorizedReviewEvidence": 0,
+  "newOfficialProblems": [
+    {
+      "submissionId": 395043322,
+      "contestId": 615,
+      "index": "B",
+      "rating": 1600,
+      "tags": [
+        "dp",
+        "graphs"
+      ],
+      "createdAt": "2026-10-17T19:06:16+00:00",
+      "observedAt": "2026-10-17T19:27:41.219716+00:00"
+    },
+    {
+      "submissionId": 394945711,
+      "contestId": 727,
+      "index": "B",
+      "rating": 1600,
+      "tags": [
+        "expression parsing",
+        "implementation",
+        "strings"
+      ],
+      "createdAt": "2026-10-17T13:06:55+00:00",
+      "observedAt": "2026-10-17T19:27:41.225972+00:00"
+    }
+  ],
+  "official615BRows": 1,
+  "pool615BRows": 0,
+  "pool727BRows": 0,
+  "eligibleBefore": 4334,
+  "eligibleAfter": 4332,
+  "poolSha256": "c961375d07083ed6b1768395a7fe0b8e3651b87ffa6fa2f30fb011644944cc69",
+  "targetBefore": 1600,
+  "targetAfter": 1600,
+  "recommendationsBefore": [
+    {
+      "key": "727/B",
+      "rating": 1600,
+      "factors": {
+        "difficulty": 40,
+        "weakness": 0,
+        "goal": 0,
+        "novelty": 10,
+        "diversity": 12,
+        "plan": 0,
+        "feedback": 0,
+        "review": 0,
+        "reroll": 0
+      },
+      "score": 62,
+      "officialSubmissionIds": [
+        394514245,
+        394508067,
+        393437393,
+        393219457
+      ],
+      "reasons": [
+        "CF 题目 Rating 1600，位于你选择的 1200–2000 区间；本轮参考难度 1600。",
+        "关联公开账号 YippeeYi 在所选难度区间有 4 道相关方向的已观察官方 OK，参与近期覆盖与新颖度判断；不证明属于本人或独立完成。（未解题方向隐藏）",
+        "可拓宽已记录的近期知识覆盖；方向标签默认隐藏。",
+        "补充本轮此前尚未覆盖的知识方向，获得多样性加权；标签默认隐藏。"
+      ]
+    },
+    {
+      "key": "1348/C",
+      "rating": 1600,
+      "factors": {
+        "difficulty": 40,
+        "weakness": 0,
+        "goal": 0,
+        "novelty": 10,
+        "diversity": 12,
+        "plan": 0,
+        "feedback": 0,
+        "review": 0,
+        "reroll": 0
+      },
+      "score": 62,
+      "officialSubmissionIds": [
+        394503917,
+        394403128,
+        394085661,
+        393841796,
+        393443215,
+        393332469,
+        393321809,
+        393219457,
+        393170683,
+        392126918,
+        392056477,
+        391772700,
+        391763073,
+        391220346,
+        390887284
+      ],
+      "reasons": [
+        "CF 题目 Rating 1600，位于你选择的 1200–2000 区间；本轮参考难度 1600。",
+        "关联公开账号 YippeeYi 在所选难度区间有 15 道相关方向的已观察官方 OK，参与近期覆盖与新颖度判断；不证明属于本人或独立完成。（未解题方向隐藏）",
+        "可拓宽已记录的近期知识覆盖；方向标签默认隐藏。",
+        "补充本轮此前尚未覆盖的知识方向，获得多样性加权；标签默认隐藏。"
+      ]
+    },
+    {
+      "key": "1363/C",
+      "rating": 1600,
+      "factors": {
+        "difficulty": 40,
+        "weakness": 0,
+        "goal": 0,
+        "novelty": 10,
+        "diversity": 12,
+        "plan": 0,
+        "feedback": 0,
+        "review": 0,
+        "reroll": 0
+      },
+      "score": 62,
+      "officialSubmissionIds": [
+        393437393
+      ],
+      "reasons": [
+        "CF 题目 Rating 1600，位于你选择的 1200–2000 区间；本轮参考难度 1600。",
+        "关联公开账号 YippeeYi 在所选难度区间有 1 道相关方向的已观察官方 OK，参与近期覆盖与新颖度判断；不证明属于本人或独立完成。（未解题方向隐藏）",
+        "可拓宽已记录的近期知识覆盖；方向标签默认隐藏。",
+        "补充本轮此前尚未覆盖的知识方向，获得多样性加权；标签默认隐藏。"
+      ]
+    },
+    {
+      "key": "615/B",
+      "rating": 1600,
+      "factors": {
+        "difficulty": 40,
+        "weakness": 0,
+        "goal": 0,
+        "novelty": 10,
+        "diversity": 12,
+        "plan": 0,
+        "feedback": 0,
+        "review": 0,
+        "reroll": 0
+      },
+      "score": 62,
+      "officialSubmissionIds": [
+        394514245,
+        394503917,
+        393437393,
+        393321809,
+        393219457,
+        392126918
+      ],
+      "reasons": [
+        "CF 题目 Rating 1600，位于你选择的 1200–2000 区间；本轮参考难度 1600。",
+        "关联公开账号 YippeeYi 在所选难度区间有 6 道相关方向的已观察官方 OK，参与近期覆盖与新颖度判断；不证明属于本人或独立完成。（未解题方向隐藏）",
+        "可拓宽已记录的近期知识覆盖；方向标签默认隐藏。",
+        "补充本轮此前尚未覆盖的知识方向，获得多样性加权；标签默认隐藏。"
+      ]
+    },
+    {
+      "key": "150/B",
+      "rating": 1600,
+      "factors": {
+        "difficulty": 40,
+        "weakness": 0,
+        "goal": 0,
+        "novelty": 10,
+        "diversity": 12,
+        "plan": 0,
+        "feedback": 0,
+        "review": 0,
+        "reroll": 0
+      },
+      "score": 62,
+      "officialSubmissionIds": [
+        394514245,
+        394508067,
+        394503917,
+        393841796,
+        393443215,
+        393324615,
+        393170683,
+        392144420,
+        392056477,
+        391772700,
+        390887284
+      ],
+      "reasons": [
+        "CF 题目 Rating 1600，位于你选择的 1200–2000 区间；本轮参考难度 1600。",
+        "关联公开账号 YippeeYi 在所选难度区间有 11 道相关方向的已观察官方 OK，参与近期覆盖与新颖度判断；不证明属于本人或独立完成。（未解题方向隐藏）",
+        "可拓宽已记录的近期知识覆盖；方向标签默认隐藏。",
+        "补充本轮此前尚未覆盖的知识方向，获得多样性加权；标签默认隐藏。"
+      ]
+    }
+  ],
+  "recommendationsAfter": [
+    {
+      "key": "1363/C",
+      "rating": 1600,
+      "factors": {
+        "difficulty": 40,
+        "weakness": 0,
+        "goal": 0,
+        "novelty": 10,
+        "diversity": 12,
+        "plan": 0,
+        "feedback": 0,
+        "review": 0,
+        "reroll": 0
+      },
+      "score": 62,
+      "officialSubmissionIds": [
+        393437393
+      ],
+      "reasons": [
+        "CF 题目 Rating 1600，位于你选择的 1200–2000 区间；本轮参考难度 1600。",
+        "关联公开账号 YippeeYi 在所选难度区间有 1 道相关方向的已观察官方 OK，参与近期覆盖与新颖度判断；不证明属于本人或独立完成。（未解题方向隐藏）",
+        "可拓宽已记录的近期知识覆盖；方向标签默认隐藏。",
+        "补充本轮此前尚未覆盖的知识方向，获得多样性加权；标签默认隐藏。"
+      ]
+    },
+    {
+      "key": "150/B",
+      "rating": 1600,
+      "factors": {
+        "difficulty": 40,
+        "weakness": 0,
+        "goal": 0,
+        "novelty": 10,
+        "diversity": 12,
+        "plan": 0,
+        "feedback": 0,
+        "review": 0,
+        "reroll": 0
+      },
+      "score": 62,
+      "officialSubmissionIds": [
+        395043322,
+        394514245,
+        394508067,
+        394503917,
+        393841796,
+        393443215,
+        393324615,
+        393170683,
+        392144420,
+        392056477,
+        391772700
+      ],
+      "reasons": [
+        "CF 题目 Rating 1600，位于你选择的 1200–2000 区间；本轮参考难度 1600。",
+        "关联公开账号 YippeeYi 在所选难度区间有 11 道相关方向的已观察官方 OK，参与近期覆盖与新颖度判断；不证明属于本人或独立完成。（未解题方向隐藏）",
+        "可拓宽已记录的近期知识覆盖；方向标签默认隐藏。",
+        "补充本轮此前尚未覆盖的知识方向，获得多样性加权；标签默认隐藏。"
+      ]
+    },
+    {
+      "key": "28/B",
+      "rating": 1600,
+      "factors": {
+        "difficulty": 40,
+        "weakness": 0,
+        "goal": 0,
+        "novelty": 10,
+        "diversity": 12,
+        "plan": 0,
+        "feedback": 0,
+        "review": 0,
+        "reroll": 0
+      },
+      "score": 62,
+      "officialSubmissionIds": [
+        395043322
+      ],
+      "reasons": [
+        "CF 题目 Rating 1600，位于你选择的 1200–2000 区间；本轮参考难度 1600。",
+        "关联公开账号 YippeeYi 在所选难度区间有 1 道相关方向的已观察官方 OK，参与近期覆盖与新颖度判断；不证明属于本人或独立完成。（未解题方向隐藏）",
+        "可拓宽已记录的近期知识覆盖；方向标签默认隐藏。",
+        "补充本轮此前尚未覆盖的知识方向，获得多样性加权；标签默认隐藏。"
+      ]
+    },
+    {
+      "key": "2207/B",
+      "rating": 1600,
+      "factors": {
+        "difficulty": 40,
+        "weakness": 0,
+        "goal": 0,
+        "novelty": 10,
+        "diversity": 12,
+        "plan": 0,
+        "feedback": 0,
+        "review": 0,
+        "reroll": 0
+      },
+      "score": 62,
+      "officialSubmissionIds": [
+        394503917,
+        394403128,
+        394085661,
+        393443215,
+        393332469,
+        393321809,
+        393219457,
+        393170683,
+        392126918,
+        392056477,
+        391772700,
+        391763073
+      ],
+      "reasons": [
+        "CF 题目 Rating 1600，位于你选择的 1200–2000 区间；本轮参考难度 1600。",
+        "关联公开账号 YippeeYi 在所选难度区间有 12 道相关方向的已观察官方 OK，参与近期覆盖与新颖度判断；不证明属于本人或独立完成。（未解题方向隐藏）",
+        "可拓宽已记录的近期知识覆盖；方向标签默认隐藏。",
+        "补充本轮此前尚未覆盖的知识方向，获得多样性加权；标签默认隐藏。"
+      ]
+    },
+    {
+      "key": "100/E",
+      "rating": 1600,
+      "factors": {
+        "difficulty": 40,
+        "weakness": 0,
+        "goal": 0,
+        "novelty": 10,
+        "diversity": 12,
+        "plan": 0,
+        "feedback": 0,
+        "review": 0,
+        "reroll": 0
+      },
+      "score": 62,
+      "officialSubmissionIds": [
+        394514245,
+        394508067,
+        394503917,
+        393841796,
+        393443215,
+        393324615,
+        393170683,
+        392144420,
+        392056477,
+        391772700
+      ],
+      "reasons": [
+        "CF 题目 Rating 1600，位于你选择的 1200–2000 区间；本轮参考难度 1600。",
+        "官方特殊题标记的具体限制尚未核验；未因该标记一律排除，开始前请在 CF 官网确认语言和环境要求。",
+        "关联公开账号 YippeeYi 在所选难度区间有 10 道相关方向的已观察官方 OK，参与近期覆盖与新颖度判断；不证明属于本人或独立完成。（未解题方向隐藏）",
+        "可拓宽已记录的近期知识覆盖；方向标签默认隐藏。",
+        "补充本轮此前尚未覆盖的知识方向，获得多样性加权；标签默认隐藏。"
+      ]
+    }
+  ],
+  "sourceRefsExist": true,
+  "attribution": "Both 615/B and 727/B became observed OK in this user sync; entire ranking difference is not attributable to 615/B alone. No new training/review evidence.",
+  "providerStatus": "NOT_RUN",
+  "humanReviewQualityStatus": "NOT_RUN",
+  "finalReadChecks": {
+    "allGetHttp200": true,
+    "responsesUnchangedDuringFollowup": true,
+    "sessionArrayEqualsPreSyncHash": true,
+    "sessionArraySha256": "b13c67c7fa96ff567ba57f35d026112c4b9bd24484f4b6293bf46b789fdfda38",
+    "removedCaptureGetStatus": 404,
+    "remoteWritesByAgent": 0,
+    "cfSyncCallsByAgent": 0,
+    "providerCallsByAgent": 0,
+    "localCaptureExecutionNote": "First submission had already produced a private file before automatic review rejected a second Return; no replay after rejection. Only GETs afterward."
+  }
+}
