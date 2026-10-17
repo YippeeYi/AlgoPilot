@@ -97,3 +97,5 @@ deterministic/1.3-official 保留原难度模型和主权重。全历史已知 A
 本轮不扩展 M3.3 功能或调整 deterministic/1.3-official。专用 Supabase 测试项目尚未就绪，真实 JWT/远端写入与部署仍待授权；只读核验 SQL、实际公开 YippeeYi 取证、本地/原生隔离结果见 [验收矩阵](docs/M34_ACCEPTANCE.md)。原生多连接不等于跨应用实例。
 
 [推荐研究方案](docs/M34_RECOMMENDATION_STUDY.md) 提供五题评审包、等约束 Rating/Tags 基线、成对 AB/BA 顺序与私有记录模板。真人仍 0/40、替代题 0/5、真实参与者 0；AI 复核和合成对照不代表教学收益。离线脚本只在真实同意后准备材料，不联网或发送模型。
+
+M3.4.1 修复设置页 CF Handle 输入：无配置、加载/请求失败及操作期间仍可编辑，成功认证并读取账号状态后才允许关联，支持重新加载与安全错误诊断。交互通过不等于真实关联成功；托管绑定仍 NOT_RUN，迁移核验与最短验收步骤见 [M341_VERIFICATION.md](docs/M341_VERIFICATION.md)。

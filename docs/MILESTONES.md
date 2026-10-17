@@ -168,3 +168,12 @@ M1/M2 原交付时未完成托管服务测试。Gemini 后续验收已应用获�
 - [ ] 待人工确认目标并执行 Dashboard SELECT、真人评审；待授权专用项目、真实 Auth/PostgREST/Cookie、迁移/配置及测试夹具/清理、共享真实项目跨应用实例、真实训练试用。当前不得宣布生产门禁通过。
 
 门禁实际命令与边界见 [M34_ACCEPTANCE.md](M34_ACCEPTANCE.md)，试验材料见 [M34_RECOMMENDATION_STUDY.md](M34_RECOMMENDATION_STUDY.md)。
+
+## M3.4.1：CF Handle 交互与链路诊断（2026-10-17）
+
+- [x] Handle 始终可编辑，草稿独立于加载/配置/操作状态；格式与后端真实状态门禁、同步防重锁、重载和未知确认结果重试。
+- [x] 区分配置/Auth/账号状态/RPC/操作失败，固定安全中文错误；无效替换保留旧关联，替换/同步/授权/解绑/删除兼容。
+- [x] 本地组件、真实 route/Auth/repository/service 代码的外部接口替身、桌面/移动浏览器及原生隔离回归；不修改 001–010 或推荐权重。
+- [ ] 真实托管绑定、007–010 管理只读核验、HMAC 一致性、真实 JWT/PostgREST/双用户验收仍 NOT_RUN；没有生产迁移、数据写入或部署。
+
+完整结果、边界及最短后续操作见 [M341_VERIFICATION.md](M341_VERIFICATION.md)。

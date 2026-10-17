@@ -2,6 +2,7 @@ export class ClientError extends Error {
   constructor(
     public status: number,
     message: string,
+    public code?: string,
   ) {
     super(message);
   }
@@ -9,12 +10,13 @@ export class ClientError extends Error {
 
 export async function requestJson<T>(
   path: string,
-  options: { method?: string; body?: unknown } = {},
+  options: { method?: string; body?: unknown; timeoutMs?: number } = {},
 ): Promise<T> {
   const response = await fetch(path, {
     method: options.method ?? "GET",
     cache: "no-store",
     credentials: "same-origin",
+    signal: options.timeoutMs ? AbortSignal.timeout(options.timeoutMs) : undefined,
     headers:
       options.body === undefined
         ? undefined
@@ -26,6 +28,7 @@ export async function requestJson<T>(
     throw new ClientError(
       response.status,
       value.error?.message || "请求未完成，请重试。",
+      typeof value.error?.code === "string" ? value.error.code : undefined,
     );
   return value as T;
 }

@@ -19,10 +19,12 @@ test('public account controls, partial coverage, consent and unknown-ack retry p
  });
  await page.goto('/settings');await expect(page.getByLabel('公开 CF Handle')).toBeEnabled();await page.getByLabel('公开 CF Handle').fill('Public_Handle');await page.getByRole('button',{name:'关联公开账号',exact:true}).click();await expect(page.getByText('归属未验证',{exact:false}).last()).toBeVisible();
  await page.getByRole('button',{name:'首次同步'}).click();await expect(page.getByText(/本轮历史尚未到尾部/)).toBeVisible();expect(intents.at(-1)).not.toHaveProperty('action');
- await page.getByRole('button',{name:'启用官方证据分析'}).click();await expect(page.locator('main').getByRole('alert')).toContainText('acknowledgement lost');await expect(page.getByRole('button',{name:'关闭官方证据分析'})).toBeEnabled();
+ await page.getByRole('button',{name:'启用官方证据分析'}).click();await expect(page.locator('main').getByRole('alert')).toContainText('操作结果可能尚未确认');await expect(page.getByRole('button',{name:'关闭官方证据分析'})).toBeEnabled();
  await page.getByRole('button',{name:'重试上次请求'}).click();await expect(page.locator('main').getByRole('alert')).toHaveCount(0);expect(intents.at(-1)!.requestId).toBe(intents.at(-2)!.requestId);
  await page.getByRole('button',{name:'关闭官方证据分析'}).click();await expect(page.getByRole('button',{name:'启用官方证据分析'})).toBeEnabled();
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);await page.screenshot({path:`/tmp/algopilot-m33-account-${info.project.name}.png`,fullPage:true});
  await page.getByLabel('公开 CF Handle').fill('Other_Handle');await page.getByRole('button',{name:'替换公开账号'}).click();await expect(page.getByText(/涉及 0 道 OK/)).toBeVisible();
  await page.getByRole('button',{name:'解除关联',exact:true}).click();await expect(page.getByRole('button',{name:'关联公开账号',exact:true})).toBeEnabled();await expect(page.getByRole('button',{name:'首次同步'})).toHaveCount(0);
+ await page.getByRole('button',{name:'关联公开账号',exact:true}).click();await expect(page.getByRole('button',{name:'删除采集数据与关联'})).toBeEnabled();
+ await page.getByRole('button',{name:'删除采集数据与关联'}).click();await expect(page.getByRole('button',{name:'关联公开账号',exact:true})).toBeEnabled();await expect(page.getByRole('button',{name:'首次同步'})).toHaveCount(0);
 });

@@ -1,5 +1,15 @@
 import { expect, test } from "@playwright/test";
 
+test("未配置 Supabase 时 CF Handle 可输入，关联保持禁用", async ({ page }) => {
+  await page.goto("/settings");
+  const input = page.getByLabel("公开 CF Handle");
+  await expect(input).toBeEnabled();
+  await input.fill("Editable_Handle");
+  await expect(input).toHaveValue("Editable_Handle");
+  await expect(page.getByRole("button", { name: "关联公开账号", exact: true })).toBeDisabled();
+  await expect(page.locator("main")).toContainText("当前无法完成关联");
+});
+
 test("无凭据可浏览所有页面壳", async ({ page }) => {
   const pages = [
     ["/dashboard", "现在应该练什么，为什么？"],
