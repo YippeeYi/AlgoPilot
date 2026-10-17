@@ -1,7 +1,11 @@
-import { it, expect } from "vitest";
+import { it, expect, vi } from "vitest";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { database } from "./database";
 import { compareStructure } from "../../scripts/m35-compare-structure";
+
+// The standalone Node evaluation config has no jsdom test setup. This database
+// fixture intentionally imports server repositories; retain the production guard.
+vi.mock("server-only", () => ({}));
 
 it("normalizes PG18 NOT NULL catalog rows only when the hosted column enforces NOT NULL", () => {
     const base = { serverVersion: "18.3", migrationHistoryExists: false, functions: [], relations: [], indexes: [], policies: [], triggers: [],
