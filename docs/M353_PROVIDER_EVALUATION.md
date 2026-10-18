@@ -4,6 +4,8 @@
 
 最新追加：基线 **0c8d44e** 的第二次 A 已另获明确批准，**1 次新发送、0 重试**，110 秒单次计时取消（Provider 耗时 **110151 ms**）；日志确认 DNS/TCP/TLS 完成且请求写完，直到取消仍未观察到响应头、正文 0 字节。用量/实费 UNKNOWN，教学质量与输出审核 NOT_RUN。第 9 节解释旧观测边界，第 10 节记录这次 A2；两次均为各自独立授权，不是一次请求的自动重试，未执行 B 或追加第三次。
 
+**M3.5.4只读追加见第11节**：首次UI成功的实际模型/Provider仍UNKNOWN，用户已确认未记录；发现fetch与原生HTTPS的传输差异及Clash/TUN相关证据，但未证明历史出口不同。URL静态核对通过，本轮0次生成/0源码外发，仅提出需另批的一次公开短请求；教学质量保持NOT_RUN。
+
 ## 1. 变更和授权边界
 
 仅新增本报告及脱敏 [preparation.json](m353/preparation.json)，向 [M35_REAL_WORLD_ACCEPTANCE.md](M35_REAL_WORLD_ACCEPTANCE.md) 追加第 14 节。没有修改业务代码、Prompt、输出审核、依赖、推荐权重、同步算法、数据库迁移或配置。
@@ -446,3 +448,153 @@ node /private/tmp/algopilot-m353-prep/run-A2-once.cjs --execute-authorized-A2-on
 | M3.5.3完整验收 | **BLOCKED** |
 
 授权已用完，**不自动第三次调用，也不再单纯增加timeout重试**。后续先由维护者按9.5只读核对正确Google项目的Usage/Billing及项目状态；如要进一步传输探测或换评估方式，必须另列发送范围、次数、参数与费用并获新授权。不能把本次连接成功或超时包装成模型教学质量通过/失败。
+
+## 11. M3.5.4：Gemini API 链路隔离，只读检查（基线 bc58272）
+
+### 11.1 结论按优先级排列
+
+2026-10-18，实际 HEAD **bc58272**、初始工作区干净。本轮**新增模型生成请求0、源码外发0、生产读取/写入0、迁移/部署0**；未启动/重启 Next、未修改 Clash/TUN/系统代理或应用配置、未重跑已消耗的执行器。仅读取本地非敏感配置/元数据、既有日志与官方公开文档，运行内存替身测试，再追加本节。
+
+1. **优先补齐比较前提：首次 UI 成功的实际 Provider/模型 UNKNOWN。** 用户明确补充：保留复盘正文，但模型 ID、页面 Prompt 版本和生成时间均未记录；旧源码为 `algopilot-ac-review/1.0.0`，只是源码证据。不能按文风、当前 `.env` 或后来的两次请求，把首次成功推断成 `gemini-3.8-flash`。
+2. **客户端传输确实不同；不同网络出口尚未证实。** 产品默认是 Next/Node `fetch`，A1/A2 注入原生 `https.request`。当前 Clash Party/mihomo TUN 路由存在，且历史两次窗口内有 Gemini 域名连接日志含 GLOBAL 标记。`agent:false` 仅是客户端连接管理，不能据此称“绕过 Clash 直连互联网”。应优先隔离传输/代理路径，不能继续只加超时。
+3. **URL 静态核对 PASS。** 当前磁盘配置和两份封存请求的 endpoint 均等于 Google 官方兼容 URL，没有发现 base path 重复或拼接错误；不等于历史成功请求地址已核实，也不证明凭据/项目状态正确。
+4. **复杂输入、Schema 与模型处理仍是候选因素，未证明为原因。** A1/A2 完整请求只有8230字节，Schema约1.7KB；客户端未观察到响应头不能证明 Google 故障、模型已进入推理、Schema已接受或4096已用尽。
+5. **下一轮优先一个公开短请求，不发送源码、不自动追加对照。** 最多一次、原模型/endpoint及A2传输不变、60秒、low、256输出、无Review Schema；需要新的生成/费用授权，详见11.6。本轮不实施。模型教学质量继续 **NOT_RUN**。
+
+### 11.2 首次 UI 成功与两次 A 的比较边界
+
+用户已明确确认：**北京时间03:32:47是代码快照创建时间，不是AI复盘生成时间**。保留该训练/复盘反馈，不用它填生成时间或恢复不存在的模型元数据。
+
+现有正常 GET 路径在 `reviewRepository.results` 中读取已完成结果的 `model,prompt_version,created_at`，不提供历史 base URL、请求参数、消息大小或代理快照；`created_at` 是请求记录创建时间，不能直接当完成生成时刻。当前本机 **localhost:3000 无监听**，已有浏览器 localhost 标签显示网络错误；本轮未启动服务、未访问生产API、未读取私人源码正文或其他对话来猜模型。将来维护者在正常登录/服务恢复后可只读恢复结果字段；不能通过重新生成来补历史。缺少授权可见字段时不绕过RLS/私有usage列。
+
+| 项目 | 首次成功 UI 的实际记录 | 产品静态链路 / 当前磁盘配置 | A1 / A2 既有证据 |
+| --- | --- | --- | --- |
+| 实际 Provider 与响应模型 | **UNKNOWN**；用户没有保留这些字段 | 默认 `OpenAICompatibleProvider`；当前配置Google官方端点 / gemini-3.8-flash | 请求均指定Google / gemini-3.8-flash；无模型响应可验证身份 |
+| Base URL / endpoint | **UNKNOWN** | 当前 `https://generativelanguage.googleapis.com/v1beta/openai` 加 `/chat/completions` | 两次均严格锁定完整官方URL |
+| Prompt | 页面值 **UNKNOWN**；旧源码证据 **1.0.0** | 当前 **1.1.0** | 封存 **1.1.0**，两次未改 |
+| 源码上下文 | 产品已保存的40行迭代DP快照；真实发送消息长度未捕获 | `repo.get`取不可变快照，追问和最多两条已完成历史经builder组装 | 用户提供完整52行DFS AC +58行WA，必要题意；与40行快照不同 |
+| 客户端 | 实际运行时未保留 | `runReview`默认Provider使用全局fetch；Next可包装fetch | 同一Provider实现，注入原生Node HTTPS、一次性Agent及整体缓冲 |
+| Schema / 请求参数 | 实际封包 **UNKNOWN** | strict ac_review、low、4096、max_completion_tokens、stream=false | 两次一致，原封存Schema哈希相同 |
+| 历史 | 实际数组 **UNKNOWN** | 最近最多两条已完成分析嵌在user消息；失败请求不算已完成历史 | history=[]，不包含此前评审/输出 |
+| 超时 / deadline | 实际参数 **UNKNOWN** | 当前默认60000ms；路由150秒deadline减前置耗时及50秒预留，共享窗口约≤100秒 | A1单次60000 / A2单次110000；均独立调用、共享120000、无路由 |
+| 重试 | 实际次数 **UNKNOWN** | 源码首次429/503可退避后再试，上限两次 | 各自独立授权 **1次发送、0重试** |
+| 代理/出口 | 历史环境 **UNKNOWN** | 当前没有3000服务进程环境可核；磁盘配置不能替代已退出进程的环境 | 原执行器无代理Agent；其请求仍可进入系统TUN；完整历史出口未捕获 |
+
+代码同一个Provider类只能证明实现复用，不能证明那次成功使用相同供应商、模型或网络环境。没有发现项目 `src/scripts/next.config/package.json` 中显式设置 ProxyAgent、全局Undici dispatcher或环境代理初始化；这不是对Next内部/历史预加载脚本或已退出进程的排除证明。
+
+### 11.3 URL、Node与本机Clash/TUN的只读事实
+
+[Google官方兼容示例](https://ai.google.dev/gemini-api/docs/openai) 的完整地址是：
+
+`https://generativelanguage.googleapis.com/v1beta/openai/chat/completions`
+
+当前 `readTutorConfig` 白名单值、Provider的 `${baseUrl.replace(/\/$/, "")}/chat/completions` 和 A1/A2 的精确URL断言均相符；请求方法POST。未发GET/HEAD/OPTIONS/listModels/countTokens或新的生成来验证远端，认证、配额/地区/项目计费与服务端参数接受情况仍未核实。
+
+本轮当前本机只读采样（**不是成功请求或A1/A2时的完整环境回放**）：
+
+| 层级 | 观察 |
+| --- | --- |
+| 系统代理 | scutil明确给出HTTP/HTTPS/SOCKS/PAC/自动发现 enable均为0；没有修改设置 |
+| 当前Node shell | HTTP_PROXY/HTTPS_PROXY/ALL_PROXY/NO_PROXY及小写形式均不存在；NODE_USE_ENV_PROXY未启用，NODE_OPTIONS未含use-env-proxy。加载本地env后复核一致；不输出凭据或代理地址 |
+| 运行组件 | **Clash Party、party.mihomo.helper、mihomo**在运行；存在多个utun接口 |
+| 核心目录配置 | 运行mihomo的`-d`指向`/Users/yi/Library/Application Support/mihomo-party/work`，其config.yaml白名单：mode=global、TUN=true、stack=mixed、auto-route=true、auto-detect-interface=true、find-process-mode=strict |
+| DNS / 端口 | DNS=true、enhanced-mode=fake-ip、fake-ip-range=198.18.0.1/16、IPv6及DNS IPv6均开启；本地mixed-port7890、SOCKS7891、HTTP7892。仅读取，没有连接这些端口或控制器 |
+| 当前IPv4路由 | default为en0；2/7、4/6、8/5、16/4、32/3、64/2、128.0/1指向utun1500，说明物理default不是唯一生效路由 |
+| 当前IPv6路由 | 观察到en0及多个utun的default项，未解析目标地址或发探测；不能把IPv4路径套到实际IPv6连接 |
+| 规则观察范围 | 核心目录文件未发现PROCESS-NAME/PATH规则类型；未读取/输出节点、订阅、具体规则或secret。未通过控制器确认内存配置/当前GLOBAL选择，global不自动证明某个代理节点或最终出口 |
+| Next可用性 | 3000端口没有监听；项目cwd下有Node进程，但按安全角色检查没有可确认的Next入口，不能把“有node进程”当成“Next正在使用相同env” |
+
+当前config.yaml的mtime为 **2026-10-18 11:58:04.866897 UTC**，晚于A1、早于A2；不能把当前文件视为首次UI成功或A1的配置快照，也不能据mtime推断某个参数必然在该时刻改变。未输出或枚举节点名称、远端地址、订阅和进程完整环境。
+
+[Node v24.19 HTTP文档](https://nodejs.org/download/release/v24.19.0/docs/api/http.html) 说明 `agent:false` 使用一次性默认Agent，主要影响连接复用；环境代理需要Node启动开关/相应Agent或dispatcher。**系统GUI代理、Node应用层代理和内核TUN是不同层**，Node没有显式代理并不阻止内核TUN接管。当前Node为v24.19.0、内置Undici 7.29.0；未证明历史Next版本、地址族选择、代理开关与当前shell完全相同。Mihomo的 [TUN说明](https://wiki.metacubex.one/config/inbound/tun/) 支持路由/接口范围配置；不将本机IPv6/路由采样泛化成全平台行为。
+
+补充被动日志证据：只在已知Clash日志目录读取当日3个文件的尾部，每个最多2MB，不扫描其他私人日志。纳秒时间规范化后找到与两次窗口吻合、目标为Gemini官方域名且含GLOBAL标记的连接记录：
+
+| 对应窗口 | 日志时间（明确+08:00） | 原始行SHA-256 |
+| --- | --- | --- |
+| A1 | 2026-10-18 18:31:32.718466 | `030354d3126e32f4326179e702a7231ac11e2da889a0e44f28dee9cb6c0dd15c` |
+| A2 | 2026-10-18 20:01:40.478695 | `2617eaff58cb296399ac516e60d674ba4aacfad656e6e01a447bddc853596cf0` |
+
+这对“同域名流量进入Clash观察范围”提供时间相关线索；原日志与所选节点不公开。**没有建立PID/连接标识到模型requestId的唯一对应，不能把一条连接当一次模型生成，也不能据GLOBAL字样证明最终代理节点/出口或Google已收讫。** 更早的同域名记录也不能用来补首次成功的模型/生成时间。初次时间解析未接受日志纳秒精度，后规范化后才获得上述匹配，不把初次零匹配误报为没有流量。
+
+目前没有证据证明“Next走Clash而评估器绕过Clash”，也没有证据证明两条历史链路最终出口完全一致。不同客户端/地址族、历史网络状态、TUN/中间层与远端处理仍须隔离；不改TUN、不强制IPv4/IPv6、不切换节点来制造一次未授权对照。
+
+### 11.4 成功/失败请求的非敏感体积对照
+
+没有成功请求原封包，不能从保留的模型正文逆推出其输入Token、Schema、输出限制或耗时；不得把模型文本长度当成Token账单。仅对本地封存材料计算长度，没有输出代码/请求正文或调用tokenizer服务。
+
+| 非敏感指标 | 首次UI成功实际值 | A1 / A2（均相同） |
+| --- | --- | --- |
+| 消息数 / history数 | UNKNOWN；旧builder源码可推演消息结构，但不是抓包 | **2 / 0** |
+| 消息内容字符 / UTF-8字节 | UNKNOWN | **4020 / 6070** |
+| JSON Schema本体字符 / 字节 | UNKNOWN | **1572 / 1714** |
+| response_format内json_schema包装字符 / 字节 | UNKNOWN | **1616 / 1758** |
+| 紧凑完整请求字符 / 字节 | UNKNOWN | **6038 / 8230** |
+| 粗估消息Token（字符÷4向上） | UNKNOWN | **约1005**，不是实测 |
+| 粗估消息+Schema包装Token（同法） | UNKNOWN | **约1409**，不含全部协议开销，中文误差未知 |
+| 请求输出预算 / 实际usage | UNKNOWN | **4096 / NULL** |
+
+[Google Token说明](https://ai.google.dev/gemini-api/docs/tokens) 给出约4字符/token的数量级参考；本请求混有中文、代码、Schema，以上不是准确tokenizer结果、数学上限或费用守卫，不能拿来宣称预算或教学效果通过。真实输入/输出/思考Token仍UNKNOWN。
+
+另从`854b064`旧源码本地生成候选Schema，得到 **1410字符/1410字节**、SHA-256 `5f9a23883fb19447775b89dac861db5d91a67e9e98a251a818d816d3392c1f34`；版本常量为1.0.0。这仅是可重建源码元数据，**不是首次成功请求实测值**。当前Schema新增来源描述使其更大，但不能据162字符差异解释无响应头；也不能把“旧版曾成功”当成已控制模型/网络/负载的A/B。
+
+原生客户端可能的请求体长度问题也做了**纯内存**核对：以8230字节惰性文本，经假的Duplex连接执行同样`request.end(body)`，自动Content-Length=8230、未使用chunked，真实socket/网络0。因此“原生Node必然缺Content-Length、导致服务端一直等正文”不符合该API的本地复现；历史实际HTTP头未抓取，不能越过此证据范围。
+
+### 11.5 两次失败已经排除与尚未排除的原因
+
+| 判断 | 证据/限制 |
+| --- | --- |
+| URL明显拼接错误 | **当前配置与A1/A2封存静态核对可排除**；历史UI endpoint未知 |
+| A2一直卡在DNS/TCP/TLS建立 | **可排除**；其事件在约1.45秒内完成并写完请求 |
+| A1在连接阶段卡住 | **不能排除/确认**；A1没有阶段日志，不能用A2回填 |
+| 单次应用超时触发 | **已确定**；A1约60001ms、A2约110151ms；A2有per_attempt与ABORT_ERR证据；共享120秒和路由非触发源 |
+| 客户端自动重试突破授权 | **现有本地证据可排除**；独立许可各1次，磁盘/进程防重保留，0重试 |
+| 已收到内容后被Review审核拦截 | **A2可排除**；无headers/body，未进入审核；A1只知无完整响应/未记录status，不补历史缺失数据 |
+| 4096已被思考耗尽 / Schema拒绝 | **未证实**；无usage/finish_reason/官方400等完整响应 |
+| Google服务故障或模型质量失败 | **不能判定**；无响应头不是供应商故障的充分证据；教学质量NOT_RUN |
+| 历史UI与A同模型同出口 | **不能判定**；用户确认历史元数据缺失，现有日志不具唯一请求身份 |
+| TUN/代理出口、地址族或原生HTTPS与fetch差异 | **尚未排除**；是优先隔离方向，当前配置不是历史回放 |
+| key/项目/地区/配额/计费问题 | **尚未排除**；没有认证状态响应/官方用量实证，不读密钥猜项目 |
+
+两次超时Token/实费继续 **UNKNOWN**，本轮没有新生成，因此新增模型费用0；不把旧UNKNOWN改成零。用户的首次复盘质量反馈仍保留，M3.5.3新版教学质量、反例能力和真实审核状态继续 **NOT_RUN**。
+
+### 11.6 下一轮最小真实实验：待额外批准，尚未执行
+
+建议先只批准下面**一条公开短请求**，隔离“基础API可响应”与“携带复杂代码/Schema的请求”这一层，不启动产品B、不收费重现旧UI、不发送源码。它不是新的生产Prompt版本，产品Review Prompt保持1.1.0。
+
+| 待批准项 | 最小方案 |
+| --- | --- |
+| Provider / 模型 / endpoint | **Google Gemini API / gemini-3.8-flash / 同官方完整兼容URL**；不切换供应商或模型 |
+| 完整发送范围 | **仅一条公开user消息 `Reply with exactly OK.`**；不含系统复盘Prompt、题意、源码、用户资料、历史或评审答案 |
+| 参数 | **reasoning_effort=low，max_completion_tokens=256，stream=false，无response_format/工具**；只在独立传输探针中设置，不改产品配置或原Schema |
+| 客户端/网络 | **沿用A2原生HTTPS路径**及脱敏阶段事件，维持现有网络设置；不同时改fetch/代理/节点，减少混淆。新标记/私有目录，不清旧标记 |
+| 次数/重试 | **最多1次真实生成HTTP、0自动重试**；无额外countTokens/listModels/HEAD探测或后继对照。该请求本身就是模型生成，绝不当免费网络检查 |
+| 时间 | **单次60000ms，共享120000ms**；不继续增加110秒超时，不经产品路由或写DB |
+| 费用 | 请求输出256的名义上限按当前USD3.75/百万为 **USD0.00096，加实际输入**，含thinking的映射及实费需核验；不能承诺免费。建议额外批准的保守Token预算仍为 **USD1.10**（沿用完整模型上限估算USD1.032192守卫），不是预计会花这么多；实际价格变化/边界不符即停止 |
+| 保存/停止 | 只保存脱敏阶段/状态、实际响应模型/usage和这条公开消息的原始回复；任意成功/失败/超时/截断后停止，其他请求另批 |
+
+判读预先限定：
+
+- 若取得有效200响应，说明**该时刻、该模型请求/凭据与同传输路径的基础API能够响应**；不证明复杂输入、Review Schema或首次UI同模型。后续若需拆分Schema/代码因素，每一步另列方案获新授权。
+- 若200但空回复/length，可能是256总生成预算含thinking导致截断；传输可达与探针内容完成分别记录，不把它归为网络故障或教学失败，不自动加预算重跑。
+- 401/403/400/429/503等状态分别提供认证/参数/额度/容量层线索；只留安全码，不能只凭状态或原始SDK文本暴露凭据/判教学质量。
+- 若同样在TLS/写完后等不到headers，**复杂源码/Review Schema不是重现该现象的必要条件**；优先检查基础请求路径、项目/网络中间层等，仍不能单独证明Google故障。若之后拟做全局fetch对照，它是另一次有费用的模型调用，须重新批准，不能把一对请求藏在“单次最小实验”里。
+
+本节只是方案，**本轮没有调用它，也没有取得它的授权**。同一终端的短请求不能冒充Next生产实例端到端测试；不得为了补历史成功元数据而调用模型。
+
+### 11.7 本轮实际执行与状态
+
+| 检查 | 本轮结果 |
+| --- | --- |
+| HEAD/status、历史源码及当前Provider/配置/URL静态核对 | PASS；bc58272、初始干净；没有历史模型身份推断 |
+| 用户补充历史元数据 | 已记录；模型/页面Prompt/生成时间UNKNOWN，1.0.0仅源码证据，03:32:47仅快照时间 |
+| scutil/内核路由/进程与3000监听、mihomo核心目录配置白名单 | PASS；普通工具沙箱信息不完整后用获准只读检查重核，不把初读缺项当关闭；未改网络、未读输出secret/节点 |
+| bounded Clash日志元数据 | PASS；3个当日日志尾部、每个≤2MB，规范化纳秒时间后各窗口1条同域名关联；不声称唯一请求或最终出口已验证 |
+| 本地长度/哈希与旧Schema重建 | PASS；无模型/Tokenizer网络调用、无私有正文输出 |
+| `npm run test -- tests/unit/gemini-provider.test.ts tests/unit/review.test.ts` | **25/25 PASS，2文件**；20:41:02本轮重跑，均注入HTTP替身 |
+| 原生HTTPS内存Duplex的end(body)长度检查 | PASS；自动Content-Length=8230、chunked=false，真实网络0 |
+| 文档diff已配置秘密匹配检查 / A1、A2原账本及防重标记复核 | PASS；不输出秘密，旧证据哈希与标记未变 |
+| `git diff --check` | PASS |
+| 真实生成/网络探针、启动Next、Clash配置修改、生产DB、全量lint/typecheck/test/build/E2E/推荐专项 | **NOT_RUN**；没有相应请求/修改，仓库仅本报告文档追加，不搬用前轮通过数量 |
+
+只读链路核对已完成；历史UI同模型/同出口、两次费用及远端根因仍UNKNOWN。新的短请求与模型教学验收仍 **NOT_RUN**，不因诊断更具体而提升人工评审计数或生产门槛。
