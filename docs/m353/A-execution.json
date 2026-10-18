@@ -1,0 +1,47 @@
+{
+  "authorization": "User explicitly approved one A request, full frozen DFS AC/WA only, no history, 4096 output, USD 1.10 token budget; no B/production writes",
+  "executionBaseline": "df6bcd2",
+  "promptVersion": "algopilot-ac-review/1.1.0",
+  "requestModel": "gemini-3.8-flash",
+  "endpoint": "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
+  "requestBodySha256": "35a03143e59c313c920333c7adb46ef28d58820eded7ec01595c0f3655864efb",
+  "maximumHttpRequests": 1,
+  "automaticRetries": 0,
+  "maxCompletionTokens": 4096,
+  "reasoningEffort": "low",
+  "transport": "native node:https agent:false; no SDK, proxy agent, redirects or retry; exclusive durable marker",
+  "conservativeTokenCostBoundUsd": 1.032192,
+  "budgetUsd": 1.1,
+  "dispatches": 1,
+  "startedAt": "2026-10-18T10:31:31.681Z",
+  "providerStatus": "FAIL",
+  "auditStatus": "NOT_RUN",
+  "rawUsage": null,
+  "providerUsage": [
+    {
+      "attempt": 1,
+      "model": "gemini-3.8-flash",
+      "inputTokens": null,
+      "outputTokens": null,
+      "totalTokens": null,
+      "durationMs": 60001,
+      "status": "timeout",
+      "costUsd": null
+    }
+  ],
+  "actualBillUsd": null,
+  "dispatchedAt": "2026-10-18T10:31:31.682Z",
+  "providerErrorCode": "LLM_TIMEOUT",
+  "estimatedStandardCostUsd": null,
+  "finishedAt": "2026-10-18T10:32:31.683Z",
+  "observation": {
+    "httpsDispatchAttempts": 1,
+    "confirmedHttpResponses": 0,
+    "requestReachedProvider": "UNKNOWN",
+    "responseModel": null,
+    "counterexamplesReceived": null,
+    "offlineModelCounterexampleVerification": "NOT_RUN",
+    "nextCallRequiresNewAuthorization": true,
+    "modeB": "NOT_RUN_NOT_AUTHORIZED"
+  }
+}

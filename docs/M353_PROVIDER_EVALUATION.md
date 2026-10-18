@@ -1,6 +1,6 @@
-# M3.5.3 真实 Provider 盲测：准备完成，调用待授权
+# M3.5.3 真实 Provider 盲测：A 单次请求超时
 
-2026-10-18（Asia/Shanghai）。实际基线 **afbe51a**，初始工作区干净。已读 M35/M352 历史、当前 Prompt/Provider/审核、Review Repository/Orchestrator 与私有夹具；没有重置或覆盖后续工作。**本轮仅完成无费用准备，真实 Provider 盲测 NOT_RUN，M3.5.3 尚未通过。** 本文追加当前结果，不改写历史真实模型反馈或 M352 测试记录。
+2026-10-18（Asia/Shanghai）。准备阶段实际基线 **afbe51a**，初始工作区干净；其后提交 **df6bcd2** 保存准备记录。用户随后明确批准一次 A，本次从干净的 df6bcd2 执行，唯一 HTTPS 发送尝试在 60 秒后 **LLM_TIMEOUT**，未获得 HTTP 响应、模型正文或 usage，已停止且无重试。**调用失败，教学质量/反例/真实输出审核 NOT_RUN，M3.5.3 尚未通过。** 下述第 1–7 节保留准备时的授权和测试快照，获授权后的实际结果以第 8 节为准；不把历史“未授权、零费用”沿用于本次超时。
 
 ## 1. 变更和授权边界
 
@@ -134,3 +134,89 @@
 原推荐人工 **0/40**、替代题 **0/5**、个人训练反馈 **1**、既有代码复盘质量反馈 **1 例混合结果**不变。本轮新增真实教学评价 **0**；AI 的评审不能充当本人评价，不按解释看起来合理就判质量 PASS。
 
 下一步：用户明确批准第 4 节的模型、完整源码发送、最多一次 HTTP、USD 1.10 上限及相应数据处理范围后，再完成受控 transport 本地检查并执行唯一首轮 A。失败就保留并分析证据，不追加收费请求；A 通过后停止为 615B 调 Prompt。B 材料齐备后另验真实保存/展示；再以用户下一道正常训练题按同样无答案输入和独立验证规则做泛化评估，样本不足只报告观察。
+
+## 8. 获授权后的一次 A：真实发送尝试超时（2026-10-18）
+
+### 8.1 授权、基线与发送前检查
+
+用户在本对话中明确批准：仅 Google Gemini API / `gemini-3.8-flash`，仅封存的必要题意/约束与两份脱敏完整 DFS AC/WA，空历史、无根因/评价/反例答案，最多一次真实 HTTP、无可控自动重试、输出 4096 token、token 预算 USD 1.10，任何结果均停止；**不包括 B**。禁止生产写入、其他私有文件发送、公开源码/请求正文/原始日志及后续收费调用。此许可已消耗于本次发送尝试，下一次必须重新授权。
+
+实核 HEAD **df6bcd2**、工作区干净；与 afbe51a 比较 Review/Provider/Schema 源码没有变化。两份夹具、重建 Prompt 消息、Schema 与封存请求体 SHA-256 均匹配。仅使用 `A-request.json` 的两条消息，不读取评审文件组装输入，也不发送当前 Codex 对话。Prompt 仍 **algopilot-ac-review/1.1.0**，未改写、补答案或追加用户历史。
+
+发送前重新核对上述 Google 官方价格和模型上限，保守单次 token 估算仍为 USD 1.032192 < USD 1.10。Google 官方开发者论坛的 [max_completion_tokens 说明](https://discuss.ai.google.dev/t/gemini-max-tokens/98124) 将其定义为生成 token 上限；保留已批准的 `max_completion_tokens=4096`，不切换参数或扩大预算。服务端实际输出限额是否执行因无响应无法实测，本地仅确认请求严格携带该值。
+
+### 8.2 实际参数与次数控制
+
+| 项目 | 本次实际值 |
+| --- | --- |
+| 请求 Provider / model | Google Gemini API / **gemini-3.8-flash** |
+| 响应 model | **未知**；没有响应，不能验证服务端实际模型身份 |
+| Endpoint | `https://generativelanguage.googleapis.com/v1beta/openai/chat/completions` |
+| 参数 | `max_completion_tokens=4096`、`reasoning_effort=low`、`stream=false`、strict `ac_review` JSON Schema；无 tools/service_tier/历史 |
+| Prompt / 输入 | **1.1.0**；原封存消息 SHA-256 `94daa27e03d5dbcb38b52a93e80ed15e0d5f4fb4d907a6609da3575ff3d97be1` |
+| 请求体 SHA-256 | `35a03143e59c313c920333c7adb46ef28d58820eded7ec01595c0f3655864efb`，与准备时一致 |
+| HTTPS 发送尝试 | **1**，应用可观察到的 HTTP 响应 **0**；是否到达 Provider **未知** |
+| SDK / 应用 / 代理重试 | **0**；无 SDK、无代理 agent，应用 pause 被一次性评估侧替换为拒绝；未改变生产实现 |
+| 时间（Asia/Shanghai） | 2026-10-18 **18:31:31.681 → 18:32:31.683**；Provider 记录 **60001 ms** |
+| 结果 | **FAIL：LLM_TIMEOUT**；HTTP status 未知，模型正文未收到 |
+| Token / 费用 | input/output/total **NULL**；Provider costUsd **NULL**；按 usage 估算 **NULL**；实际账单 **未知**，不能记为零 |
+
+一次性执行器 `/private/tmp/algopilot-m353-prep/run-once.cjs` 复用当前 Provider/Prompt/审核代码，没有产品或仓库代码变更。真实发送使用 Node `https.request`，`agent:false`、不配置代理、无 SDK/redirect/retry；请求失败只结算本地状态，不重新连接生成请求。独占 `A-dispatch-consumed.json` 在连接前创建，进程内计数同时拒绝第二次发送；即使超时也不删除标记或重跑执行器。
+
+执行器先以本地 200/429/503 transport 替身检查：各仅调用 1 次、第二次被阻止、429/503 不重试、200 原始文本保存与审核、禁止覆写均 PASS（真实网络 0 次）。随后执行唯一真实命令：
+
+```bash
+node /private/tmp/algopilot-m353-prep/run-once.cjs --execute-authorized-once
+```
+
+没有补充 countTokens/listModels/探测请求，没有在超时后通过其他工具重发，没有修改 Prompt 后再测。超时只证明本机观察不到成功响应，**不能据此认定模型质量差、API Key 无效、模型不存在、Google 拒绝或是哪一层网络故障**；不输出原始异常或敏感网络配置。无响应也不能证明 Provider 未处理或未产生费用。
+
+### 8.3 原始结论、全部反例与审核结果
+
+- **原始诊断结论：没有收到。** 没有替代文本，不从本地标准答案生成“模型分析”。
+- **模型提出的全部反例：无可读取内容（收到 0 个）**。这不是“模型明确表示不能构造反例”，也不能据此给反例能力打 FAIL。
+- 模型 WA 根因定位、控制流解释、正确/WA 输出、最小修复与不确定性表达全部 **NOT_RUN**。
+- 模型反例的原生独立验证 **NOT_RUN**，没有模型输入可验证；本次不重跑已知控制来冒充新模型成绩。此前有效控制和历史两个无效反例仍只属于第 6 节及 M352 证据。
+- Provider 请求完成 **FAIL**；JSON Schema 输出校验、`auditReview` 及四类拒绝原因 **NOT_RUN**，不是 `REVIEW_OUTPUT_REJECTED`，不记为审核误拒。
+- 产品 B、数据库 reserve/finish、真实保存/展示、Auth/JWT/RLS/HMAC 本次 **NOT_RUN（不在授权内）**。
+
+### 8.4 受控保存与实际回归
+
+同一 0700 私有目录 `/private/tmp/algopilot-m353-private-zKMbiu/` 中新增以下 0600 文件，均以独占创建保存：
+
+| 文件 | 内容 / 状态 |
+| --- | --- |
+| `A-dispatch-consumed.json` | 首次发送时间、最大次数、请求哈希；保留防重标记 |
+| `A-execution.json` | 脱敏参数、时间、单次尝试/失败状态与未知 usage/费用；SHA-256 `454a6348cf0439663f41cd240e1ea1807f2723e4d615ede24ae0079d4a25b11c` |
+| `A-usage.json` | 1 条 timeout 尝试，token/cost=NULL；没有伪造实际用量 |
+| `A-audit.json` | Provider FAIL、审核 NOT_RUN、无输出哈希 |
+| `A-first-output.txt` | **不存在**；没有原始模型正文可封存，不补造文件 |
+
+执行器 SHA-256 `47064a4f9798e74ac9e5af4b6284334f247892790c3f6524380a46c8c5c3782a`。本地 transport 检查报告在 `/private/tmp/algopilot-m353-prep/transport-self-test.json`。私有请求正文/源码/执行器和原始日志均不提交。可提交的脱敏结果另存 [A-execution.json](m353/A-execution.json)，其中明确区分一次发送尝试、零确认响应和未知服务端处理状态。
+
+| 本次实际检查（独立于准备阶段） | 结果 |
+| --- | --- |
+| `node /private/tmp/algopilot-m353-prep/run-once.cjs`（默认本地 self-test） | PASS；200/429/503、防重、原件不可覆写；0 次真实请求 |
+| 上述带 `--execute-authorized-once` 命令 | 1 次发送尝试，60 秒后 LLM_TIMEOUT；执行器正常封存失败，**不代表 Provider 成功** |
+| `npm run test -- tests/unit/review.test.ts tests/unit/review-reliability.test.ts tests/unit/review-api.test.ts tests/unit/gemini-provider.test.ts tests/integration/review-database.test.ts` | **41/41 PASS，5 文件**；18:31:38 本轮重新运行，非照搬准备阶段结果 |
+| Python unittest discover（同第 6 节命令） | **5/5 PASS**；离线合同，不是本次模型反例验证 |
+| 请求哈希 / 持久标记 / 私有权限检查 | PASS；只发送一次，未收到正文，0700/0600 |
+| `git diff --check` | PASS |
+| 全量 lint/typecheck/test/build/E2E/推荐专项/原生多连接 | NOT_RUN；没有仓库代码变更，没有重跑这些检查 |
+
+### 8.5 本次验收结论
+
+| 项目 | 状态 | 解释 |
+| --- | --- | --- |
+| 指定模型/输入/无历史/4096 请求参数 | PASS | 封存哈希不变；服务端模型及限额实际行为仍不可验证 |
+| 单次尝试、防重与停止纪律 | PASS | 1 次、0 重试；许可已消耗，任何下一次另授权 |
+| 本地预算保护配置 | PASS | 保守 token 估算低于 USD 1.10；实账未知，不伪报零费用 |
+| 真实 Provider 请求完成 | **FAIL** | **LLM_TIMEOUT**，无 HTTP 响应 |
+| 结构化输出 / 安全审核 | NOT_RUN | 无正文，不能称通过或误拒 |
+| WA 根因 / 全部反例 / 输出 / 修复 / 不确定性 | NOT_RUN | 没有模型结论供评审 |
+| 模型反例离线执行验证 | NOT_RUN | 没有收到可验证的反例 |
+| B 产品端到端 | NOT_RUN | 本次未获授权；此前本地材料阻塞仍保留 |
+| 本人教学评价 / 泛化评估 | NOT_RUN | 不提升任何真人计数，不计算统计准确率 |
+| M3.5.3 完整验收 | BLOCKED | 新 Prompt 没有取得可评估的真实模型输出 |
+
+已按授权停止。本次 **0 次 CF 同步、0 次生产读取/写入、0 次迁移/部署**。保持 Prompt、生产快照、推荐权重、原推荐人工 0/40、替代题 0/5 和既有真人反馈不变。下一步只能先由维护者在不触发模型请求的条件下排查网络/配置，再重新列出并取得下一次调用授权；不能把本许可自动留给“网络恢复后重试”。
