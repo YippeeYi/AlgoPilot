@@ -1,0 +1,120 @@
+{
+  "authorization": "User approved A2 only: one Google gemini-3.8-flash request, frozen AC/WA+statement, no history/gold answers, 110000ms single / 120000ms shared, low,4096,USD1.10,no retries,no B/production writes; stop after this result",
+  "executionBaseline": "0c8d44e",
+  "promptVersion": "algopilot-ac-review/1.1.0",
+  "requestModel": "gemini-3.8-flash",
+  "endpoint": "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
+  "requestBodySha256": "35a03143e59c313c920333c7adb46ef28d58820eded7ec01595c0f3655864efb",
+  "requestSchemaSha256": "63708d3749795403024ef0484fa9258bddcbc4cb0d1826e280dab9a329393418",
+  "maximumHttpRequests": 1,
+  "automaticRetries": 0,
+  "singleTimeoutMs": 110000,
+  "sharedBudgetMs": 120000,
+  "maxCompletionTokens": 4096,
+  "reasoningEffort": "low",
+  "transport": "native node:https agent:false; no SDK/proxy agent/redirect/retry; durable exclusive marker; stage metadata only",
+  "conservativeTokenCostBoundUsd": 1.032192,
+  "budgetUsd": 1.1,
+  "dispatches": 1,
+  "events": [
+    {
+      "stage": "signal_created",
+      "elapsedMs": 0.254,
+      "source": "shared_budget",
+      "budgetMs": 120000
+    },
+    {
+      "stage": "signal_created",
+      "elapsedMs": 0.507,
+      "source": "per_attempt",
+      "budgetMs": 110000
+    },
+    {
+      "stage": "dispatch",
+      "elapsedMs": 1.292
+    },
+    {
+      "stage": "socket_assigned",
+      "elapsedMs": 63.262
+    },
+    {
+      "stage": "dns_lookup",
+      "elapsedMs": 87.09,
+      "ok": true
+    },
+    {
+      "stage": "tcp_connect",
+      "elapsedMs": 91.697
+    },
+    {
+      "stage": "tls_secure_connect",
+      "elapsedMs": 1441.912
+    },
+    {
+      "stage": "request_write_finish",
+      "elapsedMs": 1446.241
+    },
+    {
+      "stage": "signal_timeout",
+      "elapsedMs": 110097.637,
+      "source": "per_attempt",
+      "budgetMs": 110000
+    },
+    {
+      "stage": "combined_signal_abort",
+      "elapsedMs": 110102.193,
+      "reason": "TimeoutError"
+    },
+    {
+      "stage": "request_error",
+      "elapsedMs": 110148.075,
+      "code": "ABORT_ERR",
+      "responseStarted": false
+    },
+    {
+      "stage": "provider_failure",
+      "elapsedMs": 110151.311,
+      "code": "LLM_TIMEOUT"
+    },
+    {
+      "stage": "evaluation_stopped",
+      "elapsedMs": 110161.97
+    }
+  ],
+  "startedAt": "2026-10-18T12:01:39.278Z",
+  "providerStatus": "FAIL",
+  "auditStatus": "NOT_RUN",
+  "rawUsage": null,
+  "providerUsage": [
+    {
+      "attempt": 1,
+      "model": "gemini-3.8-flash",
+      "inputTokens": null,
+      "outputTokens": null,
+      "totalTokens": null,
+      "durationMs": 110151,
+      "status": "timeout",
+      "costUsd": null
+    }
+  ],
+  "actualBillUsd": null,
+  "headersObserved": false,
+  "bodyBytes": 0,
+  "bodyComplete": false,
+  "dispatchedAt": "2026-10-18T12:01:39.279Z",
+  "providerErrorCode": "LLM_TIMEOUT",
+  "estimatedStandardCostUsd": null,
+  "finishedAt": "2026-10-18T12:03:29.438Z",
+  "observation": {
+    "httpsDispatchAttemptsThisAuthorization": 1,
+    "earlierAuthorizationAttempts": 1,
+    "automaticRetries": 0,
+    "headersObserved": false,
+    "requestReachedApplicationAtProvider": "UNKNOWN",
+    "responseModel": null,
+    "counterexamplesReceived": null,
+    "offlineModelCounterexampleVerification": "NOT_RUN",
+    "nextCallRequiresNewAuthorization": true,
+    "modeB": "NOT_RUN_NOT_AUTHORIZED"
+  }
+}

@@ -1,6 +1,8 @@
-# M3.5.3 真实 Provider 盲测：A 单次请求超时
+# M3.5.3 真实 Provider 盲测：两次获批 A 均超时
 
-2026-10-18（Asia/Shanghai）。准备阶段实际基线 **afbe51a**，初始工作区干净；其后提交 **df6bcd2** 保存准备记录。用户随后明确批准一次 A，本次从干净的 df6bcd2 执行，唯一 HTTPS 发送尝试在 60 秒后 **LLM_TIMEOUT**，未获得 HTTP 响应、模型正文或 usage，已停止且无重试。**调用失败，教学质量/反例/真实输出审核 NOT_RUN，M3.5.3 尚未通过。** 下述第 1–7 节保留准备时的授权和测试快照，获授权后的实际结果以第 8 节为准；不把历史“未授权、零费用”沿用于本次超时。
+2026-10-18（Asia/Shanghai）。准备阶段实际基线 **afbe51a**，初始工作区干净；其后提交 **df6bcd2** 保存准备记录。用户随后明确批准一次 A，本次从干净的 df6bcd2 执行，唯一 HTTPS 发送尝试在 60 秒后 **LLM_TIMEOUT**，未记录 HTTP 状态、模型正文或 usage，已停止且无重试。**调用失败，教学质量/反例/真实输出审核 NOT_RUN，M3.5.3 尚未通过。** 下述第 1–7 节保留准备时的授权和测试快照，获授权后的实际结果以第 8 节为准；不把历史“未授权、零费用”沿用于本次超时。
+
+最新追加：基线 **0c8d44e** 的第二次 A 已另获明确批准，**1 次新发送、0 重试**，110 秒单次计时取消（Provider 耗时 **110151 ms**）；日志确认 DNS/TCP/TLS 完成且请求写完，直到取消仍未观察到响应头、正文 0 字节。用量/实费 UNKNOWN，教学质量与输出审核 NOT_RUN。第 9 节解释旧观测边界，第 10 节记录这次 A2；两次均为各自独立授权，不是一次请求的自动重试，未执行 B 或追加第三次。
 
 ## 1. 变更和授权边界
 
@@ -336,3 +338,111 @@ Google [兼容接口](https://ai.google.dev/gemini-api/docs/openai) 展示上述
 | 真实 Provider/账单私有页面、生产 DB、全量 lint/typecheck/test/build/E2E/推荐回归 | NOT_RUN；未新增调用，只有文档补充，不把前轮数量复用为本轮成绩 |
 
 单次应用定时取消归因 **PASS**；原一次授权未超出 **PASS（本地证据范围）**；网络/上游阶段深层原因 **UNKNOWN**；原单次实费 **UNKNOWN**；真实教学质量 **NOT_RUN**。不修改历史模型结论、人工评审计数或生产门槛。只提交本报告追加结果；本轮不实施候选配置、不重放旧真实请求。
+
+## 10. 第二次受控 A（A2）：110 秒等待响应头后取消
+
+### 10.1 新授权、基线与预检
+
+2026-10-18，本轮实核 HEAD **0c8d44e**，初始工作区干净。用户另行明确批准一次 A2：Google **gemini-3.8-flash**，仅此前脱敏的完整 DFS AC/WA 与必要题意，空历史、无根因/人工评语/已知反例答案；最多 **1 次真实 HTTP、0 重试**，单次 **110000 ms**、共享 **120000 ms**，low、4096、原 strict Schema、新增 token 费用上限 **USD 1.10**。不包含 B、生产数据/Prompt/算法/部署变更；失败或任何结果后停止。此许可已消耗，不能自动追加第三次。
+
+执行前两份源码哈希、当前 Prompt **algopilot-ac-review/1.1.0** 重建消息、完整请求体和 Schema 均与原封存相符：请求体 SHA-256 **35a03143e59c313c920333c7adb46ef28d58820eded7ec01595c0f3655864efb**，Schema SHA-256 **63708d3749795403024ef0484fa9258bddcbc4cb0d1826e280dab9a329393418**。没有把本报告、旧诊断/输出/控制反例或 Codex 对话加入请求。仅在隔离评估对象及构造器显式覆盖 timeout=110000；**.env、生产默认60000及应用实现均未改**。
+
+已重新读取 Google 官方 [价格](https://ai.google.dev/gemini-api/docs/pricing) 与 [模型规格](https://ai.google.dev/gemini-api/docs/models/gemini-3.8-flash)，当前 Standard 输入/输出（含 thinking）仍为 USD 0.75/3.75 每百万 Token，模型输入/输出上限 1048576/65536。单次完整模型上限估算 USD **1.032192 < 1.10**，检查通过后才允许连接；这不是实际账单。请求输出仍明确为4096，没有借保守估算扩大输出预算或启用工具。
+
+### 10.2 单次执行与脱敏阶段记录
+
+本地一次性评估脚本为 `/private/tmp/algopilot-m353-prep/run-A2-once.cjs`；不是产品新功能，未提交源码或安装基础设施。复用原 Provider/Prompt/审核，原封存 body 字节不变。单独私有目录和独占 `A2-dispatch-consumed.json` 在连接前创建，进程内第二次 transport 调用也被拒绝；旧 A 防重标记/原件保留。原生 Node HTTPS 无 SDK、代理 agent、重定向或可控自动重试，429/503 的 pause 注入为拒绝。
+
+阶段跟踪仅包裹现有 AbortSignal API 并返回原生 signal：记录创建/取消来源与时间，不改变 timeout/any 语义。共享120000、单次110000均实际创建，没有外部取消信号或路由 deadline。日志仅含白名单事件名、数值时间/字节/状态和限定错误码；不保存头字段、IP/代理地址、凭据、请求正文、raw SDK 错误或内部 reasoning 到阶段日志。
+
+唯一真实命令（已经执行，**不能重跑**）：
+
+```bash
+node /private/tmp/algopilot-m353-prep/run-A2-once.cjs --execute-authorized-A2-once
+```
+
+| 参数/结果 | 实际记录 |
+| --- | --- |
+| 请求 endpoint/model | `https://generativelanguage.googleapis.com/v1beta/openai/chat/completions` / **gemini-3.8-flash** |
+| 参数 | `max_completion_tokens=4096`、`reasoning_effort=low`、`stream=false`、原 strict `ac_review` JSON Schema、history=[] |
+| 响应 model/HTTP status | **未知**；没有观察到 response headers，不能验证服务端模型身份或认证/Schema 接受情况 |
+| 本轮发送/重试 | **1 次发送尝试、0 次重试**；此前另一次授权为1次，两次各有独立标记；本轮没有第三次 |
+| 时间（UTC） | **2026-10-18 12:01:39.278 → 12:03:29.438** |
+| 时间（Asia/Shanghai） | **20:01:39.278 → 20:03:29.438** |
+| Provider 尝试耗时 | **110151 ms**；外层封存区间约110160 ms |
+| 退出 | **FAIL：LLM_TIMEOUT**，Node 白名单错误 **ABORT_ERR** |
+| 收到 headers/body | **headersObserved=false，bodyBytes=0，bodyComplete=false** |
+
+事件相对本次评估阶段起点的时间如下（完整脱敏事件见 [A2-execution.json](m353/A2-execution.json)）：
+
+| 事件 | 毫秒 | 含义 |
+| --- | --- | --- |
+| shared signal 创建 | 0.254 | 120000 ms，共享预算 |
+| per-attempt signal 创建 | 0.507 | 110000 ms，单次预算 |
+| dispatch | 1.292 | 消耗本轮唯一发送许可 |
+| socket assigned | 63.262 | 已分配连接对象 |
+| DNS lookup | 87.090 | 成功，不记录解析地址 |
+| TCP connect | 91.697 | TCP 连接事件已观察 |
+| TLS secureConnect | 1441.912 | TLS 连接事件已观察 |
+| request write finish | 1446.241 | 本地请求写完；**不等于 Google 已接受/生成** |
+| per-attempt timeout | 110097.637 | 明确由110000单次信号触发；共享信号未到期 |
+| combined abort | 110102.193 | reason=TimeoutError |
+| request error | 110148.075 | code=ABORT_ERR，responseStarted=false |
+| Provider failure | 110151.311 | LLM_TIMEOUT |
+
+110000 是定时取消配置，事件在约110097.6 ms被记录、异常传播/封存继续产生少量开销；不是扩大授权超时、第二次尝试或120秒共享预算先触发。JavaScript timer 不提供硬实时进程终止保证，本次记录的实际退出耗时如上，不伪报恰好110000。
+
+**本次能确定：连接建立与请求写入已完成，直到应用单次信号取消仍未观察到响应头。** 与第一次仅能说“没有完整响应”的日志缺口不同，A2 的 header 事件在回调开始立即记录。该证据将本次等待定位到 TLS/本地写完之后、响应头之前，不能进一步区分上游排队/处理、模型推理、网络返回路径或其他中间层，也不能证明 Google 没有收到或收费。没有收到官方错误状态，不能认定是401、Schema拒绝或模型不存在。
+
+### 10.3 用量、模型质量与验证边界
+
+原始诊断 **未收到**，不存在 `A2-first-output.txt`，没有用 Mock/评审答案补造模型结论。
+
+- **Token**：input、completion、total 全为 **NULL**；1条本轮 usage 尝试标记 timeout。
+- **费用**：Provider costUsd、按 usage 估算及可核实实账均 **NULL/UNKNOWN**；不把超时记为免费。USD1.032192只是发送前保守估算；本轮没有访问账单接口或用其他调用造对照，官方核对步骤仍见9.5。第一次与第二次的真实账单都未核实。
+- **WA根因/控制流/修复/不确定性**：全部 **NOT_RUN**，不是教学 FAIL。
+- **模型提出的全部反例**：未收到任何内容，收到数量 **0**；不是“模型回答说无法构造”。没有模型输入可交给原生 verifier，故本轮模型反例/输出值的独立执行核验 **NOT_RUN**。不再运行旧控制来冒充新模型成绩。
+- **结构化输出及安全审核**：**NOT_RUN**，因为没有完成 Provider 响应；不是 REVIEW_OUTPUT_REJECTED，不判误拒。
+- **B、生产持久化/展示、真实JWT/RLS/HMAC链路及本人教学评价**：本轮 **NOT_RUN**。没有读取/改写Supabase、旧快照、推荐或画像。
+
+本轮未修改 Prompt 后追加测试；结果封存后已停止。对同题两次传输失败不能计算模型准确率、反例有效率或教学收益，人工推荐0/40、替代题0/5及既有真人反馈保持不变。
+
+### 10.4 私有原件、脱敏交付与本轮检查
+
+私有目录 **`/private/tmp/algopilot-m353-A2-authorized-0c8d44e/`** 为0700，其文件均0600：`A2-request.json`/`A2-local-review-input.json`（仅本地，含私有源码）、`A2-dispatch-consumed.json`、`A2-stages.ndjson`、`A2-execution.json`、`A2-usage.json`、`A2-audit.json`。阶段日志与账本只有脱敏字段；没有原始模型正文可保存。原A目录及两份源码保持不变，私有材料不进仓库。
+
+| 原件 | SHA-256 |
+| --- | --- |
+| 私有 A2-execution.json | `3249f09784dad6abd921bc636fe6171cdef35c82b3e5708a8b673ae456a1ec71` |
+| 私有 A2-stages.ndjson | `e2aed6f763595539b26bfcaa45ab01620c462aa3cfe5018f46c8501f188730e7` |
+| 私有 run-A2-once.cjs | `c4deb53a3244b92fa5eaa20aa88049ae67962e999a6cd38b6ff26abb251bed36` |
+
+仓库只新增脱敏 [A2-execution.json](m353/A2-execution.json) 和本报告追加内容；提交版本没有私有源码、完整模型请求正文或未脱敏日志。临时目录可能被系统清理，应在需要复核时保留本机受控原件，不能重新执行已消耗请求来补证据。
+
+| 本轮实际执行 | 结果 |
+| --- | --- |
+| HEAD/status、当前Prompt/源码/Schema/封存请求哈希复核 | PASS；0c8d44e、初始干净，body与第一次封存逐字节相同 |
+| `node /private/tmp/algopilot-m353-prep/run-A2-once.cjs` 默认本地检查 | 初次失败：本地测试清理目录后，迟到的timer回调仍写日志；仅修正临时评估脚本的事件记录关闭保护。修正后 **5场景PASS**（200/429/503/headers后部分正文超时/连接错误），执行真实入口前又全部重验，**真实网络0次** |
+| 本地单次保护、原件禁止覆写、signal来源及header立即记录 | PASS；每场景1次假transport，重复发送被阻止；原生signal返回语义不变 |
+| 上述带 `--execute-authorized-A2-once` 命令 | **1次真实发送尝试，0重试；110151ms后LLM_TIMEOUT**；进程正常封存失败不算Provider成功 |
+| `npm run test -- tests/unit/gemini-provider.test.ts tests/unit/m2-tutor.test.ts tests/unit/review.test.ts tests/unit/review-reliability.test.ts` | **56/56 PASS，4文件**；20:01:49本轮重新运行，均本地替身 |
+| `PYTHONPYCACHEPREFIX=/private/tmp/algopilot-m353-prep/pycache python3 -m unittest discover -s tests/offline -p 'test_m352*.py'` | **5/5 PASS**；离线合同，不是模型反例执行 |
+| 新/旧防重标记、旧账本不变、私有权限、事件字段白名单及输出缺失检查 | PASS；只保留脱敏原语字段，旧A证据哈希不变 |
+| `git diff --check` | PASS |
+| 全量lint/typecheck/test/build/E2E/推荐专项/原生模型反例验证 | **NOT_RUN**；仓库无业务/工具代码变更，未把历史通过数量当新结果；没有模型反例可执行 |
+
+### 10.5 本轮验收状态与停止
+
+| 项目 | 状态 |
+| --- | --- |
+| 指定模型请求参数、冻结输入/Schema与无历史 | PASS（服务端模型身份未验证） |
+| 110000单次 / 120000共享配置、脱敏阶段观测 | PASS |
+| USD1.10发送前保守Token预算边界 | PASS（实际费用UNKNOWN） |
+| 单次发送、零重试、防重标记、停止纪律 | PASS |
+| 真实Provider请求完成 | **FAIL：LLM_TIMEOUT** |
+| 本轮连接建立/等待响应头阶段归因 | PASS；深层上游原因UNKNOWN |
+| 新Prompt模型教学质量、WA诊断、全部反例及输出验证 | **NOT_RUN** |
+| 结构化输出/真实安全审核/产品B | **NOT_RUN** |
+| M3.5.3完整验收 | **BLOCKED** |
+
+授权已用完，**不自动第三次调用，也不再单纯增加timeout重试**。后续先由维护者按9.5只读核对正确Google项目的Usage/Billing及项目状态；如要进一步传输探测或换评估方式，必须另列发送范围、次数、参数与费用并获新授权。不能把本次连接成功或超时包装成模型教学质量通过/失败。
