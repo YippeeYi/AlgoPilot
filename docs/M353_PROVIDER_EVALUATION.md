@@ -220,3 +220,119 @@ node /private/tmp/algopilot-m353-prep/run-once.cjs --execute-authorized-once
 | M3.5.3 完整验收 | BLOCKED | 新 Prompt 没有取得可评估的真实模型输出 |
 
 已按授权停止。本次 **0 次 CF 同步、0 次生产读取/写入、0 次迁移/部署**。保持 Prompt、生产快照、推荐权重、原推荐人工 0/40、替代题 0/5 和既有真人反馈不变。下一步只能先由维护者在不触发模型请求的条件下排查网络/配置，再重新列出并取得下一次调用授权；不能把本许可自动留给“网络恢复后重试”。
+
+## 9. ac79946 后的只读超时归因（2026-10-18）
+
+### 9.1 范围与核心结论
+
+本轮实际基线 **ac79946**、初始工作区干净。仅检查已有源码、一次性执行器、原请求的脱敏参数/哈希/日志、本地白名单配置和 Google/Node 官方公开文档，运行注入替身的本地合同检查，再追加本节。**新增真实 Provider 请求 0、生产读写 0、CF 同步 0、迁移/部署 0**；未运行真实执行器、未删除防重标记、未修改业务代码/Prompt/配置/输出预算或原始证据。公开文档浏览不携带源码或凭据。
+
+**能够定位的直接原因：AlgoPilot Provider 的单次尝试 60000 ms AbortSignal 已触发，应用据此主动取消并归类 LLM_TIMEOUT。不能定位的深层原因：为什么该次请求未在 60 秒内完成，究竟等待在连接、上游处理还是响应体传输阶段。** 这不是 Google 返回的模型生成超时码，更不是模型教学质量 FAIL。
+
+上节“没有 HTTP 响应 / confirmedHttpResponses=0”的表述需要收窄：**执行器只在整个响应体读完、wire Promise resolve 后才把 status 写入 ledger**。所以现有证据是“未取得完整响应、未记录 HTTP status/正文/usage”，不能排除已收到 headers 或部分 body。原账本保持不可变，本节纠正其观测含义，不补造响应阶段数据。
+
+### 9.2 超时配置、信号与实际执行路径
+
+| 层级 | 代码/实际值 | 归因 |
+| --- | --- | --- |
+| 本地 `LLM_TIMEOUT_MS` | 本轮当前环境**未显式设置**；`readTutorConfig` 对 gemini 默认 **60000**，通用默认 45000；配置校验范围 1000..120000 | 当前结果与原 manifest 一致；只能读取当前值，不把它当完整历史环境快照 |
+| 原执行器构造参数 | `new OpenAICompatibleProvider(config, transport, 60000, noRetry)` | **显式第三参数锁定 60 秒**；原执行前还断言 config.timeoutMs=60000。仅改 `.env` 会先遇到旧断言，且不会自动改变第三参数，不是可直接重试的方案 |
+| 单次尝试 | `provider.ts:193` 的 `AbortSignal.timeout(this.timeoutMs)`，与 lifetime 经 `AbortSignal.any` 合成，并传给 HTTPS | 60 秒从尝试开始计，包括连接、发送、等待上游及读完整正文，不是只计算模型生成 |
+| 共享网络预算 | `min(120000, (deadlineAt ?? Infinity) - now - 50000)` | A 未传 deadlineAt，实际为 **120000 ms**，不是 60000；包含尝试和可能 backoff |
+| 外部取消 | A 的 `complete(messages, undefined, {action,allowedLevel,outputKind})` | 没有用户/浏览器 `request.signal`，没有外部 AbortController 参与真实调用 |
+| 路由 | Review route `maxDuration=180`，入口 `deadlineAt=now+150000`，向 `runReview` 传 request.signal | **A 没经过路由/Orchestrator/DB**，本次 60 秒不是路由 deadline，也不是数据库租约超时 |
+| 产品路径预算（仅静态核对） | 若走路由，抵达 Provider 时入口已耗 t 秒，则共享预算至多 `100秒−t`；还预留 50 秒结算 | 将 HTTP timeout 提至 120 秒也不会得到完整 120 秒网络窗口；180 秒 route 配置不是模型可用时长保证 |
+| 数据库 lease | 005 的 Review 请求 lease 默认 180 秒 | 本次没有 reserve/finish，不参与 A 取消；未访问托管数据库 |
+| 实际耗时 | 18:31:31.681 → 18:32:31.683；usage.durationMs **60001** | 外层 60002 ms 与尝试 60001 ms 的差异来自记录位置，不是第二次尝试 |
+
+源码证据：[单次/共享信号与错误分类](../src/server/tutor/provider.ts)、[配置默认](../src/server/tutor/config.ts)、[产品路由](../src/app/api/v1/reviews/%5Bid%5D/generate/route.ts)。Node 的 [AbortSignal 文档](https://nodejs.org/docs/latest-v24.x/api/globals.html#static-method-abortsignaltimeoutdelay) 说明 timeout 到期产生 abort，any 由最先取消的信号触发。当前 Node 为 v24.19.0；引用的是同一 v24 系列官方说明，不冒充历史信号事件日志。
+
+`LLM_TIMEOUT` 的 catch 分支仅在 `combined.aborted` 时产生；本次未传外部 signal，120 秒共享预算在 60001 ms 尚未到期，唯一已到期的配置信号是 60 秒单次计时器。因此**应用计时器已到期并主导取消/分类可确定**。执行器把 Node request/response 的原始 error 改成固定错误，未记 abort.reason 或原始 error.code，无法追溯同一瞬间是否还发生连接异常；不能声称捕获到了原始 Node ABORT_ERR。
+
+| 候选解释 | 当前证据等级 |
+| --- | --- |
+| 应用 60 秒定时取消 | **已定位**：信号组合、调用参数和 60001 ms 记录一致 |
+| 人工/浏览器主动取消 | 本次调用路径可排除；无外部 signal，不走浏览器路由 |
+| DNS/TCP/TLS/连接或正文传输慢 | **假设**；没有 lookup/connect/secureConnect/headers/first-byte/end 时间或字节统计 |
+| 上游返回 400/401/429/503/504 | **UNKNOWN**；没有已记录 status；也不能由缺失 status 推断没有返回 headers |
+| Google 模型生成超过 60 秒 | **假设**；没有确认进入生成、服务端耗时/请求 ID 或任何正文 |
+| 上游返回截断/Schema 拒绝 | **UNKNOWN**；没有完整响应可判定，不能解释为已发生的 REVIEW_OUTPUT_REJECTED |
+
+### 9.3 日志缺口及配置契约检查
+
+原一次性 transport 的 `oneRequest` 在收到 headers 时建立 body 收集器，只在 `response.end` 时 resolve；`controlledTransport` 随后才记录 status。这与常规 fetch 在 headers 阶段先返回 Response 的观察点不同。没有记录远端请求 ID、连接阶段、响应头到达或部分字节，也没有向浏览器展示部分文本。因此本次无法从现有日志判定 Google 是否已经接受请求、生成或收费。
+
+本轮用**内存 EventEmitter 假 HTTPS**注入原函数，不创建 socket：模拟 HTTP 200 headers 和 11 字节部分 body 后取消，成功复现 status 仍不落入 ledger。此实验 PASS，只证明观测缺口，**不证明真实那次收到了 headers**。既有 runner/请求/原账本 SHA-256 均未变，分别为 `47064a4f9798e74ac9e5af4b6284334f247892790c3f6524380a46c8c5c3782a`、`35a03143e59c313c920333c7adb46ef28d58820eded7ec01595c0f3655864efb`、`454a6348cf0439663f41cd240e1ea1807f2723e4d615ede24ae0079d4a25b11c`。
+
+当前只输出白名单配置，未输出或校验凭据正文：Google 官方 `/v1beta/openai/chat/completions`、`gemini-3.8-flash`、`apiProfile=gemini`、24000 输入字符、`max_completion_tokens=4096`、`reasoning_effort=low`、strict `json_schema`、`stream=false`、60000 ms。**配置解析通过不等于认证/服务调用通过**；本轮没有调用模型列表、countTokens、生成、凭据检查或网络探测接口。当前进程仅检测代理环境变量“是否存在”，结果为 false、NODE_USE_ENV_PROXY 未启用；不输出地址，不据此还原历史系统代理/VPN 或断言网络可达。
+
+Google [兼容接口](https://ai.google.dev/gemini-api/docs/openai) 展示上述端点、模型、Bearer 接口及 low 思考配置，支持 JSON Schema 输出；[模型规格](https://ai.google.dev/gemini-api/docs/models/gemini-3.8-flash) 列明结构化输出及 low/medium/high。当前配置方向符合公开契约，真实接受情况仍 UNKNOWN。max_completion_tokens 的依据保留第 8.1 节官方论坛说明；公开兼容页未逐一列出该字段，不能把论坛回答或本地 HTTP 替身当作服务端实证。
+
+以下均为**潜在冲突/待验证项，不是本次超时根因结论**：
+
+- 原封存 Schema 有 **12 个必填顶层字段**，包含对象/数组/数值边界及字符串长度约束。Google [结构化输出文档](https://ai.google.dev/gemini-api/docs/structured-output) 只承诺 JSON Schema 子集；当前公布属性列表未逐项覆盖本请求的 `$schema`、`minLength/maxLength`、`exclusiveMinimum`。可能忽略、兼容或拒绝，现有材料无法判定；本地 Zod 审核仍必须保留，不因不确定而删校验。
+- 按 Google [thinking 文档](https://ai.google.dev/gemini-api/docs/generate-content/thinking.md)，生成预算包含思考 Token；low 并不等于关闭思考或保证某个耗时。若兼容字段按该总量映射，4096 不保证全用于可见 JSON。算法诊断、两份代码分析、反例和 12 字段输出可能争用预算，导致空白/截断；**没有 usage 或 finish_reason，不能认定本次耗尽了 4096**。
+- JSON Schema 约束不自动扩大 Token 或时间，也不证明算法结论正确。请求最小结构可很短，4096 与 Schema 并非已证明的逻辑矛盾；额外生成/校验耗时是否显著尚未知。
+- `stream=false` 加当前 transport 整体缓冲，首段内容不会成为持久日志。若服务器很慢，客户端可先在 60 秒取消，服务端仍可能已处理并计费。即使延长客户端时间，也不能保证完成。
+- Provider 在完整响应后才检查 finish_reason、总生成 Token 和 envelope；命中长度/截断通常是 `LLM_INVALID_RESPONSE`，分析审核拒绝才是 `REVIEW_OUTPUT_REJECTED`。本次均未走到，不能混作模型或审核失败。
+
+### 9.4 重试与授权审计
+
+生产 `OpenAICompatibleProvider` 上限为两次尝试，**仅首次 HTTP 429/503 会等待 350 ms 再试**，共用同一 lifetime；连接异常/超时直接抛出，不自动重试。真实 A 给 pause 注入立即 throw 的 `noRetry`，另以进程计数和独占磁盘标记封死第二次 transport 调用；HTTPS 无 SDK/代理 agent/重定向重试。
+
+原持久标记仍存在，已有 usage 仅 **attempt=1**，账本 dispatches=1、automaticRetries=0，没有第二份模型输出或记录。执行器在任一结果后退出，本轮没有运行它。**本地可审计边界内仍为 1 次发送尝试、0 次重试，没有突破原一次许可。** 无法由这些记录审计外部网络基础设施或推断 Google 内部执行次数；不把一个 marker 当作服务端收讫凭证。
+
+### 9.5 用量及官方账单能核到什么
+
+已读取本地 `A-execution.json`、`A-usage.json`、`A-audit.json`：input/output/total、costUsd、按 usage 估算和实际账单均 NULL，无原始输出。A 未接数据库，**不会有该次 review_reserve/review_finish 的生产 usage 行**；不能去生产拼接一条记录，不能把其他历史 Review 用量当本次费用。本轮新增 Provider 费用为 0（没有新请求），**原单次超时费用仍 UNKNOWN**。
+
+官方 [账单指南](https://ai.google.dev/gemini-api/docs/billing.md) 提供 AI Studio 的 Dashboard > Usage、Billing/Spend 及 Cloud Billing Reports。可以核对，但本轮没有取得该密钥所属 Google 项目的真实账单页面或导出，也没有用 API Key 反查项目/读取账单 API；Supabase 项目 ID 不能代替 Google 项目。**实际账单核验 NOT_RUN，费用继续 UNKNOWN。** 不要求提供密码、Token 或密钥。
+
+最短只读核对步骤（由账户持有人在已登录的官方界面操作）：
+
+1. 在 AI Studio 的 Projects/API Keys 中确认本地已配置密钥对应的 Google 项目，仅本人比对，不复制/发送密钥；确认账户层级。不要更换密钥、充值、升级或提交测试 Prompt。
+2. 在该项目 Usage 中按 `gemini-3.8-flash` 和 **2026-10-18 10:31:31.681–10:32:31.683 UTC**（北京时间 18:31–18:32，按界面时区换算）查看请求/Token 是否有记录；若只支持更粗时间粒度，保留覆盖窗口和其他并发活动说明。
+3. 在 AI Studio Billing/Spend，或 Cloud Billing Reports 按项目、Gemini API 服务及 SKU/使用日期查看用量与费用，区分余额、预付扣款、税费、优惠和模型使用费用。Google 说明部分费用图可能延迟至 24 小时；不因当下显示 0 就认定没收费。
+4. 若只有按日/模型聚合且同窗还有其他调用，无远端 request ID 就不能可靠拆出本次费用；如实记“聚合额可核，单次仍 UNKNOWN”。不为造对照再次调用模型，不新建计费导出或其他付费资源。
+
+### 9.6 候选方案：本轮均未实施
+
+| 候选 | 收益 | 风险与费用影响 |
+| --- | --- | --- |
+| **先增加只含元数据的阶段观测，再做一次 A，timeout 110 秒、4096 不变（建议）** | 能分辨连接/headers/body/取消来源；只改变时间窗口，保留 Prompt/源码/输出条件便于对照 | 可能仍是网络问题；等待更久可能让更多生成完成并收费，60 秒取消不等于省掉已生成用量。保持单次/相同输出上限不直接提高配置 Token 上限；实费仍以记录/账单为准 |
+| timeout 90 秒、4096 不变 | 更保守的等待，保持输出条件；若将来另验产品路径更接近其约 100 秒共享窗口 | 对超 90 秒上游无帮助，费用未知；产品仍需扣 Auth/DB 前置耗时，不能保证可用 90 秒 |
+| 输出改 2048、timeout 不变 | 若成功限制生成，可能降低最大生成费用和耗时 | 更易让 thinking 挤掉正文、JSON 截断或缺失反例；可能付费但没有可审核答案，不能把失败率变化当质量下降 |
+| 输出改 8000、timeout 110 秒 | 给 thinking/完整结构化回答更大空间；8000 是现有配置校验上限 | 不是已证明必要；请求输出额度接近翻倍，按当前 USD 3.75/百万的单价，输出部分上限从 USD 0.01536 到 USD 0.03000（不含输入）。还可能更慢；须另获预算/参数批准，不能同时悄然改多项 |
+| 换成流式或原生 Gemini API 的隔离评估 | 更早观察首段，原生计数语义更直接 | 需要另一套受控读取/封存方案，改变请求契约、评估可比性与重试风险；流式内容仍须完整审核后展示，不能绕过安全校验；本轮不开发 |
+| 先做小输出/无源码连通性生成 | 可独立检查传输/认证 | 仍是**新的真实模型请求**，不能当“免费诊断”绕过次数/费用许可；不纳入下面一次 A 提案 |
+
+更安全的阶段观测仅记录数值耗时/布尔事件/白名单状态：lookup、TCP connect、TLS secureConnect、请求写完、headers(status)、首字节、body 字节数/end、哪一个 signal 取消以及限定 error.code。不得记录请求/响应头、IP、代理地址、源码、原始 SDK 错误或内部 reasoning。请求写完也不证明上游已接受。**本轮仅提出此方案，未修改原执行器或产品。**
+
+### 9.7 下一轮待重新批准的精确方案
+
+这是一份提案，**本轮不请求也不执行新的调用**；旧许可已经消耗，不自动续用。若之后用户批准，执行前还须封存新配置/时间观察方案并以纯内存替身检查；如公开价格变化导致超预算则停止，不能自动提价。
+
+| 需要重新批准的项目 | 建议范围 |
+| --- | --- |
+| Provider / 模型 | **Google Gemini API / gemini-3.8-flash**，同官方兼容 endpoint |
+| 源码/数据发送 | **仅原两份固定哈希的完整 DFS AC/WA + 原必要题意/约束 + 未改 Prompt 1.1.0/中立任务**；不含其他私有文件、评审答案、历史输出或对话 |
+| 上下文 / 次数 | 新无历史上下文；**最多 1 次真实生成 HTTP，0 SDK/代理/应用可控重试**；无 countTokens、listModels、连通性生成或 B |
+| 时间 | **单次 110000 ms**，明确覆盖评估构造器的旧 60000；独立 A 无路由 deadline，Provider 共享预算 **120000 ms 不变**；不修改生产环境。不得用仅改 env 后仍硬编码 60 秒的旧执行器运行 |
+| 输出 | **max_completion_tokens=4096、reasoning_effort=low、stream=false、原 strict JSON Schema**；不扩大输出、不改 Prompt |
+| 费用上限 | **USD 1.10 模型 Token 费用**；以当前官方 Standard 0.75/3.75 美元每百万输入/输出的价格，按完整模型上限保守估算 USD 1.032192；含税账单/汇率不在 Token 估算内，实际仍须核账 |
+| 证据与停止 | 使用新的防重标记和隔离目录，保留旧标记/原件；增加上述安全阶段事件及 signal 来源，首轮原文封存后才审核/执行反例；任意成功/失败/超时后停止，下一次重新批准 |
+
+110 秒小于独立 A 的 120 秒共享预算；**不适用于直接照搬到产品 B 路由**，B 未获授权。若要 8000 输出、不同模型/endpoint、不同传输或额外连通性请求，必须重新列明内容、次数、超时和费用，不能归入这次提案的默认动作。8192 则超过当前配置允许的 8000，本轮不提出通过修改校验上限来放行。
+
+### 9.8 本轮实际检查与结论
+
+| 实际执行 | 结果 |
+| --- | --- |
+| HEAD/status、执行器/请求/原账本 SHA-256、信号/路由/lease 静态读取 | PASS；ac79946、初始干净，旧证据哈希未变 |
+| 白名单配置读取（只调用本地 readTutorConfig） | PASS；未显式 LLM_TIMEOUT_MS、Gemini 默认60000；未输出凭据，无网络 |
+| `npm run test -- tests/unit/gemini-provider.test.ts tests/unit/m2-tutor.test.ts` | **44/44 PASS，2 文件**；18:39:20 本轮重跑，所有请求均注入本地 fetch 替身 |
+| 内存假 HTTPS headers/部分 body 后取消实验 | PASS；0 socket/0 网络，复现未记录 status 的观测缺口 |
+| `git diff --check` | PASS |
+| 真实 Provider/账单私有页面、生产 DB、全量 lint/typecheck/test/build/E2E/推荐回归 | NOT_RUN；未新增调用，只有文档补充，不把前轮数量复用为本轮成绩 |
+
+单次应用定时取消归因 **PASS**；原一次授权未超出 **PASS（本地证据范围）**；网络/上游阶段深层原因 **UNKNOWN**；原单次实费 **UNKNOWN**；真实教学质量 **NOT_RUN**。不修改历史模型结论、人工评审计数或生产门槛。只提交本报告追加结果；本轮不实施候选配置、不重放旧真实请求。
