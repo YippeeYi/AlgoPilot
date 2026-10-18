@@ -1,0 +1,61 @@
+{
+  "baseline": "afbe51a",
+  "promptVersion": "algopilot-ac-review/1.1.0",
+  "preparedAt": "2026-10-18T10:07:47.281Z",
+  "privateDirectory": "/private/tmp/algopilot-m353-private-zKMbiu",
+  "configuration": {
+    "provider": "openai-compatible",
+    "model": "gemini-3.8-flash",
+    "endpoint": "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
+    "apiProfile": "gemini",
+    "maxInputChars": 24000,
+    "maxOutputTokens": 4096,
+    "tokenParameter": "max_completion_tokens",
+    "reasoningEffort": "low",
+    "responseFormat": "json_schema",
+    "timeoutMs": 60000,
+    "configuredPrices": null
+  },
+  "sources": {
+    "ac": "28c1536662ec4497cc94afe96b3888a5a6ff240f76eb1b380a523dbf9530a91b",
+    "wa": "b66ccdbe1e2804e6013eba55ba801d90398876dd5f3c31c3a373108b02aced63"
+  },
+  "input": {
+    "messageCount": 2,
+    "historyCount": 0,
+    "characters": 4020,
+    "questionCharacters": 1183,
+    "statementSha256": "da711963c2bd6c8c851e373128f213bcf0418a0c1b84f838004e84f28e1a36a6",
+    "messagesSha256": "94daa27e03d5dbcb38b52a93e80ed15e0d5f4fb4d907a6609da3575ff3d97be1",
+    "requestBodySha256": "35a03143e59c313c920333c7adb46ef28d58820eded7ec01595c0f3655864efb",
+    "requestSchemaSha256": "63708d3749795403024ef0484fa9258bddcbc4cb0d1826e280dab9a329393418",
+    "fixtureNewlineCountAC": 53
+  },
+  "checks": {
+    "reuseCurrentPrompt": true,
+    "reuseCurrentProviderBody": true,
+    "questionPassesProductionSchema": true,
+    "noHistory": true,
+    "noKnownCounterexampleOrReviewerFileInInput": true,
+    "networkDisabled": true,
+    "firstHttpFailureAbort": [
+      {
+        "httpStatus": 429,
+        "localCaptureCalls": 1,
+        "code": "LLM_TIMEOUT",
+        "networkSends": 0
+      },
+      {
+        "httpStatus": 503,
+        "localCaptureCalls": 1,
+        "code": "LLM_TIMEOUT",
+        "networkSends": 0
+      }
+    ]
+  },
+  "realProviderCalls": 0,
+  "realProviderUsage": null,
+  "newProviderCostUsd": 0,
+  "modeA": "PREPARED_NOT_AUTHORIZED",
+  "modeB": "BLOCKED_actual_40_line_snapshot_not_available_locally"
+}
