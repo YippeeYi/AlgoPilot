@@ -37,6 +37,17 @@ test("AC import, explicit authorization, immutable snapshot, generate/edit/regen
     await page.getByRole("button", { name: "生成 AI 复盘", exact: true }).click();
     await expect(page.getByRole("heading", { name: "算法思路", exact: true })).toBeVisible();
     await expect(page.getByText("[MOCK] 算法总结", { exact: true })).toBeVisible();
+    // Contract failure: no real model request, prior analysis and unsent comparison survive.
+    const failedQuestion = "追问 WA 对照代码：请检查依赖完成顺序。";
+    await page.getByLabel("后续复盘问题", { exact: true }).fill(failedQuestion);
+    await page.route(`**/api/v1/reviews/${review.id}/generate`, route => route.fulfill({status:502,contentType:"application/json",body:JSON.stringify({error:{code:"REVIEW_OUTPUT_REJECTED",reason:"invalid_line_range",message:"复盘行号不属于已保存 AC 快照，未展示。"}})}));
+    await page.getByRole("button", { name: "发送复盘追问", exact: true }).click();
+    await expect(page.getByRole("alert", {name:"复盘错误"})).toContainText("可能已产生模型用量");
+    await expect(page.getByLabel("后续复盘问题", {exact:true})).toHaveValue(failedQuestion);
+    await expect(page.getByText("[MOCK] 算法总结", {exact:true})).toBeVisible();
+    expect((await (await page.request.get(`/api/v1/reviews/${review.id}`)).json()).results).toHaveLength(1);
+    await page.unroute(`**/api/v1/reviews/${review.id}/generate`);
+    await page.getByLabel("后续复盘问题", {exact:true}).fill("");
     await page.getByLabel("用户编辑复盘", { exact: true }).fill("我的复盘：边界条件值得复习。");
     await page.getByRole("button", { name: "保存用户编辑", exact: true }).click();
     await expect.poll(async () => (await (await page.request.get(`/api/v1/reviews/${review.id}`)).json()).review.notes).toBe("我的复盘：边界条件值得复习。");

@@ -1,8 +1,11 @@
+import { reviewRejectionReasonSchema, type ReviewRejectionReason } from "@/lib/validation/review";
+
 export class ClientError extends Error {
   constructor(
     public status: number,
     message: string,
     public code?: string,
+    public reason?: ReviewRejectionReason,
   ) {
     super(message);
   }
@@ -29,6 +32,7 @@ export async function requestJson<T>(
       response.status,
       value.error?.message || "请求未完成，请重试。",
       typeof value.error?.code === "string" ? value.error.code : undefined,
+      reviewRejectionReasonSchema.safeParse(value.error?.reason).success ? value.error.reason : undefined,
     );
   return value as T;
 }

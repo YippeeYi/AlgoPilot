@@ -1,0 +1,5 @@
+[
+  {"id":"invalid-counterexample-A","input":"3 2\n1 3\n2 3\n","claimedCorrect":4,"claimedWa":4,"source":"user-reported historical model counterexample"},
+  {"id":"invalid-counterexample-B","input":"4 3\n1 4\n2 3\n3 4\n","claimedCorrect":6,"claimedWa":4,"source":"user-reported historical model counterexample"},
+  {"id":"valid-user-control","input":"4 5\n1 4\n1 3\n2 3\n2 4\n3 4\n","claimedCorrect":9,"claimedWa":6,"source":"user-supplied control, not model credit"}
+]

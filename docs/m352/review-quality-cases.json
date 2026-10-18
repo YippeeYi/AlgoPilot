@@ -1,0 +1,119 @@
+{
+  "boundary": "Reviewer-only gold criteria; never send with blind Provider inputs. Deterministic contract tests do not score model quality.",
+  "promptVersion": "algopilot-ac-review/1.1.0",
+  "cases": [
+    {
+      "id": "state-definition",
+      "criterion": "DP 边数与顶点数区分",
+      "newProviderStatus": "NOT_RUN",
+      "newProviderJudgement": null
+    },
+    {
+      "id": "topological-order",
+      "criterion": "严格编号方向形成 DAG",
+      "newProviderStatus": "NOT_RUN",
+      "newProviderJudgement": null
+    },
+    {
+      "id": "complexity",
+      "criterion": "递归与迭代 O(n+m)，栈深取决于外围根顺序",
+      "newProviderStatus": "NOT_RUN",
+      "newProviderJudgement": null
+    },
+    {
+      "id": "edge-capacity",
+      "criterion": "合法上限与有向边计数，区分风险与已证实缺陷",
+      "newProviderStatus": "NOT_RUN",
+      "newProviderJudgement": null
+    },
+    {
+      "id": "directed-storage",
+      "criterion": "保留与转移匹配的方向，或明确改为前向松弛",
+      "newProviderStatus": "NOT_RUN",
+      "newProviderJudgement": null
+    },
+    {
+      "id": "numeric-types",
+      "criterion": "int 状态范围，乘前 1LL，答案需 64 位",
+      "newProviderStatus": "NOT_RUN",
+      "newProviderJudgement": null
+    },
+    {
+      "id": "unfinished-state",
+      "criterion": "未完成依赖读取与后续不可恢复",
+      "newProviderStatus": "NOT_RUN",
+      "newProviderJudgement": null
+    },
+    {
+      "id": "visit-vs-value",
+      "criterion": "vis 与合法零值 l 含义分开",
+      "newProviderStatus": "NOT_RUN",
+      "newProviderJudgement": null
+    },
+    {
+      "id": "invalid-A",
+      "criterion": "AC=4 WA=4，不触发 WA",
+      "newProviderStatus": "NOT_RUN",
+      "newProviderJudgement": null
+    },
+    {
+      "id": "invalid-B",
+      "criterion": "AC=6 WA=6，模型声称 WA=4 错误",
+      "newProviderStatus": "NOT_RUN",
+      "newProviderJudgement": null
+    },
+    {
+      "id": "valid-control",
+      "criterion": "AC=9 WA=6；仅评审者可见",
+      "newProviderStatus": "NOT_RUN",
+      "newProviderJudgement": null
+    },
+    {
+      "id": "execution-assertions",
+      "criterion": "无可信执行证据不得声称已运行",
+      "newProviderStatus": "NOT_RUN",
+      "newProviderJudgement": null
+    },
+    {
+      "id": "static-language",
+      "criterion": "合法静态/假设/否定声明不误拒",
+      "newProviderStatus": "NOT_RUN",
+      "newProviderJudgement": null
+    },
+    {
+      "id": "source-lines",
+      "criterion": "lineAnalysis 只属于原 AC 快照，追问对照定位入 answer",
+      "newProviderStatus": "NOT_RUN",
+      "newProviderJudgement": null
+    }
+  ],
+  "historicalUserAssessment": {
+    "firstReview": {
+      "state": "pass",
+      "topologicalOrder": "pass",
+      "complexity": "pass",
+      "beautyFormula": "pass",
+      "edgeCapacity": "fail",
+      "directedOptimization": "incomplete",
+      "allLongLongRequired": "fail"
+    },
+    "waFollowup": {
+      "errorDirection": "pass",
+      "counterexamples": "fail",
+      "minimalRepair": "partial",
+      "verificationLanguage": "needs_improvement"
+    },
+    "rawRejectedOutputAvailable": false
+  },
+  "metrics": {
+    "newProviderCauseAccuracy": null,
+    "newProviderProofAccuracy": null,
+    "newProviderCounterexampleValidity": null,
+    "newProviderExecutionClaimAccuracy": null,
+    "newProviderUncertaintyQuality": null,
+    "liveAuditFalseRejectionRate": null,
+    "newProviderTeachingValue": null
+  },
+  "humanRecommendationReviews": "0/40",
+  "alternativeProblemReviews": "0/5"
+}

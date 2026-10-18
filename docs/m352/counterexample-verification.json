@@ -1,0 +1,82 @@
+{
+  "boundary": "Offline user-supplied normalized complete DFS fixtures; not CF source identity, production execution or a new Provider quality run",
+  "fixtureSha256": {
+    "ac": "28c1536662ec4497cc94afe96b3888a5a6ff240f76eb1b380a523dbf9530a91b",
+    "wa": "b66ccdbe1e2804e6013eba55ba801d90398876dd5f3c31c3a373108b02aced63"
+  },
+  "providerCalls": 0,
+  "isolation": {
+    "networkDenied": true,
+    "forkDenied": true,
+    "memoryMechanism": "Parent RSS watchdog; sampled, not a hard address-space guarantee",
+    "runtimeRssMiB": 256,
+    "memoryProbeKilledAtMiB": 8,
+    "processLimit": 0,
+    "runtimeCpuSeconds": 2,
+    "wallSeconds": 3
+  },
+  "compiledMetadata": {
+    "ac": {
+      "edgeArrayElements": 400020,
+      "pathElementBytes": 8,
+      "degreeElementBytes": 8,
+      "requiredOneBasedElementsAtMaxM": 400001,
+      "capacitySufficient": true
+    },
+    "wa": {
+      "edgeArrayElements": 400020,
+      "pathElementBytes": 8,
+      "degreeElementBytes": 8,
+      "requiredOneBasedElementsAtMaxM": 400001,
+      "capacitySufficient": true
+    }
+  },
+  "cases": [
+    {
+      "id": "invalid-counterexample-A",
+      "source": "user-reported historical model counterexample",
+      "classification": "not_triggered_wa",
+      "behavior": "not_triggered_wa",
+      "claimMismatches": [],
+      "oracle": 4,
+      "ac": 4,
+      "wa": 4
+    },
+    {
+      "id": "invalid-counterexample-B",
+      "source": "user-reported historical model counterexample",
+      "classification": "model_execution_result_incorrect",
+      "behavior": "not_triggered_wa",
+      "claimMismatches": [
+        "claimed_wa"
+      ],
+      "oracle": 6,
+      "ac": 6,
+      "wa": 6
+    },
+    {
+      "id": "valid-user-control",
+      "source": "user-supplied control, not model credit",
+      "classification": "triggered_wa",
+      "behavior": "triggered_wa",
+      "claimMismatches": [],
+      "oracle": 9,
+      "ac": 9,
+      "wa": 6
+    }
+  ],
+  "edgeOrderControl": {
+    "permutations": 120,
+    "waOutputHistogram": {
+      "6": 20,
+      "9": 100
+    },
+    "acAndOracleAlways": 9
+  },
+  "exhaustiveSmallGraphs": {
+    "cases": 142,
+    "acMatchesOracle": 142,
+    "waDisagreements": 0
+  },
+  "status": "PASS"
+}

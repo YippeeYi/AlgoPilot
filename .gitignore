@@ -10,3 +10,7 @@ test-results/
 *.tsbuildinfo
 .DS_Store
 npm-debug.log*
+
+# User-supplied M3.5.2 sources: local evaluation only; not authorized for publication.
+/tests/fixtures/reviews/615b_ac_user_supplied_dfs.cpp
+/tests/fixtures/reviews/615b_wa_user_supplied.cpp

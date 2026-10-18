@@ -157,7 +157,8 @@ export function ReviewWorkspace({ initialSessionId = "", initialReviewId = "" }:
             setQuestion("");
         }
         catch (e) {
-            setError(e instanceof Error ? e.message : "复盘失败。");
+            const message = e instanceof Error ? e.message : "AI 复盘生成失败。";
+            setError(message.includes("可能已产生模型用量") ? message : `${message}可能已产生模型用量；追问草稿与原有结果保留，请检查后再决定是否重试。`);
         }
         finally {
             setBusy(false);
@@ -227,7 +228,7 @@ export function ReviewWorkspace({ initialSessionId = "", initialReviewId = "" }:
       {results.map((r, i) => <details key={r.id} open={i === 0}><summary className="cursor-pointer break-words text-sm">{i === 0 ? "最新分析" : "历史分析"} · {r.model} · {r.prompt_version} · {r.created_at}</summary>{r.question && <p className="mt-3 whitespace-pre-wrap break-words text-sm">追问：{r.question}</p>}<TutorMarkdown content={analysisMarkdown(r.analysis)}/></details>)}
       <label className="block text-sm" htmlFor="review-notes">用户编辑复盘</label><Textarea id="review-notes" value={notes} maxLength={16000} disabled={busy} className="min-h-40" onChange={e => setNotes(e.target.value)}/>
       <div className="flex flex-wrap gap-2"><Button disabled={busy} onClick={() => void save()}>保存用户编辑</Button>{results[0] && <Button variant="outline" disabled={busy} onClick={() => setNotes(analysisMarkdown(results[0]!.analysis).slice(0, 16000))}>复制最新分析到编辑区</Button>}</div>
-      <label className="block text-sm" htmlFor="review-question">后续复盘问题</label><Textarea id="review-question" value={question} maxLength={3000} disabled={busy || !configured} onChange={e => setQuestion(e.target.value)}/><Button disabled={busy || !configured || !question.trim()} onClick={() => void generate()}>发送复盘追问</Button>
+      <label className="block text-sm" htmlFor="review-question">后续复盘问题</label><p className="text-xs text-muted-foreground">可附 WA / RE / TLE 对照片段，请注明版本；数值行号分析只对应已保存的 AC 快照。AI 仅做静态推导，反例及预计输出未经执行核验。</p><Textarea id="review-question" value={question} maxLength={3000} disabled={busy || !configured} onChange={e => setQuestion(e.target.value)}/><Button disabled={busy || !configured || !question.trim()} onClick={() => void generate()}>发送复盘追问</Button>
     </CardContent></Card>}
   </div>;
 }

@@ -26,9 +26,11 @@ export const createReviewSchema = z.object({
 export const reviewRequestSchema = z.object({ requestId: idSchema, question: z.string().trim().max(3000) }).strict();
 export const reviewEditSchema = z.object({ revision: z.number().int().nonnegative().max(2147483646), notes: z.string().max(16000) }).strict();
 const text = z.string().min(1).max(2200);
+export const reviewRejectionReasonSchema = z.enum(["invalid_line_range", "unsupported_execution_claim", "invalid_schema", "unsafe_content"]);
+export type ReviewRejectionReason = z.infer<typeof reviewRejectionReasonSchema>;
 export const reviewAnalysisSchema = z.object({
     summary: text, correctness: text, assumptions: text, timeComplexity: text, spaceComplexity: text,
-    lineAnalysis: z.array(z.object({ start: z.number().int().positive(), end: z.number().int().positive(), analysis: z.string().min(1).max(1200) }).strict()).min(1).max(20),
+    lineAnalysis: z.array(z.object({ start: z.number().int().positive().describe("原始已保存 AC 快照的起始行，1-based；不得引用追问对照代码的行号"), end: z.number().int().positive().describe("同一 AC 快照的结束行，不超过快照总行数"), analysis: z.string().min(1).max(1200) }).strict()).min(1).max(20).describe("仅分析 saved_ac_snapshot；追问代码的定位放入 answer，明确来源并用函数名或片段引用"),
     risks: text, improvements: text, alternatives: z.string().max(2200), transferableKnowledge: text,
     revisionQuestions: z.array(z.string().min(1).max(400)).min(1).max(8), answer: z.string().max(2200),
 }).strict();

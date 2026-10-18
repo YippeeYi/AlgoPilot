@@ -1,11 +1,13 @@
 import "server-only";
 import { z } from "zod";
+import { reviewRejectionReasonSchema, type ReviewRejectionReason } from "@/lib/validation/review";
 
 export class ApiError extends Error {
   constructor(
     public status: number,
     public code: string,
     message: string,
+    public reason?: ReviewRejectionReason,
   ) {
     super(message);
   }
@@ -27,7 +29,8 @@ export async function handle(operation: () => Promise<Response>) {
   } catch (error) {
     if (error instanceof ApiError)
       return json(
-        { error: { code: error.code, message: error.message } },
+        { error: { code: error.code, message: error.message,
+          ...(error.code === "REVIEW_OUTPUT_REJECTED" && reviewRejectionReasonSchema.safeParse(error.reason).success ? { reason: error.reason } : {}) } },
         error.status,
       );
     if (error instanceof z.ZodError)
