@@ -13,3 +13,5 @@ M3.2 追加 `202610140007_learning_recommendations.sql`。M3.2.1 追加 `2026101
 M3.2.2 追加 `202610140009_recommendation_fit.sql`；生产应用须明确授权，先核验 007/008 实际版本/函数定义，仅执行缺失迁移。原始 009 建表 DDL 重跑原子失败，依赖迁移账本，不称任意幂等。私有例外表 RLS/无用户授权；候选 RPC 策略 training-fit/1，旧策略应用安全拒绝。见 docs/M322_RECOMMENDATION_REVIEW.md。
 
 M3.3 追加 `202610150010_cf_official_evidence.sql`：公开账号私人证据/检查点/回执，普通 JWT + CF HMAC、scope/租约/CAS/证据 revision；学习读取加入官方覆盖与预算前 AC 排除。追加替换 cf_sync，仅修正已复现的锁前时钟问题，001–009 不修改。010 原始 DDL 重跑原子拒绝，只执行缺失迁移。007–010 当前托管状态未核实，没有生产变更；生产迁移/数据修改/部署须明确授权。见 docs/M33_SETUP.md、docs/M33_VERIFICATION.md。
+
+M3.5.3 本地追加 `202610260011_review_retry_recovery.sql`，仅替换 `review_reserve`：相同请求编号的 pending 租约已过期时返回 AP006，防止核对请求永远“处理中”；客户端确认后需再次明确点击才创建新编号。已完成请求仍返回缓存，HMAC、归属、额度、租约及 ACL 保持。001–010 未改；011 可重放，应用迁移本身不执行数据 DML，函数既有写入流程保持。正式环境只应用缺失迁移，必须另列目标及变更清单取得新授权，本轮未部署。历史 M35 的目录比较固定在 001–010，不把它作为 011 的托管证明。见 [本轮验收](../../docs/M353_REVIEW_RETRY_VERIFICATION.md)。

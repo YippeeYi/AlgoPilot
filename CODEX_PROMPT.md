@@ -26,6 +26,8 @@ AC 复盘用独立 Review Orchestrator/Prompt/审核/记录，用户明确确认
 
 禁止假统计/Rating/成功集成。Mock Provider 仅测试注入，生产无假回复开关。Provider usage 缺失 NULL，超时可能有费用，不宣称账单准确。
 
+长期仅免费模型，无收费备用/自动付费回退。历史 USD 1.10 仅为已消耗许可的记录，不能授权新的付费调用；Flash/免费标签不证明所属项目免费。本轮不读真实 Key、不做真实生成或外发私人材料。后续真实请求仍须新的明确授权与项目免费资格确认；缺失时继续离线开发，不以真实调用验证是否免费。
+
 ## 必须验收
 
 运行 npm run lint、npm run typecheck、npm run test、npm run build、npm run test:e2e。先 typecheck 后 build，避免生成类型目录竞争。保留自动化测试并补充文件校验、无思路连续引导、复盘授权/快照/独立记录/刷新/编辑/追问、两用户数据库隔离、签名防伪/共享额度与租约。PGlite 真实 SQL 的 Auth 上下文仍是替身，Playwright HTTP 夹具也不是托管验收。外部 RLS 只能专用隔离库，禁止生产破坏性测试。

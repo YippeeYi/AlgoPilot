@@ -47,6 +47,11 @@ test("AC import, explicit authorization, immutable snapshot, generate/edit/regen
     await expect(page.getByText("[MOCK] 算法总结", {exact:true})).toBeVisible();
     expect((await (await page.request.get(`/api/v1/reviews/${review.id}`)).json()).results).toHaveLength(1);
     await page.unroute(`**/api/v1/reviews/${review.id}/generate`);
+    await page.route(`**/api/v1/reviews/${review.id}/generate`, route => route.fulfill({status:409,contentType:"application/json",body:JSON.stringify({error:{code:"REVIEW_REQUEST_FAILED",message:"上次请求已结束。"}})}));
+    await page.getByRole("button", { name: "重试上次生成请求", exact: true }).click();
+    await expect(page.getByRole("alert", { name: "复盘错误" })).toContainText("已确认结束");
+    await expect(page.getByRole("button", { name: "重新生成 AI 复盘", exact: true })).toBeEnabled();
+    await page.unroute(`**/api/v1/reviews/${review.id}/generate`);
     await page.getByLabel("后续复盘问题", {exact:true}).fill("");
     await page.getByLabel("用户编辑复盘", { exact: true }).fill("我的复盘：边界条件值得复习。");
     await page.getByRole("button", { name: "保存用户编辑", exact: true }).click();
@@ -81,6 +86,44 @@ test("AC import, explicit authorization, immutable snapshot, generate/edit/regen
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     expect(errors).toEqual([]);
     await page.screenshot({path:`/tmp/algopilot-m25-${testInfo.project.name}.png`,fullPage:true});
+});
+test("lost committed review response recovers the same request and retains one analysis", async ({ page }) => {
+    await login(page);
+    const session = await (await page.request.post("/api/v1/sessions", { data: { problemId: "50000000-0000-4000-8000-000000000001", requestId: randomUUID(), statementSnapshot: "合成题面：输出常量。", timerEnabled: false } })).json();
+    const saved = await (await page.request.post("/api/v1/reviews", { data: { sessionId: session.session.id, requestId: randomUUID(), code: "int main() { return 0; }", source: "paste", fileName: null, problemUrl: "", statement: "", submissionId: null, confirmation: "我确认本次为自报 AC，并授权将代码发送给配置的 AI Provider 进行完整复盘" } })).json();
+    await page.goto(`/reviews?reviewId=${saved.review.id}`);
+    await expect(page.getByRole("button", { name: "生成 AI 复盘", exact: true })).toBeEnabled();
+    await page.getByLabel("用户编辑复盘", { exact: true }).fill("尚未保存的笔记");
+    await page.getByLabel("后续复盘问题", { exact: true }).fill("请静态核对边界。");
+    const path = `**/api/v1/reviews/${saved.review.id}/generate`;
+    const requests: unknown[] = [];
+    await page.route(path, async route => {
+        requests.push(route.request().postDataJSON());
+        const committed = await route.fetch();
+        expect(committed.status()).toBe(200);
+        expect((await committed.json()).cached).toBe(false);
+        await route.abort("failed");
+    });
+    await page.getByRole("button", { name: "生成 AI 复盘", exact: true }).click();
+    const retry = page.getByRole("button", { name: "重试上次生成请求", exact: true });
+    await expect(retry).toBeEnabled();
+    await expect(page.getByLabel("后续复盘问题", { exact: true })).toHaveValue("请静态核对边界。");
+    await expect(page.getByLabel("用户编辑复盘", { exact: true })).toHaveValue("尚未保存的笔记");
+    expect((await (await page.request.get(`/api/v1/reviews/${saved.review.id}`)).json()).results).toHaveLength(1);
+    await page.unroute(path);
+    await page.route(path, async route => { requests.push(route.request().postDataJSON()); await route.continue(); });
+    const recovered = page.waitForResponse(r => r.url().endsWith(`/reviews/${saved.review.id}/generate`) && r.request().method() === "POST");
+    await retry.click();
+    const response = await recovered;
+    expect(response.status()).toBe(200); expect((await response.json()).cached).toBe(true);
+    expect(requests).toHaveLength(2); expect(requests[1]).toEqual(requests[0]);
+    await expect(page.getByText("[MOCK] 算法总结", { exact: true })).toBeVisible();
+    await expect(page.getByLabel("后续复盘问题", { exact: true })).toHaveValue("");
+    await expect(page.getByLabel("用户编辑复盘", { exact: true })).toHaveValue("尚未保存的笔记");
+    const current = await (await page.request.get(`/api/v1/reviews/${saved.review.id}`)).json();
+    expect(current.results).toHaveLength(1); expect(current.review.code_hash).toBe(saved.review.code_hash);
+    expect(current.results[0].id).toBe((requests[0] as { requestId: string }).requestId);
+    await page.unroute(path);
 });
 test("file rejection, review field whitelist, contest and no-idea L0 continuity", async ({ page }) => {
     await login(page);

@@ -8,9 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import TutorMarkdown from "@/components/practice/tutor-markdown";
-import { requestJson } from "@/lib/api-client";
+import { ClientError, requestJson } from "@/lib/api-client";
 import { readCodeFile } from "@/features/reviews/import-code";
-import { createReviewSchema, type CodeReview, type ReviewResult, type ReviewAnalysis } from "@/lib/validation/review";
+import { createReviewSchema, reviewResultSchema, type CodeReview, type ReviewResult, type ReviewAnalysis } from "@/lib/validation/review";
 import type { TrainingSession } from "@/lib/validation/m1";
 export function analysisMarkdown(a: ReviewAnalysis) {
     return `## 算法思路\n${a.summary}\n\n## 正确性证明摘要\n${a.correctness}\n\n## 未证明的假设\n${a.assumptions}\n\n## 时间复杂度\n${a.timeComplexity}\n\n## 空间复杂度\n${a.spaceComplexity}\n\n## 代码行分析\n${a.lineAnalysis.map(l => `- 第 ${l.start}–${l.end} 行：${l.analysis}`).join("\n")}\n\n## 潜在缺陷与边界\n${a.risks}\n\n## 实现改进\n${a.improvements}\n\n## 其他思路（可选）\n${a.alternatives || "未提供"}\n\n## 可迁移知识点\n${a.transferableKnowledge}\n\n## 复习问题\n${a.revisionQuestions.map(q => `- ${q}`).join("\n")}\n\n${a.answer ? `## 追问回答\n${a.answer}` : ""}`;
@@ -38,6 +38,13 @@ export function ReviewWorkspace({ initialSessionId = "", initialReviewId = "" }:
     const [confirmed, setConfirmed] = useState(false);
     const [notes, setNotes] = useState("");
     const [question, setQuestion] = useState("");
+    // In-memory only: do not persist a private follow-up/code comparison in browser storage.
+    const [pendingGeneration, setPendingGeneration] = useState<{
+        reviewId: string;
+        requestId: string;
+        question: string;
+    } | null>(null);
+    const generationInFlight = useRef(false);
     const attempt = useRef<{
         payload: string;
         id: string;
@@ -66,7 +73,7 @@ export function ReviewWorkspace({ initialSessionId = "", initialReviewId = "" }:
       }).catch(e=>{if(active)setError(e instanceof Error?e.message:"复盘恢复失败。");});
       return ()=>{active=false;};
     }, [initialReviewId]);
-    const dirty = Boolean(code || (selected && notes !== selected.notes));
+    const dirty = Boolean(code || question || pendingGeneration || (selected && notes !== selected.notes));
     useEffect(() => {
         const warn = (event: BeforeUnloadEvent) => { if (dirty) {
             event.preventDefault();
@@ -81,8 +88,16 @@ export function ReviewWorkspace({ initialSessionId = "", initialReviewId = "" }:
         return () => { window.removeEventListener("beforeunload", warn); window.removeEventListener("algopilot-before-navigate", guard); };
     }, [dirty]);
     async function open(id: string) {
+        if (pendingGeneration || generationInFlight.current) {
+            setError("请先重试上次生成请求，确认结果后再切换复盘。");
+            return;
+        }
         if (selected && notes !== selected.notes) {
             setError("请先保存用户编辑内容，再切换复盘。");
+            return;
+        }
+        if (selected && selected.id !== id && question) {
+            setError("请先发送追问，或复制并清空追问草稿，再切换复盘。");
             return;
         }
         const seq = ++loadSequence.current;
@@ -113,6 +128,10 @@ export function ReviewWorkspace({ initialSessionId = "", initialReviewId = "" }:
     }
     async function create(event: React.FormEvent) {
         event.preventDefault();
+        if (pendingGeneration || generationInFlight.current) {
+            setError("请先重试上次生成请求，确认结果后再保存新快照。");
+            return;
+        }
         setBusy(true);
         setError("");
         try {
@@ -120,6 +139,8 @@ export function ReviewWorkspace({ initialSessionId = "", initialReviewId = "" }:
                 throw new Error("请明确确认自报 AC 与 Provider 数据发送授权。");
             if (selected && notes !== selected.notes)
                 throw new Error("请先保存用户编辑内容。");
+            if (selected && question)
+                throw new Error("请先发送追问，或复制并清空追问草稿，再保存新快照。");
             if(!sessionId&&!problem)throw new Error("请先选择 Codeforces 题目，或关联已有训练。");
             const body = { sessionId: sessionId || null, code, source, fileName, problemUrl: url, statement, submissionId: submission || null, confirmation: "我确认本次为自报 AC，并授权将代码发送给配置的 AI Provider 进行完整复盘" as const };
             const payload = JSON.stringify(body);
@@ -144,23 +165,40 @@ export function ReviewWorkspace({ initialSessionId = "", initialReviewId = "" }:
             setBusy(false);
         }
     }
-    async function generate() {
-        if (!selected)
+    async function generate(retry = false) {
+        if (!selected || generationInFlight.current || (pendingGeneration && !retry))
             return;
+        const current = retry ? pendingGeneration : {
+            reviewId: selected.id, requestId: crypto.randomUUID(), question,
+        };
+        if (!current || current.reviewId !== selected.id) return;
+        generationInFlight.current = true;
+        setPendingGeneration(current);
         setBusy(true);
         setError("");
         try {
             const r = await requestJson<{
                 results: ReviewResult[];
-            }>(`/api/v1/reviews/${selected.id}/generate`, { method: "POST", body: { requestId: crypto.randomUUID(), question } });
-            setResults(r.results);
+            }>(`/api/v1/reviews/${current.reviewId}/generate`, { method: "POST", body: { requestId: current.requestId, question: current.question } });
+            setResults(reviewResultSchema.array().parse(r.results));
             setQuestion("");
+            setPendingGeneration(null);
         }
         catch (e) {
-            const message = e instanceof Error ? e.message : "AI 复盘生成失败。";
+            // Network errors, unreadable responses and 5xx may follow a committed result.
+            // Only a definitive 4xx refusal (other than an active lease) releases the ID.
+            if (e instanceof ClientError && e.status >= 400 && e.status < 500 && e.code !== "TUTOR_BUSY") {
+                setPendingGeneration(null);
+            }
+            const message = e instanceof ClientError
+                ? e.code === "REVIEW_REQUEST_FAILED"
+                    ? "上次生成请求已确认结束或过期。本次未再次调用模型；如需重新生成，请再次点击生成或发送追问。"
+                    : e.message
+                : "复盘请求结果尚未确认，请重试上次生成请求以核对结果。";
             setError(message.includes("可能已产生模型用量") ? message : `${message}可能已产生模型用量；追问草稿与原有结果保留，请检查后再决定是否重试。`);
         }
         finally {
+            generationInFlight.current = false;
             setBusy(false);
         }
     }
@@ -211,12 +249,12 @@ export function ReviewWorkspace({ initialSessionId = "", initialReviewId = "" }:
     } }}/>
         <label className="block text-sm" htmlFor="review-code">C++ 代码快照</label><Textarea id="review-code" value={code} maxLength={64000} disabled={busy} spellCheck={false} className="min-h-48 font-mono text-xs" onChange={e => { setCode(e.target.value); setSource("paste"); setFileName(null); }}/>
         <label className="flex items-start gap-2 text-sm"><input type="checkbox" checked={confirmed} disabled={busy} onChange={e => setConfirmed(e.target.checked)}/><span>我确认本次为自报 AC，并授权将代码发送给配置的 AI Provider 进行完整复盘。关联的未完成训练将结束，完整解释独立于 AC 前提示历史。</span></label>
-        <Button disabled={busy || !confirmed || !code.trim()}>确认进入复盘并保存快照</Button>
+        <Button disabled={busy || Boolean(pendingGeneration) || !confirmed || !code.trim()}>确认进入复盘并保存快照</Button>
       </form>
     </CardContent></Card>
     {error && <p role="alert" aria-label="复盘错误" className="break-words text-sm text-destructive">{error}</p>}
     {!loaded && !error && <p role="status">正在加载复盘…</p>}
-    <div className="flex flex-wrap gap-2">{items.map(r => <Button key={r.id} variant="outline" size="sm" disabled={busy} onClick={() => void open(r.id)}>复盘 {r.created_at.slice(0, 19).replace("T", " ")} · {r.id.slice(0, 8)}</Button>)}</div>
+    <div className="flex flex-wrap gap-2">{items.map(r => <Button key={r.id} variant="outline" size="sm" disabled={busy || Boolean(pendingGeneration)} onClick={() => void open(r.id)}>复盘 {r.created_at.slice(0, 19).replace("T", " ")} · {r.id.slice(0, 8)}</Button>)}</div>
     {loaded && items.length === 0 && <p className="text-sm text-muted-foreground">尚无复盘。保存快照后可生成 AI 分析。</p>}
     {selected && <Card><CardHeader><CardTitle>代码快照复盘 · {selected.code_hash.slice(0, 12)}</CardTitle></CardHeader><CardContent className="min-w-0 space-y-5">
       <p className="break-words text-xs text-muted-foreground">自报 AC · 官方状态未核实 · 源码一致性未验证 · {selected.created_at} · 来源：{selected.source === "file" ? selected.file_name : "粘贴文本"} · {selected.code_snapshot.split("\n").length} 行</p>
@@ -224,11 +262,15 @@ export function ReviewWorkspace({ initialSessionId = "", initialReviewId = "" }:
       <Link href={`/practice/${selected.session_id}`} className="text-sm underline" onClick={event=>{if(dirty){event.preventDefault();setError("有未保存的复盘内容，请先保存或复制后再离开。");}}}>查看原训练和提示历史</Link>
       <details><summary className="cursor-pointer text-sm">查看本次代码快照与授权记录</summary><pre className="mt-3 max-h-96 overflow-auto rounded border p-3 text-xs">{selected.code_snapshot.split("\n").map((line, i) => `${i + 1}: ${line}`).join("\n")}</pre><p className="mt-3 break-words text-xs">进入状态：{selected.authorization_event.status} · 原结果：{selected.authorization_event.outcome ?? "未记录"} · 授权：{selected.authorization_event.authorizedAt} · 原允许等级 L{selected.authorization_event.allowedLevel} / 已查看 L{selected.authorization_event.maxSeenLevel}</p></details>
       {!configured && <p role="status" className="text-sm">AI 未配置，快照与编辑可以保存；生成、重新生成和追问禁用。</p>}
-      <Button disabled={busy || !configured} onClick={() => void generate()}>{busy ? "正在处理…" : results.length ? "重新生成 AI 复盘" : "生成 AI 复盘"}</Button>
+      <Button disabled={busy || !configured || Boolean(pendingGeneration)} onClick={() => void generate()}>{busy ? "正在处理…" : results.length ? "重新生成 AI 复盘" : "生成 AI 复盘"}</Button>
+      {pendingGeneration && !busy && <div className="space-y-2">
+        <p role="status" className="text-sm">上次生成结果尚未确认。重试沿用原请求编号与原问题，已完成的结果会直接恢复；可能已产生模型用量。确认结果前请保留此页面。</p>
+        <Button disabled={!configured} onClick={() => void generate(true)}>重试上次生成请求</Button>
+      </div>}
       {results.map((r, i) => <details key={r.id} open={i === 0}><summary className="cursor-pointer break-words text-sm">{i === 0 ? "最新分析" : "历史分析"} · {r.model} · {r.prompt_version} · {r.created_at}</summary>{r.question && <p className="mt-3 whitespace-pre-wrap break-words text-sm">追问：{r.question}</p>}<TutorMarkdown content={analysisMarkdown(r.analysis)}/></details>)}
       <label className="block text-sm" htmlFor="review-notes">用户编辑复盘</label><Textarea id="review-notes" value={notes} maxLength={16000} disabled={busy} className="min-h-40" onChange={e => setNotes(e.target.value)}/>
       <div className="flex flex-wrap gap-2"><Button disabled={busy} onClick={() => void save()}>保存用户编辑</Button>{results[0] && <Button variant="outline" disabled={busy} onClick={() => setNotes(analysisMarkdown(results[0]!.analysis).slice(0, 16000))}>复制最新分析到编辑区</Button>}</div>
-      <label className="block text-sm" htmlFor="review-question">后续复盘问题</label><p className="text-xs text-muted-foreground">可附 WA / RE / TLE 对照片段，请注明版本；数值行号分析只对应已保存的 AC 快照。AI 仅做静态推导，反例及预计输出未经执行核验。</p><Textarea id="review-question" value={question} maxLength={3000} disabled={busy || !configured} onChange={e => setQuestion(e.target.value)}/><Button disabled={busy || !configured || !question.trim()} onClick={() => void generate()}>发送复盘追问</Button>
+      <label className="block text-sm" htmlFor="review-question">后续复盘问题</label><p className="text-xs text-muted-foreground">可附 WA / RE / TLE 对照片段，请注明版本；数值行号分析只对应已保存的 AC 快照。AI 仅做静态推导，反例及预计输出未经执行核验。</p><Textarea id="review-question" value={question} maxLength={3000} disabled={busy || !configured || Boolean(pendingGeneration)} onChange={e => setQuestion(e.target.value)}/><Button disabled={busy || !configured || Boolean(pendingGeneration) || !question.trim()} onClick={() => void generate()}>发送复盘追问</Button>
     </CardContent></Card>}
   </div>;
 }

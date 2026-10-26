@@ -24,7 +24,8 @@ it("audits the effective 001-010 structure with catalog SELECT only, including h
     const code = sql.replace(/--[^\n]*/g, "").trim();
     expect(code.startsWith("select ")).toBe(true);
     expect(code.replace(/'(?:''|[^'])*'/g, "''").match(/;/g)).toHaveLength(1);
-    const db = await database();
+    // Keep this historical 001-010 comparison independent of later local migrations.
+    const db = await database("202610150010");
     try {
         const audit = (await db.query<{ audit: { functions: { signature: string }[]; relations: { name: string }[]; triggers: { name: string }[] } }>(sql)).rows[0]!.audit;
         expect(audit.functions.map(f => f.signature)).toEqual(expect.arrayContaining([

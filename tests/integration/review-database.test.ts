@@ -5,6 +5,11 @@ import { readFile } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 import { beforeAll, afterAll, describe, it, expect } from "vitest";
 import { signTutorPayload } from "@/server/tutor/repository";
+import { runReview } from "@/server/review/orchestrator";
+import type { ReviewRepository } from "@/server/review/repository";
+import { MockProvider } from "@/server/tutor/provider";
+import { readTutorConfig } from "@/server/tutor/config";
+import { reviewResultSchema, reviewSchema } from "@/lib/validation/review";
 let db: PGlite;
 const alice = "10000000-0000-4000-8000-000000000011", bob = "10000000-0000-4000-8000-000000000012", secret = "ab".repeat(32);
 const confirmation = "我确认本次为自报 AC，并授权将代码发送给配置的 AI Provider 进行完整复盘";
@@ -13,6 +18,7 @@ beforeAll(async () => {
     await db.exec(`create role anon;create role authenticated;create schema auth;create table auth.users(id uuid primary key,email text);create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;grant usage on schema auth to anon,authenticated;grant execute on function auth.uid() to anon,authenticated;`);
     for (const name of ["202610110001_m1_training.sql", "202610110002_m2_tutor.sql", "202610110003_gemini_usage.sql", "202610120004_business_conflicts.sql", "202610120005_ac_reviews.sql"])
         await db.exec(await readFile(`supabase/migrations/${name}`, "utf8"));
+    await db.exec(await readFile("supabase/migrations/202610260011_review_retry_recovery.sql", "utf8"));
     await db.query("insert into algopilot_private.tutor_settings(signing_secret) values($1)", [secret]);
     await db.query("insert into auth.users values($1,'a@test.invalid'),($2,'b@test.invalid')", [alice, bob]);
 }, 30000);
@@ -122,6 +128,55 @@ describe("AC review SQL isolation and authorization_event", () => {
             analysis: null;
         }>("select analysis from public.review_requests where id=$1", [q.p.requestId])).rows[0]!.analysis).toBeNull();
         await expect(signed("review_reserve", q.p)).rejects.toMatchObject({ code: "AP006" });
+    });
+    it("same-ID expired pending admission must terminate without admitting a new model call", async () => {
+        const rid = await create();
+        const q = await reserve(rid);
+        await expect(signed("review_reserve", q.p)).rejects.toMatchObject({ code: "AP004" });
+        await db.query("update public.review_requests set lease_until=clock_timestamp()-interval '1 second' where id=$1", [q.p.requestId]);
+        await expect(signed("review_reserve", q.p)).rejects.toMatchObject({ code: "AP006" });
+        await expect(signed("review_reserve", q.p)).rejects.toMatchObject({ code: "AP006" });
+        await expect(signed("review_reserve", { ...q.p, fingerprint: "b".repeat(64) })).rejects.toMatchObject({ code: "PT409" });
+        await expect(signed("review_reserve", q.p, bob)).rejects.toMatchObject({ code: "P0002" });
+        expect((await db.query("select id from public.review_requests where review_id=$1", [rid])).rows).toHaveLength(1);
+        const fresh = await reserve(rid);
+        expect((await settle(rid, q, true)).rows[0]!.v.accepted).toBe(false);
+        expect((await db.query<{ status: string }>("select status from public.review_requests where id=$1", [fresh.p.requestId])).rows[0]!.status).toBe("pending");
+        await settle(rid, fresh);
+    });
+    it("replays a committed generation through the real orchestrator/SQL without another Provider admission", async () => {
+        const rid = await create();
+        const repo = {
+            get: async (id: string) => reviewSchema.parse((await asUser(alice, tx => tx.query<{ v: unknown }>("select to_jsonb(r) v from (select id,user_id,session_id,problem_id,problem_url,statement_snapshot,code_snapshot,code_hash,source,file_name,submission_id,verdict_source,official_verdict,source_match,authorization_event,notes,revision,created_at,edited_at from public.code_reviews where id=$1) r", [id]))).rows[0]!.v),
+            results: async (id: string) => reviewResultSchema.array().parse((await asUser(alice, tx => tx.query("select id,review_id,question,analysis,model,prompt_version,to_char(created_at at time zone 'UTC', 'YYYY-MM-DD\"T\"HH24:MI:SS.US\"Z\"') created_at from public.review_requests where review_id=$1 and status='completed' order by created_at desc", [id]))).rows),
+            reserve: async (p: Record<string, unknown>) => (await signed("review_reserve", p)).rows[0]!.v,
+            finish: async (p: Record<string, unknown>) => (await signed("review_finish", p)).rows[0]!.v,
+        } as unknown as ReviewRepository;
+        const config = readTutorConfig({ LLM_PROVIDER: "openai-compatible", LLM_BASE_URL: "https://fixture.invalid/v1", LLM_MODEL: "fixture", LLM_API_KEY: "fixture-not-real", TUTOR_RPC_SIGNING_SECRET: secret, LLM_DAILY_REQUEST_LIMIT: "100" })!;
+        const analysis = { summary: "静态分析", correctness: "未运行代码。", assumptions: "给定前提尚未验证。", timeComplexity: "O(1)", spaceComplexity: "O(1)", lineAnalysis: [{ start: 1, end: 1, analysis: "入口。" }], risks: "边界需核对。", improvements: "命名改进。", alternatives: "", transferableKnowledge: "边界", revisionQuestions: ["输入前提是什么？"], answer: "" };
+        const provider = new MockProvider({ text: JSON.stringify(analysis), usage: [] });
+        const input = { requestId: randomUUID(), question: "静态核对边界。" };
+        // First response is treated as lost by the caller, after SQL has committed it.
+        const first = await runReview(repo, config, rid, input, undefined, provider);
+        expect(first.cached).toBe(false);
+        const recovered = await runReview(repo, config, rid, input, undefined, provider);
+        expect(recovered.cached).toBe(true);
+        expect(recovered.results).toEqual(first.results);
+        expect(provider.calls).toHaveLength(1);
+        expect((await db.query("select id from public.review_requests where review_id=$1", [rid])).rows).toHaveLength(1);
+        const fresh = await runReview(repo, config, rid, { ...input, requestId: randomUUID() }, undefined, provider);
+        expect(fresh.cached).toBe(false); expect(fresh.results).toHaveLength(2); expect(provider.calls).toHaveLength(2);
+        expect((await db.query("select id from public.tutor_messages")).rows).toHaveLength(0);
+        expect((await db.query("select id from public.hint_events")).rows).toHaveLength(0);
+    });
+    it("011 preserves function privileges on replay", async () => {
+        const definition = async () => (await db.query<{ definition: string }>("select pg_get_functiondef('public.review_reserve(text,text)'::regprocedure) definition")).rows[0]!.definition;
+        const before = await definition();
+        await db.exec(await readFile("supabase/migrations/202610260011_review_retry_recovery.sql", "utf8"));
+        expect(await definition()).toBe(before);
+        const rights = (await db.query<{ prosecdef: boolean; proconfig: string[]; anonymous: boolean; authenticated: boolean }>("select prosecdef,proconfig,has_function_privilege('anon',oid,'EXECUTE') anonymous,has_function_privilege('authenticated',oid,'EXECUTE') authenticated from pg_proc where oid='public.review_reserve(text,text)'::regprocedure")).rows[0]!;
+        expect(rights).toMatchObject({ prosecdef: true, anonymous: false, authenticated: true });
+        expect(rights.proconfig).toEqual(['search_path=""']);
     });
     it("untimed sessions start paused at zero, retry doesn't pause a resumed session", async () => {
         const id = randomUUID();
