@@ -22,6 +22,7 @@
     "test:isolated:m321": "node scripts/m321-isolated.mjs",
     "review:recommendations": "node scripts/m322-review.ts",
     "test:isolated:m33": "node scripts/m33-isolated.mjs",
+    "test:isolated:m353": "node scripts/m353-isolated.mjs",
     "record:cf:public": "node scripts/m33-record-public.mjs",
     "test:review-reliability": "python3 scripts/m352-verify-counterexamples.py"
   },
