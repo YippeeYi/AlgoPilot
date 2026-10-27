@@ -49,7 +49,7 @@ describe("review source and assertion boundaries (deterministic contracts, not m
     });
     it("settles actual fixture usage as rejected once, without saving output or automatically retrying",async()=>{
         const prior=[{id:"existing"}];
-        const repo={get:vi.fn().mockResolvedValue(review),results:vi.fn().mockResolvedValue(prior),reserve:vi.fn().mockResolvedValue({cached:false,leaseNonce:review.id}),finish:vi.fn().mockResolvedValue({accepted:true})} as unknown as ReviewRepository;
+        const repo={hasRequest:vi.fn().mockResolvedValue(false),get:vi.fn().mockResolvedValue(review),results:vi.fn().mockResolvedValue(prior),reserve:vi.fn().mockResolvedValue({cached:false,leaseNonce:review.id}),finish:vi.fn().mockResolvedValue({accepted:true})} as unknown as ReviewRepository;
         const config={apiKey:"fixture-key",signingSecret:"ab".repeat(32),maxInputChars:24000,dailyLimit:30,model:"fixture"} as TutorConfig;
         const usage=[{attempt:1,model:"fixture",inputTokens:10,outputTokens:20,totalTokens:30,durationMs:1,status:"success" as const,costUsd:null}];
         const provider=new MockProvider({text:JSON.stringify({...base,lineAnalysis:[{start:4,end:8,analysis:"WA"}]}),usage});

@@ -44,6 +44,18 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllGlobals());
 
 describe("review generation retries (offline browser contracts)", () => {
+  it("gate refusal retains drafts/history and ends the ticket without claiming a timeout or automatic retry", async () => {
+    post.mockResolvedValueOnce(error(403, "LLM_FREE_TIER_UNVERIFIED"));
+    await mount();
+    fireEvent.change(question(), { target: { value: "保留的追问草稿" } });
+    fireEvent.click(generate());
+    await waitFor(() => expect(generate()).toBeEnabled());
+    expect(question()).toHaveValue("保留的追问草稿");
+    expect(screen.getByText("原有分析", { exact: true })).toBeVisible();
+    expect(screen.queryByRole("button", { name: "重试上次生成请求" })).toBeNull();
+    expect(screen.getByRole("alert", { name: "复盘错误" })).not.toHaveTextContent("可能已产生模型用量");
+    expect(post).toHaveBeenCalledOnce();
+  });
   it("reuses the original request after a lost response; a later explicit regeneration gets a new ID", async () => {
     post.mockRejectedValueOnce(new TypeError("PRIVATE transport details"))
       .mockResolvedValueOnce(Response.json({ results: [result], cached: true }))

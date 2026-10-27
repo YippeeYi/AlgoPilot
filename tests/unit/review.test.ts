@@ -1,8 +1,9 @@
+import { offlineProvider } from "../fixtures/offline-provider";
 import { describe, it, expect, vi } from "vitest";
 import { readCodeFile } from "@/features/reviews/import-code";
 import { codeTextSchema, createReviewSchema, cfProblemUrlSchema, type CodeReview, type ReviewAnalysis } from "@/lib/validation/review";
 import { auditReview, buildReviewPrompt, runReview } from "@/server/review/orchestrator";
-import { MockProvider, OpenAICompatibleProvider } from "@/server/tutor/provider";
+import { MockProvider } from "@/server/tutor/provider";
 import { auditOutput } from "@/server/tutor/audit";
 import type { ReviewRepository } from "@/server/review/repository";
 import type { TutorConfig } from "@/server/tutor/config";
@@ -10,7 +11,7 @@ const review = { id: "10000000-0000-4000-8000-000000000011", code_snapshot: "int
 const analysis: ReviewAnalysis = { summary: "算法总结", correctness: "静态证明摘要；没有运行代码。", assumptions: "输入前提尚未证明。", timeComplexity: "O(1)", spaceComplexity: "O(1)", lineAnalysis: [{ start: 1, end: 3, analysis: "入口与返回值。" }], risks: "未验证边界", improvements: "命名改进", alternatives: "", transferableKnowledge: "复杂度", revisionQuestions: ["输入前提是什么？"], answer: "" };
 const config = { apiKey: "fixture-key", signingSecret: "ab".repeat(32), maxInputChars: 24000, dailyLimit: 30, model: "fixture" } as TutorConfig;
 function file(name: string, bytes: Uint8Array, type = "text/plain") { return { name, size: bytes.length, type, arrayBuffer: async () => bytes.buffer } as File; }
-function repo() { return { get: vi.fn().mockResolvedValue(review), results: vi.fn().mockResolvedValue([]), reserve: vi.fn().mockResolvedValue({ cached: false, leaseNonce: review.id }), finish: vi.fn().mockResolvedValue({ accepted: true }) } as unknown as ReviewRepository; }
+function repo() { return { hasRequest: vi.fn().mockResolvedValue(false), get: vi.fn().mockResolvedValue(review), results: vi.fn().mockResolvedValue([]), reserve: vi.fn().mockResolvedValue({ cached: false, leaseNonce: review.id }), finish: vi.fn().mockResolvedValue({ accepted: true }) } as unknown as ReviewRepository; }
 describe("code import and review", () => {
     it("reads only the selected file and validates extension, MIME, size and UTF-8", async () => {
         expect(await readCodeFile(file("solution.CPP", new TextEncoder().encode(review.code_snapshot)))).toBe(review.code_snapshot);
@@ -52,7 +53,7 @@ describe("code import and review", () => {
     });
     it("Provider uses the review JSON contract only for the independent server operation", async()=>{
       const fetcher=vi.fn<typeof fetch>(async()=>Response.json({model:"fixture",choices:[{finish_reason:"stop",message:{role:"assistant",content:JSON.stringify(analysis)}}],usage:{prompt_tokens:20,completion_tokens:30,total_tokens:50}}));
-      const provider=new OpenAICompatibleProvider({...config,provider:"openai-compatible",baseUrl:"https://provider.invalid/v1",maxOutputTokens:1200,tokenParameter:"max_tokens",responseFormat:"json_schema"},fetcher);
+      const provider=offlineProvider({...config,provider:"openai-compatible",baseUrl:"https://provider.invalid/v1",maxOutputTokens:1200,tokenParameter:"max_tokens",responseFormat:"json_schema"},fetcher);
       await provider.complete(buildReviewPrompt(review,"",[]),undefined,{action:"explain",allowedLevel:5,outputKind:"review"});
       const body=JSON.parse(String(fetcher.mock.calls[0]?.[1]?.body));
       expect(body.response_format.json_schema.name).toBe("ac_review");

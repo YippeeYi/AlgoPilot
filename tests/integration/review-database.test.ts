@@ -3,11 +3,12 @@ import { PGlite } from "@electric-sql/pglite";
 import { pgcrypto } from "@electric-sql/pglite/contrib/pgcrypto";
 import { readFile } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
-import { beforeAll, afterAll, describe, it, expect } from "vitest";
+import { beforeAll, afterAll, describe, it, expect, vi } from "vitest";
 import { signTutorPayload } from "@/server/tutor/repository";
 import { runReview } from "@/server/review/orchestrator";
 import type { ReviewRepository } from "@/server/review/repository";
-import { MockProvider } from "@/server/tutor/provider";
+import { MockProvider, OpenAICompatibleProvider } from "@/server/tutor/provider";
+import { GenerationGateError } from "@/server/llm/execution-gate";
 import { readTutorConfig } from "@/server/tutor/config";
 import { reviewResultSchema, reviewSchema } from "@/lib/validation/review";
 let db: PGlite;
@@ -147,6 +148,7 @@ describe("AC review SQL isolation and authorization_event", () => {
     it("replays a committed generation through the real orchestrator/SQL without another Provider admission", async () => {
         const rid = await create();
         const repo = {
+            hasRequest: async (id: string, requestId: string) => (await asUser(alice, tx => tx.query("select id from public.review_requests where review_id=$1 and id=$2", [id, requestId]))).rows.length > 0,
             get: async (id: string) => reviewSchema.parse((await asUser(alice, tx => tx.query<{ v: unknown }>("select to_jsonb(r) v from (select id,user_id,session_id,problem_id,problem_url,statement_snapshot,code_snapshot,code_hash,source,file_name,submission_id,verdict_source,official_verdict,source_match,authorization_event,notes,revision,created_at,edited_at from public.code_reviews where id=$1) r", [id]))).rows[0]!.v),
             results: async (id: string) => reviewResultSchema.array().parse((await asUser(alice, tx => tx.query("select id,review_id,question,analysis,model,prompt_version,to_char(created_at at time zone 'UTC', 'YYYY-MM-DD\"T\"HH24:MI:SS.US\"Z\"') created_at from public.review_requests where review_id=$1 and status='completed' order by created_at desc", [id]))).rows),
             reserve: async (p: Record<string, unknown>) => (await signed("review_reserve", p)).rows[0]!.v,
@@ -166,6 +168,20 @@ describe("AC review SQL isolation and authorization_event", () => {
         expect((await db.query("select id from public.review_requests where review_id=$1", [rid])).rows).toHaveLength(1);
         const fresh = await runReview(repo, config, rid, { ...input, requestId: randomUUID() }, undefined, provider);
         expect(fresh.cached).toBe(false); expect(fresh.results).toHaveLength(2); expect(provider.calls).toHaveLength(2);
+        const fetcher = vi.fn<typeof fetch>();
+        const deniedProvider = new OpenAICompatibleProvider(config, fetcher);
+        expect((await runReview(repo, config, rid, input, undefined, deniedProvider)).cached).toBe(true);
+        // The database still validates the cached fingerprint; a changed question cannot reuse its ID.
+        await expect(runReview(repo, config, rid, { ...input, question: "changed" }, undefined, deniedProvider)).rejects.toMatchObject({ code: "PT409" });
+        await expect(runReview(repo, config, rid, { ...input, requestId: randomUUID() }, undefined, deniedProvider)).rejects.toMatchObject({ code: "LLM_FREE_TIER_UNVERIFIED" });
+        expect((await db.query("select id from public.review_requests where review_id=$1", [rid])).rows).toHaveLength(2);
+        expect(fetcher).not.toHaveBeenCalled();
+        const revokedId = randomUUID();
+        vi.spyOn(provider, "assertCanGenerate").mockImplementationOnce(() => {}).mockImplementation(() => { throw new GenerationGateError("LLM_EXECUTION_UNAUTHORIZED"); });
+        await expect(runReview(repo, config, rid, { ...input, requestId: revokedId }, undefined, provider)).rejects.toMatchObject({ code: "LLM_EXECUTION_UNAUTHORIZED" });
+        expect((await db.query<{ status: string; analysis: null; usage: unknown[] }>("select status,analysis,usage from public.review_requests where id=$1", [revokedId])).rows[0]).toMatchObject({ status: "failed", analysis: null, usage: [] });
+        expect(await repo.results(rid)).toEqual(fresh.results);
+        expect(provider.calls).toHaveLength(2);
         expect((await db.query("select id from public.tutor_messages")).rows).toHaveLength(0);
         expect((await db.query("select id from public.hint_events")).rows).toHaveLength(0);
     });

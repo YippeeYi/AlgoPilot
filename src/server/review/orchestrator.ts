@@ -5,7 +5,9 @@ import { auditReview } from "./audit";
 export { auditReview } from "./audit";
 import type { CodeReview } from "@/lib/validation/review";
 import type { TutorConfig } from "@/server/tutor/config";
-import { OpenAICompatibleProvider, ProviderError, type LLMProvider, type UsageAttempt, type LLMMessage } from "@/server/tutor/provider";
+import { ProviderError, type LLMProvider, type UsageAttempt, type LLMMessage } from "@/server/tutor/provider";
+import { createRuntimeProvider } from "@/server/tutor/runtime-provider";
+import { GenerationGateError, type GenerationScope } from "@/server/llm/execution-gate";
 import type { ReviewRepository } from "./repository";
 export const REVIEW_PROMPT_VERSION = "algopilot-ac-review/1.1.0";
 export function buildReviewPrompt(review: CodeReview, question: string, history: {
@@ -21,7 +23,7 @@ export function buildReviewPrompt(review: CodeReview, question: string, history:
 export async function runReview(repo: ReviewRepository, config: TutorConfig, id: string, input: {
     requestId: string;
     question: string;
-}, signal?: AbortSignal, provider: LLMProvider = new OpenAICompatibleProvider(config), deadlineAt?: number) {
+}, signal?: AbortSignal, provider: LLMProvider = createRuntimeProvider(config), deadlineAt?: number) {
     const review = await repo.get(id);
     const knownSecrets = [config.apiKey, config.signingSecret, process.env.CODEFORCES_RPC_SIGNING_SECRET ?? ""];
     if (knownSecrets.some(secret => secret && (review.code_snapshot.includes(secret) || review.statement_snapshot.includes(secret) || input.question.includes(secret))))
@@ -32,6 +34,8 @@ export async function runReview(repo: ReviewRepository, config: TutorConfig, id:
         messages = buildReviewPrompt(review, input.question, []);
     if (messages.reduce((n, m) => n + m.content.length, 0) > config.maxInputChars)
         throw new ApiError(413, "LLM_INPUT_TOO_LARGE", "题面与代码快照超过模型输入限制，请创建较短的新快照。");
+    const generationScope: GenerationScope = { operation: "review", userId: review.user_id, resourceId: id, requestId: input.requestId };
+    if (!await repo.hasRequest(id, input.requestId)) provider.assertCanGenerate(generationScope);
     const reservation = await repo.reserve({ operation: "review_reserve", reviewId: id, ...input, fingerprint: createHash("sha256").update(JSON.stringify(input)).digest("hex"), dailyLimit: config.dailyLimit }, config.signingSecret);
     if (reservation.cached)
         return { results: await repo.results(id), cached: true };
@@ -40,7 +44,8 @@ export async function runReview(repo: ReviewRepository, config: TutorConfig, id:
     const settlement = { operation: "review_finish", reviewId: id, requestId: input.requestId, leaseNonce: reservation.leaseNonce, codeHash: review.code_hash, promptVersion: REVIEW_PROMPT_VERSION };
     let usage: UsageAttempt[] = [];
     try {
-        const result = await provider.complete(messages, signal, { action: "explain", allowedLevel: 5, deadlineAt, outputKind: "review" });
+        provider.assertCanGenerate(generationScope);
+        const result = await provider.complete(messages, signal, { action: "explain", allowedLevel: 5, deadlineAt, outputKind: "review", generationScope });
         usage = result.usage;
         const analysis = auditReview(result.text, review, knownSecrets);
         const finished = await repo.finish({ ...settlement, success: true, analysis, model: usage.at(-1)?.model ?? config.model, usage }, config.signingSecret);
@@ -49,7 +54,7 @@ export async function runReview(repo: ReviewRepository, config: TutorConfig, id:
         return { results: await repo.results(id), cached: false };
     }
     catch (error) {
-        if (error instanceof ProviderError)
+        if (error instanceof ProviderError || error instanceof GenerationGateError)
             usage = error.usage;
         await repo.finish({ ...settlement, success: false, usage: usage.map(u => ({ ...u, status: u.status === "success" ? "rejected" : u.status })) }, config.signingSecret);
         if (error instanceof ApiError)

@@ -28,6 +28,8 @@ AC 复盘用独立 Review Orchestrator/Prompt/审核/记录，用户明确确认
 
 长期仅免费模型，无收费备用/自动付费回退。历史 USD 1.10 仅为已消耗许可的记录，不能授权新的付费调用；Flash/免费标签不证明所属项目免费。本轮不读真实 Key、不做真实生成或外发私人材料。后续真实请求仍须新的明确授权与项目免费资格确认；缺失时继续离线开发，不以真实调用验证是否免费。
 
+免费门禁的生产资格验证器和执行授权源尚未安装，默认拒绝全部真实生成；不能以环境变量、纯策略模拟或测试依赖注入冒充可信证据。离线 HTTP 测试通过 `npm run test:e2e` 在临时副本接线，生产工厂不引入 Fixture。已有请求继续经窄 RPC 判断状态/缓存/指纹；012 只在本地补 Tutor 过期重试，001–011 保留。本阶段结束后停止，不自动进入 B4 或部署，详情见 docs/M353_FREE_TIER_GATE_VERIFICATION.md。
+
 ## 必须验收
 
 运行 npm run lint、npm run typecheck、npm run test、npm run build、npm run test:e2e。先 typecheck 后 build，避免生成类型目录竞争。保留自动化测试并补充文件校验、无思路连续引导、复盘授权/快照/独立记录/刷新/编辑/追问、两用户数据库隔离、签名防伪/共享额度与租约。PGlite 真实 SQL 的 Auth 上下文仍是替身，Playwright HTTP 夹具也不是托管验收。外部 RLS 只能专用隔离库，禁止生产破坏性测试。

@@ -15,7 +15,7 @@
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test",
+    "test:e2e": "node scripts/test-offline-e2e.mjs",
     "test:rls": "bash scripts/test-rls.sh",
     "test:rls:m2": "bash scripts/test-m2-rls.sh",
     "test:recommendations": "vitest run --config vitest.evaluation.config.ts",

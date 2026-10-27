@@ -9,6 +9,7 @@
 - 所有写接口验证 Auth/归属/Zod，迁移必须启用 RLS；密钥不能进客户端/仓库/日志。
 - 禁止假统计和假 Rating；区分官方事实、用户自报与 AI 推测。
 - 长期只使用免费模型；不增加收费模型或付费回退，不把模型名/Flash/免费标签或历史 USD 1.10 预算当作免费资格/付费授权。真实请求须另获当前阶段授权并先确认项目免费资格；不能通过生成请求试探免费资格。M3.5.3 本轮仅本地离线，禁止真实生成、读取真实 Key、发送私人内容或沿用历史调用许可。
+- 免费门禁见 `src/server/llm/execution-gate.ts`：当前无可信资格验证器/真实授权源，生产工厂维持默认拒绝；纯策略模拟的 allow 不是真实许可。禁止用环境布尔、自签 JSON 或测试 Policy 放行生产。HTTP Mock 仅由 `npm run test:e2e` 在私有临时副本接线，源工作区生产工厂不导入测试模块；012 仅本地修复 Tutor 过期同编号，001–011 不改，托管应用另授权。验收见 `docs/M353_FREE_TIER_GATE_VERIFICATION.md`。
 - 修改后运行 lint、typecheck、test、build，并在最终报告中写出结果和未验证部分。
 - 详细需求见 DEVELOPMENT_PLAN.md；完整执行指令见 CODEX_PROMPT.md。
 

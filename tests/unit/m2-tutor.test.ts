@@ -1,3 +1,4 @@
+import { offlineProvider } from "../fixtures/offline-provider";
 import { describe, it, expect, vi } from "vitest";
 import { ApiError } from "@/server/http";
 import { readTutorConfig, type TutorConfig } from "@/server/tutor/config";
@@ -5,7 +6,6 @@ import { auditOutput } from "@/server/tutor/audit";
 import { buildPrompt } from "@/server/tutor/prompts";
 import {
   MockProvider,
-  OpenAICompatibleProvider,
   type LLMResult,
 } from "@/server/tutor/provider";
 import { runTutor } from "@/server/tutor/orchestrator";
@@ -66,6 +66,7 @@ const baseSession: TrainingSession = {
 function repo(level = 0, session = baseSession): TutorRepository {
   return {
     getSession: vi.fn().mockResolvedValue(session),
+    hasRequest: vi.fn().mockResolvedValue(false),
     state: vi.fn().mockResolvedValue({
       allowedLevel: level,
       maxSeenLevel: 0,
@@ -342,7 +343,7 @@ describe("OpenAI-compatible HTTP Client（HTTP Mock）", () => {
     const fetcher = vi
       .fn<typeof fetch>()
       .mockResolvedValue(response(model(), { model: config.apiKey }));
-    const provider = new OpenAICompatibleProvider(config, fetcher);
+    const provider = offlineProvider(config, fetcher);
     try {
       await provider.complete([{ role: "user", content: "hi" }]);
       throw new Error("expected rejection");
@@ -389,7 +390,7 @@ describe("OpenAI-compatible HTTP Client（HTTP Mock）", () => {
   });
   it("使用真实响应 token 字段，不补造用量，费用仅按显式报价估算", async () => {
     const fetcher = vi.fn<typeof fetch>().mockResolvedValue(response());
-    const provider = new OpenAICompatibleProvider(
+    const provider = offlineProvider(
       { ...config, inputPrice: 1, outputPrice: 2 },
       fetcher,
     );
@@ -415,7 +416,7 @@ describe("OpenAI-compatible HTTP Client（HTTP Mock）", () => {
       .fn<typeof fetch>()
       .mockResolvedValueOnce(new Response("PRIVATE-ERROR", { status: 429 }))
       .mockResolvedValueOnce(response());
-    const p = new OpenAICompatibleProvider(config, fetcher, 1000, pause);
+    const p = offlineProvider(config, fetcher, 1000, pause);
     expect(
       (await p.complete([{ role: "user", content: "hi" }])).usage,
     ).toHaveLength(2);
@@ -438,7 +439,7 @@ describe("OpenAI-compatible HTTP Client（HTTP Mock）", () => {
         throw new Error(config.apiKey);
       });
     await expect(
-      new OpenAICompatibleProvider(config, aborting).complete(
+      offlineProvider(config, aborting).complete(
         [{ role: "user", content: "hi" }],
         aborted.signal,
       ),
@@ -452,7 +453,7 @@ describe("OpenAI-compatible HTTP Client（HTTP Mock）", () => {
         ),
       );
     await expect(
-      new OpenAICompatibleProvider(config, hanging, 10).complete([
+      offlineProvider(config, hanging, 10).complete([
         { role: "user", content: "hi" },
       ]),
     ).rejects.toMatchObject({
@@ -464,7 +465,7 @@ describe("OpenAI-compatible HTTP Client（HTTP Mock）", () => {
   });
   it("拒绝非法 envelope、截断、工具调用与伪造 usage", async () => {
     const fetcher = vi.fn<typeof fetch>();
-    const p = new OpenAICompatibleProvider(config, fetcher);
+    const p = offlineProvider(config, fetcher);
     for (const body of [
       {},
       { model: "test", choices: [], usage: {} },

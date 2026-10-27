@@ -38,7 +38,7 @@ export default defineConfig({
     },
     {
       name: "m2-desktop",
-      testMatch: ["m2.spec.ts", "m25.spec.ts", "m3.spec.ts", "m32.spec.ts", "m33.spec.ts", "m341.spec.ts"],
+      testMatch: ["m2.spec.ts", "m25.spec.ts", "m3.spec.ts", "m32.spec.ts", "m33.spec.ts", "m341.spec.ts", "generation-gate.spec.ts"],
       use: {
         ...devices["Desktop Chrome"],
         baseURL: "http://127.0.0.1:3102",
@@ -47,11 +47,27 @@ export default defineConfig({
     },
     {
       name: "m2-mobile",
-      testMatch: ["m2.spec.ts", "m25.spec.ts", "m3.spec.ts", "m32.spec.ts", "m33.spec.ts", "m341.spec.ts"],
+      testMatch: ["m2.spec.ts", "m25.spec.ts", "m3.spec.ts", "m32.spec.ts", "m33.spec.ts", "m341.spec.ts", "generation-gate.spec.ts"],
       use: { ...devices["Pixel 7"], baseURL: "http://127.0.0.1:3102" },
     },
   ],
   webServer: [
+    {
+      command: "npm run start -- --hostname 127.0.0.1 --port 3103",
+      url: "http://127.0.0.1:3103/login",
+      reuseExistingServer: false,
+      timeout: 60000,
+      env: {
+        NEXT_PUBLIC_SUPABASE_URL: "http://127.0.0.1:54001",
+        NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "fixture-public-key",
+        APP_URL: "http://127.0.0.1:3103",
+        LLM_PROVIDER: "openai-compatible",
+        LLM_BASE_URL: "https://fixture.invalid/v1",
+        LLM_MODEL: "fixture-free-unverified",
+        LLM_API_KEY: "fixture-llm-key-not-real",
+        TUTOR_RPC_SIGNING_SECRET: "ab".repeat(32),
+      },
+    },
     {
       command: "node tests/fixtures/llm-http.mjs",
       url: "http://127.0.0.1:54002/health",

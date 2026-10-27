@@ -438,7 +438,7 @@ function rpc(name, p, uid) {
 function select(url, uid) {
   const table = url.pathname.split("/").at(-1);
   let rows =
-    table === "learning_preferences" ? (learningPrefs.has(uid)?[{user_id:uid,...learningPrefs.get(uid)}]:[]) : table === "training_plans" ? [...plans.values()].filter(r=>r.user_id===uid) : table === "code_reviews" ? [...reviews.values()].filter(r=>r.user_id===uid) : table === "review_requests" ? [...reviewRequests.values()].filter(r=>r.user_id===uid) : table === "training_sessions"
+    table === "tutor_requests" ? [...tutorRequests.values()].filter(r=>r.userId===uid).map(r=>({id:r.requestId,user_id:r.userId,session_id:r.sessionId,created_at:"2026-10-27T00:00:00Z"})) : table === "learning_preferences" ? (learningPrefs.has(uid)?[{user_id:uid,...learningPrefs.get(uid)}]:[]) : table === "training_plans" ? [...plans.values()].filter(r=>r.user_id===uid) : table === "code_reviews" ? [...reviews.values()].filter(r=>r.user_id===uid) : table === "review_requests" ? [...reviewRequests.values()].filter(r=>r.user_id===uid) : table === "training_sessions"
       ? [...sessions.values()].filter((row) => row.user_id === uid)
       : table === "problems"
         ? [...problems.values()].filter((row) => (row.platform==="codeforces" || row.owner_id === uid))

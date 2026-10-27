@@ -19,6 +19,7 @@ beforeAll(async () => {
     "202610110002_m2_tutor.sql",
     "202610110003_gemini_usage.sql",
     "202610120004_business_conflicts.sql",
+    "202610270012_tutor_retry_recovery.sql",
   ])
     await db.exec(await readFile(`supabase/migrations/${name}`, "utf8"));
   await db.query(
@@ -32,6 +33,21 @@ beforeAll(async () => {
 }, 30_000);
 afterAll(async () => {
   await db?.close();
+});
+it("012 ends same-ID expired Tutor retries, preserves ACL, and leaves a late worker unable to disclose", async () => {
+  const sid = await session(); const requestId = randomUUID();
+  const admitted = (await reserve(sid, requestId)).rows[0]!.result;
+  await expect(reserve(sid, requestId)).rejects.toMatchObject({ code: "AP004" });
+  await db.query("update public.tutor_requests set lease_until=clock_timestamp()-interval '1 second' where id=$1", [requestId]);
+  await expect(reserve(sid, requestId)).rejects.toMatchObject({ code: "AP006" });
+  const freshId = randomUUID(); const fresh = (await reserve(sid, freshId)).rows[0]!.result;
+  expect((await finish(sid, requestId, admitted.leaseNonce)).rows[0]!.result.accepted).toBe(false);
+  expect((await db.query<{ status: string }>("select status from public.tutor_requests where id=$1", [freshId])).rows[0]!.status).toBe("pending");
+  await signed("finish", { sessionId: sid, requestId: freshId, leaseNonce: fresh.leaseNonce, success: false, usage: [] });
+  const before = (await db.query<{ definition: string }>("select pg_get_functiondef('public.tutor_reserve(text,text)'::regprocedure) definition")).rows[0]!.definition;
+  await db.exec(await readFile("supabase/migrations/202610270012_tutor_retry_recovery.sql", "utf8"));
+  expect((await db.query<{ definition: string }>("select pg_get_functiondef('public.tutor_reserve(text,text)'::regprocedure) definition")).rows[0]!.definition).toBe(before);
+  expect((await db.query("select prosecdef,proconfig,has_function_privilege('anon',oid,'EXECUTE') anonymous,has_function_privilege('authenticated',oid,'EXECUTE') authenticated from pg_proc where oid='public.tutor_reserve(text,text)'::regprocedure")).rows[0]).toMatchObject({ prosecdef: true, proconfig: ['search_path=""'], anonymous: false, authenticated: true });
 });
 function asUser<T>(userId: string, operation: (tx: PGlite) => Promise<T>) {
   return db.transaction(async (tx) => {

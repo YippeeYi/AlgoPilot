@@ -7,7 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { requestJson } from "@/lib/api-client";
+import { ClientError, requestJson } from "@/lib/api-client";
+import { isGenerationDenied } from "@/lib/validation/generation";
 import type {
   TutorAction,
   TutorMessage,
@@ -118,8 +119,10 @@ export function TutorConversation({
       setPending(null);
       setInput("");
     } catch (e) {
-      if (generation.current === current)
+      if (generation.current === current) {
+        if (e instanceof ClientError && (isGenerationDenied(e.code) || e.code === "TUTOR_REQUEST_FAILED")) setPending(null);
         setError(e instanceof Error ? e.message : "AI 请求失败。");
+      }
     } finally {
       inFlight.current = false;
       if (generation.current === current) setBusy(false);

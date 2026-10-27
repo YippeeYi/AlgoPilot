@@ -4,6 +4,7 @@ import { ApiError } from "@/server/http";
 import type { TutorConfig } from "./config";
 import { reviewAnalysisSchema } from "@/lib/validation/review";
 import { modelOutputSchema, type TutorAction } from "@/lib/validation/m2";
+import { assertGenerationAllowed, GenerationGateError, productionGenerationPolicy, type GenerationPolicy, type GenerationScope } from "@/server/llm/execution-gate";
 export type CompletionOptions = {
   outputKind?: "review";
   action: TutorAction;
@@ -11,6 +12,7 @@ export type CompletionOptions = {
   hasThought?: boolean;
   // Absolute route deadline; leave time for authenticated database settlement.
   deadlineAt?: number;
+  generationScope?: GenerationScope;
 };
 export type LLMMessage = {
   role: "system" | "user" | "assistant";
@@ -28,6 +30,7 @@ export type UsageAttempt = {
 };
 export type LLMResult = { text: string; usage: UsageAttempt[] };
 export interface LLMProvider {
+  assertCanGenerate(scope?: GenerationScope): void;
   complete(
     messages: LLMMessage[],
     signal?: AbortSignal,
@@ -158,12 +161,18 @@ export class OpenAICompatibleProvider implements LLMProvider {
         };
         signal?.addEventListener("abort", cancel, { once: true });
       }),
+    // Dependency injection for isolated tests only. Runtime factory supplies no override.
+    private executionPolicy: GenerationPolicy = productionGenerationPolicy(config),
   ) {}
+  assertCanGenerate(scope?: GenerationScope) {
+    assertGenerationAllowed(this.executionPolicy, scope);
+  }
   async complete(
     messages: LLMMessage[],
     signal?: AbortSignal,
     options?: CompletionOptions,
   ): Promise<LLMResult> {
+    this.assertCanGenerate(options?.generationScope);
     if (
       !messages.length ||
       messages.reduce((n, m) => n + m.content.length, 0) >
@@ -203,6 +212,8 @@ export class OpenAICompatibleProvider implements LLMProvider {
         costUsd: null,
       };
       try {
+        // Re-check immediately before every dispatch, including retry after backoff.
+        this.assertCanGenerate(options?.generationScope);
         combined.throwIfAborted();
         const response = await this.fetcher(
           `${this.config.baseUrl.replace(/\/$/, "")}/chat/completions`,
@@ -308,6 +319,11 @@ export class OpenAICompatibleProvider implements LLMProvider {
         }
         return { text: choice.message.content, usage };
       } catch (error) {
+        if (error instanceof GenerationGateError) {
+          error.usage = usage;
+          if (usage.length) error.message += "此前发送尝试可能已经产生模型用量。";
+          throw error;
+        }
         if (!usage.some((u) => u.attempt === attempt)) {
           record.durationMs = Date.now() - started;
           record.status = combined.aborted ? "timeout" : "error";
@@ -334,6 +350,7 @@ export class OpenAICompatibleProvider implements LLMProvider {
 export class MockProvider implements LLMProvider {
   calls: LLMMessage[][] = [];
   constructor(private result: LLMResult | Error) {}
+  assertCanGenerate() { /* Explicit in-memory test dependency; no transport exists. */ }
   async complete(messages: LLMMessage[]) {
     this.calls.push(messages);
     if (this.result instanceof Error) throw this.result;

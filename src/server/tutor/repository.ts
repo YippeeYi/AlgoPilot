@@ -63,6 +63,16 @@ export function tutorRepository(
   return {
     getSession: training.get.bind(training),
     thoughts: (id: string) => training.thoughts(id, 0, 3),
+    async hasRequest(id: string, requestId: string) {
+      await training.get(id);
+      // Only existence is read; reserve remains authoritative for status and fingerprint.
+      const { data, error } = await client.from("tutor_requests").select("id")
+        .eq("session_id", id).eq("id", requestId).maybeSingle();
+      tutorError(error);
+      if (!data) return false;
+      z.object({ id: z.uuid() }).parse(data);
+      return true;
+    },
     async state(id: string) {
       await training.get(id);
       const { data, error } = await client.rpc("tutor_state", { p_id: id });

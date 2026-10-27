@@ -11,6 +11,7 @@ import TutorMarkdown from "@/components/practice/tutor-markdown";
 import { ClientError, requestJson } from "@/lib/api-client";
 import { readCodeFile } from "@/features/reviews/import-code";
 import { createReviewSchema, reviewResultSchema, type CodeReview, type ReviewResult, type ReviewAnalysis } from "@/lib/validation/review";
+import { isGenerationDenied } from "@/lib/validation/generation";
 import type { TrainingSession } from "@/lib/validation/m1";
 export function analysisMarkdown(a: ReviewAnalysis) {
     return `## 算法思路\n${a.summary}\n\n## 正确性证明摘要\n${a.correctness}\n\n## 未证明的假设\n${a.assumptions}\n\n## 时间复杂度\n${a.timeComplexity}\n\n## 空间复杂度\n${a.spaceComplexity}\n\n## 代码行分析\n${a.lineAnalysis.map(l => `- 第 ${l.start}–${l.end} 行：${l.analysis}`).join("\n")}\n\n## 潜在缺陷与边界\n${a.risks}\n\n## 实现改进\n${a.improvements}\n\n## 其他思路（可选）\n${a.alternatives || "未提供"}\n\n## 可迁移知识点\n${a.transferableKnowledge}\n\n## 复习问题\n${a.revisionQuestions.map(q => `- ${q}`).join("\n")}\n\n${a.answer ? `## 追问回答\n${a.answer}` : ""}`;
@@ -185,6 +186,11 @@ export function ReviewWorkspace({ initialSessionId = "", initialReviewId = "" }:
             setPendingGeneration(null);
         }
         catch (e) {
+            if (e instanceof ClientError && isGenerationDenied(e.code)) {
+                setPendingGeneration(null);
+                setError(e.message);
+                return;
+            }
             // Network errors, unreadable responses and 5xx may follow a committed result.
             // Only a definitive 4xx refusal (other than an active lease) releases the ID.
             if (e instanceof ClientError && e.status >= 400 && e.status < 500 && e.code !== "TUTOR_BUSY") {

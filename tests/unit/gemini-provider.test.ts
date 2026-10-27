@@ -1,7 +1,7 @@
+import { offlineProvider } from "../fixtures/offline-provider";
 import { describe, expect, it, vi } from "vitest";
 import { readTutorConfig, type TutorConfig } from "@/server/tutor/config";
 import {
-  OpenAICompatibleProvider,
   reasoningEffort,
 } from "@/server/tutor/provider";
 import { auditOutput } from "@/server/tutor/audit";
@@ -45,7 +45,7 @@ describe("Gemini compatibility (HTTP fixtures, no real provider)", () => {
     const fetcher = vi
       .fn<typeof fetch>()
       .mockImplementation(async () => response());
-    const provider = new OpenAICompatibleProvider(config, fetcher);
+    const provider = offlineProvider(config, fetcher);
     for (const level of [0, 1, 2]) {
       await provider.complete(messages, undefined, {
         action: "chat",
@@ -75,7 +75,7 @@ describe("Gemini compatibility (HTTP fixtures, no real provider)", () => {
   });
   it("rejects Gemini combined generation beyond the configured budget while retaining raw usage", async () => {
     await expect(
-      new OpenAICompatibleProvider(
+      offlineProvider(
         { ...config, maxOutputTokens: 100 },
         vi.fn<typeof fetch>().mockResolvedValue(response()),
       ).complete(messages),
@@ -92,7 +92,7 @@ describe("Gemini compatibility (HTTP fixtures, no real provider)", () => {
     });
   });
   it("preserves vendor 9/62/710, never invents reasoning classification or a partial output cost", async () => {
-    const result = await new OpenAICompatibleProvider(
+    const result = await offlineProvider(
       { ...config, inputPrice: 1, outputPrice: 2 },
       vi.fn<typeof fetch>().mockResolvedValue(response()),
     ).complete(messages);
@@ -128,7 +128,7 @@ describe("Gemini compatibility (HTTP fixtures, no real provider)", () => {
     "rejects malformed/contradictory/unbounded counters: %j",
     async (tokens) => {
       await expect(
-        new OpenAICompatibleProvider(
+        offlineProvider(
           config,
           vi.fn<typeof fetch>().mockResolvedValue(response(tokens)),
         ).complete(messages),
@@ -137,7 +137,7 @@ describe("Gemini compatibility (HTTP fixtures, no real provider)", () => {
   );
   it("extra usage also prevents underpricing on generic gateways; Gemini cost stays unknown even for additive totals", async () => {
     for (const c of [{ ...config, apiProfile: "generic" as const }, config]) {
-      const result = await new OpenAICompatibleProvider(
+      const result = await offlineProvider(
         { ...c, inputPrice: 1, outputPrice: 2 },
         vi
           .fn<typeof fetch>()
@@ -154,7 +154,7 @@ describe("Gemini compatibility (HTTP fixtures, no real provider)", () => {
   });
   it("uses opt-in Gemini low effort and JSON schema without leaking signatures or requesting thoughts", async () => {
     const fetcher = vi.fn<typeof fetch>().mockResolvedValue(response());
-    await new OpenAICompatibleProvider(config, fetcher).complete(
+    await offlineProvider(config, fetcher).complete(
       messages,
       undefined,
       { action: "validate", allowedLevel: 0 },
@@ -195,7 +195,7 @@ describe("Gemini compatibility (HTTP fixtures, no real provider)", () => {
       LLM_BASE_URL: "https://fixture.invalid/v1",
     })!;
     const fetcher = vi.fn<typeof fetch>().mockResolvedValue(response());
-    await new OpenAICompatibleProvider(generic, fetcher).complete(messages);
+    await offlineProvider(generic, fetcher).complete(messages);
     const body = JSON.parse(String(fetcher.mock.calls[0]![1]!.body));
     expect(body).not.toHaveProperty("reasoning_effort");
     expect(body).not.toHaveProperty("response_format");
@@ -277,7 +277,7 @@ describe("Gemini compatibility (HTTP fixtures, no real provider)", () => {
         }),
     );
     await expect(
-      new OpenAICompatibleProvider(
+      offlineProvider(
         { ...config, timeoutMs: 10 },
         fetcher,
       ).complete(messages),
@@ -287,7 +287,7 @@ describe("Gemini compatibility (HTTP fixtures, no real provider)", () => {
   it("exhausted route budget prevents calls; backoff shares the bounded lifetime", async () => {
     const fetcher = vi.fn<typeof fetch>().mockResolvedValue(response());
     await expect(
-      new OpenAICompatibleProvider(config, fetcher).complete(
+      offlineProvider(config, fetcher).complete(
         messages,
         undefined,
         { action: "chat", allowedLevel: 0, deadlineAt: Date.now() + 49000 },
@@ -296,7 +296,7 @@ describe("Gemini compatibility (HTTP fixtures, no real provider)", () => {
     expect(fetcher).not.toHaveBeenCalled();
     fetcher.mockResolvedValue(new Response("busy", { status: 429 }));
     await expect(
-      new OpenAICompatibleProvider(config, fetcher).complete(
+      offlineProvider(config, fetcher).complete(
         messages,
         undefined,
         { action: "chat", allowedLevel: 0, deadlineAt: Date.now() + 50030 },

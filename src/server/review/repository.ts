@@ -29,6 +29,15 @@ function check(error: {
 const columns = "id,user_id,session_id,problem_id,problem_url,statement_snapshot,code_snapshot,code_hash,source,file_name,submission_id,verdict_source,official_verdict,source_match,authorization_event,notes,revision,created_at,edited_at";
 export function reviewRepository(client: SupabaseClient<Database>, userId: string) {
     return {
+        async hasRequest(id: string, requestId: string) {
+            await this.get(id);
+            const { data, error } = await client.from("review_requests").select("id")
+                .eq("review_id", id).eq("id", requestId).maybeSingle();
+            check(error);
+            if (!data) return false;
+            z.object({ id: z.uuid() }).parse(data);
+            return true;
+        },
         async list() {
             const { data, error } = await client.from("code_reviews").select(columns).eq("user_id", userId).order("created_at", { ascending: false }).limit(100);
             check(error);

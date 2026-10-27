@@ -5,11 +5,12 @@ import type { TutorAction } from "@/lib/validation/m2";
 import type { TutorRepository } from "./repository";
 import type { TutorConfig } from "./config";
 import {
-  OpenAICompatibleProvider,
   ProviderError,
   type LLMProvider,
   type UsageAttempt,
 } from "./provider";
+import { createRuntimeProvider } from "./runtime-provider";
+import { GenerationGateError, type GenerationScope } from "@/server/llm/execution-gate";
 import { buildPrompt, PROMPT_VERSION } from "./prompts";
 import { auditOutput } from "./audit";
 /** A single orchestrator. Database admission/finalization enforce durable policy and leases. */
@@ -19,7 +20,7 @@ export async function runTutor(
   id: string,
   input: { action: TutorAction; message: string; requestId: string },
   signal?: AbortSignal,
-  provider: LLMProvider = new OpenAICompatibleProvider(config),
+  provider: LLMProvider = createRuntimeProvider(config),
   deadlineAt?: number,
 ) {
   const session = await repo.getSession(id);
@@ -65,6 +66,10 @@ export async function runTutor(
       "LLM_INPUT_TOO_LARGE",
       "题面与当前草稿超过模型输入限制，请缩短后再分析。",
     );
+  const generationScope: GenerationScope = { operation: "tutor", userId: session.user_id, resourceId: id, requestId: input.requestId };
+  // Only an existing request ID may reach reserve while generation is blocked.
+  // Reserve remains authoritative for owner/fingerprint/current business rules.
+  if (!await repo.hasRequest(id, input.requestId)) provider.assertCanGenerate(generationScope);
   const reserved = await repo.reserve(
     {
       operation: "reserve",
@@ -113,6 +118,7 @@ export async function runTutor(
   };
   let usage: UsageAttempt[] = [];
   try {
+    provider.assertCanGenerate(generationScope);
     const result = await provider.complete(
       buildPrompt(context, config.maxInputChars),
       signal,
@@ -121,6 +127,7 @@ export async function runTutor(
         allowedLevel: reserved.allowedLevel,
         hasThought: Boolean(session.thought_draft.trim()),
         deadlineAt,
+        generationScope,
       },
     );
     usage = result.usage;
@@ -155,7 +162,7 @@ export async function runTutor(
       cached: false,
     };
   } catch (error) {
-    if (error instanceof ProviderError) usage = error.usage;
+    if (error instanceof ProviderError || error instanceof GenerationGateError) usage = error.usage;
     // No raw model text, upstream errors, prompt contents, keys, or reasoning persisted on failure.
     await repo.finish(
       {
