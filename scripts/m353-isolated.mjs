@@ -51,7 +51,7 @@ try {
   admin=new PsqlConnection(target,'fixture_admin');report.target=await attest();report.version=versions[0];
   for(const sql of ["create role anon nologin nosuperuser nobypassrls", "create role authenticated login noinherit nosuperuser nobypassrls", "create schema auth", "create table auth.users(id uuid primary key,email text)", "create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$", "grant usage on schema auth to anon,authenticated", "grant execute on function auth.uid() to anon,authenticated"])await admin.query(sql);
   // Seed before 006 through the old, still-authorized API, then prove 006–012 preserve it.
-  const files=(await readdir(join(root,'supabase/migrations'))).filter(f=>/^\d{12}_.+\.sql$/.test(f)).sort();
+  const files=(await readdir(join(root,'supabase/migrations'))).filter(f=>/^\d{12}_.+\.sql$/.test(f)&&f.slice(0,12)<='202610270012').sort();
   assert.equal(files.length,12);
   const workspace=join(temporary,'workspace');await mkdir(workspace,{mode:0o700});
   const tracked=execFileSync('/usr/bin/git',['ls-files','--cached','--others','--exclude-standard','-z'],{cwd:root,env:plainEnv,encoding:'utf8'}).split('\0').filter(Boolean);

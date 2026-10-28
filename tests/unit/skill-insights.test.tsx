@@ -6,7 +6,7 @@ import { skillIntelligence } from "@/features/learning/intelligence";
 import { abilityProfile } from "@/features/learning/engine";
 import { skillEvidence,skillNow } from "../fixtures/skill-intelligence";
 const request=vi.hoisted(()=>vi.fn());
-vi.mock('@/lib/api-client',()=>({requestJson:request}));
+vi.mock('@/lib/api-client',()=>({requestJson:(path:string)=>path.startsWith('/api/v1/learning/training-feedback')?Promise.resolve({available:false,items:[],total:0,asOf:''}):request(path)}));
 const result=(count=0,window:'7'|'30'|'90'|'all'='30')=>({profile:abilityProfile(skillEvidence(count)),intelligence:skillIntelligence(skillEvidence(count),window,skillNow)});
 beforeEach(()=>request.mockReset());
 it('empty and sparse evidence display UNKNOWN with no diagnosis action',()=>{

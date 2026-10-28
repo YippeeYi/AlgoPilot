@@ -91,6 +91,9 @@ export type Database = {
     };
     Views: Record<string, never>;
     Functions: {
+      record_recommendation_run:{Args:{p_payload:string;p_signature:string};Returns:unknown};
+      recommendation_choice:{Args:{p_id:string;p_action:string};Returns:unknown};
+      recommendation_training_evidence:{Args:{p_window:string;p_session_id:string|null};Returns:unknown};
       cf_account_state: {Args:Record<string,never>;Returns:unknown};
       cf_account_command: {Args:{p_payload:string;p_signature:string};Returns:unknown};
       learning_evidence_guard: {Args:{p_revision:number;p_official_revision:number};Returns:boolean};

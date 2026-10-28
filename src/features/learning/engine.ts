@@ -204,6 +204,7 @@ export function recommend(e: LearningEvidence, candidates: LearningCandidate[], 
         limitations: "确定性 V1，仅对数据库按难度与主题分层选出的最多 600 个候选排序；Rating 缺失的题不推荐，主题训练排除缺 Tags 题。推荐排序分数不是选手能力分。" + (e.official?.enabled ? ` 官方只排除已观察的 OK；${e.official.lastFullScanAt ? "此前历史曾扫描到公开尾部，但不是当前实时原子快照" : "公开历史仍未到尾部"}，未观察到 AC 不表示未完成。官方覆盖不证明账号归属/独立性，不自动提高参考难度。` : "") };
 }
 export type RecommendationResult = ReturnType<typeof recommend> & {
+    tracking?:import('@/lib/validation/training-feedback').TrackingResult;
     syncedAt: string | null;
     stale: boolean;
     notice: string | null;

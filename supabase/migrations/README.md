@@ -17,3 +17,6 @@ M3.3 追加 `202610150010_cf_official_evidence.sql`：公开账号私人证据/�
 M3.5.3 本地追加 `202610260011_review_retry_recovery.sql`，仅替换 `review_reserve`：相同请求编号的 pending 租约已过期时返回 AP006，防止核对请求永远“处理中”；客户端确认后需再次明确点击才创建新编号。已完成请求仍返回缓存，HMAC、归属、额度、租约及 ACL 保持。001–010 未改；011 可重放，应用迁移本身不执行数据 DML，函数既有写入流程保持。正式环境只应用缺失迁移，必须另列目标及变更清单取得新授权，本轮未部署。历史 M35 的目录比较固定在 001–010，不把它作为 011 的托管证明。见 [本轮验收](../../docs/M353_REVIEW_RETRY_VERIFICATION.md)。
 
 免费门禁本身无新表或迁移。联调发现 Tutor 旧 RPC 同样会把已过期的同编号请求永久判为 AP004；普通 JWT 仅能读请求标识，不能读取/修改私有租约，故追加 `202610270012_tutor_retry_recovery.sql`。它只为 `tutor_reserve` 原有失败判断增加过期 pending 条件，返回 AP006，晚到 worker 继续被拒绝；以精确旧片段匹配保护有效定义，未知形态原子拒绝，原形态/已补丁形态可重放，ACL/search_path/HMAC/额度不变。001–011 不改，应用脚本不回写用户数据。012 尚未托管部署，需新的目标与变更清单授权；不能 repair 既有缺失账本。见 [门禁验收](../../docs/M353_FREE_TIER_GATE_VERIFICATION.md)。
+# 013 推荐训练来源（本地，托管 NOT_RUN）
+
+`202610280013_recommendation_training_feedback.sql` 只在另获目标授权后应用，需001–012已完整就绪及既有CF HMAC配置一致。私有推荐条目与窄RPC区分生成、明确选择、新训练、恢复及结果；新增等价(id,user_id)唯一键供归属FK使用，不重写旧训练。只应用缺失迁移；重跑会原子拒绝。未应用时产品保留原推荐与训练，来源追踪显示不可用。详见 `docs/M35_TRAINING_FEEDBACK_VERIFICATION.md`。本轮未连接托管目标、读取真实Key或执行部署。

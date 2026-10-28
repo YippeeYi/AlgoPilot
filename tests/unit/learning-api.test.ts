@@ -5,10 +5,12 @@ import { defaultPreferences } from "@/lib/validation/learning";
 const auth = vi.hoisted(() => vi.fn());
 const repo = vi.hoisted(() => ({ evidence: vi.fn(), candidates: vi.fn(), write: vi.fn(), assertRevision: vi.fn() }));
 const cf = vi.hoisted(() => vi.fn());
+const tracking = vi.hoisted(()=>vi.fn());
 vi.mock("@/server/auth", () => ({ requireContext: auth }));
 vi.mock("@/server/learning/repository", () => ({ learningRepository: () => repo }));
 vi.mock("@/server/codeforces/repository", () => ({ cfRepository: () => ({}) }));
 vi.mock("@/server/codeforces/catalog", () => ({ catalog: cf }));
+vi.mock('@/server/learning/training-feedback',()=>({trainingFeedbackRepository:()=>({record:tracking})}));
 import { GET as profileRoute } from "@/app/api/v1/learning/route";
 const profile = (request = new Request("http://localhost/api/v1/learning")) => profileRoute(request);
 import { POST as rec } from "@/app/api/v1/recommendations/route";
@@ -64,5 +66,22 @@ describe("windowed diagnosis and explicit one-request training focus",()=>{
   it("does not return stale focus recommendations after consent revision changed",async()=>{
     repo.assertRevision.mockRejectedValue(new ApiError(409,'LEARNING_EVIDENCE_CHANGED','retry'));
     const r=await rec(req({focus:{topic:'graphs',window:'30'}}));expect(r.status).toBe(409);expect(await r.json()).not.toHaveProperty('items');
+  });
+});
+
+describe('owned recommendation provenance is generated from actual ranking output',()=>{
+  beforeEach(()=>{vi.spyOn(Date,'now').mockReturnValue(skillNow);repo.evidence.mockResolvedValue(skillEvidence(5));repo.candidates.mockResolvedValue({items:[{id:skillId(900),contestId:30000,index:'A',name:'Fixture',rating:1400,tags:['graphs'],inPlan:false,practiced:false,solvedCount:null}],total:1});tracking.mockResolvedValue({available:true,items:[{id:skillId(950),problemId:skillId(900)}]});});
+  afterEach(()=>vi.restoreAllMocks());
+  it('records scoped baseline and candidate IDs server-side; never accepts client-authored results',async()=>{
+    const r=await rec(req({trackingId:skillId(999),focus:{topic:'graphs',window:'30'}}));expect(r.status).toBe(200);
+    expect(tracking).toHaveBeenCalledWith({runId:skillId(999),revision:0,officialRevision:0,focus:{topic:'graphs',window:'30'},baseline:{samples:5,concerns:5,solved:5},repeat:false,problemIds:[skillId(900)]});
+    expect(await r.json()).toMatchObject({tracking:{available:true,items:[{id:skillId(950),problemId:skillId(900)}]}});
+    expect((await rec(req({trackingId:skillId(999),baseline:{samples:500}}))).status).toBe(422);
+  });
+  it('retains original recommendations when provenance is known unavailable',async()=>{
+    tracking.mockResolvedValue({available:false,items:[]});const r=await rec(req({trackingId:skillId(999)}));expect(r.status).toBe(200);expect(await r.json()).toMatchObject({tracking:{available:false,items:[]},items:[{problem:{id:skillId(900)}}]});
+  });
+  it('unknown persistence results do not silently fall back or claim successful delivery',async()=>{
+    tracking.mockRejectedValue(new ApiError(503,'SERVICE_UNAVAILABLE','retry'));const r=await rec(req({trackingId:skillId(999)}));expect(r.status).toBe(503);expect(await r.json()).not.toHaveProperty('items');
   });
 });

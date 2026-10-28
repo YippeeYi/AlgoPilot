@@ -67,10 +67,40 @@ function owned(id, uid) {
 }
 const plans=new Map(),planItems=new Map(),planReceipts=new Map(),planSessions=new Set();
 const learningPrefs=new Map(),learningFeedback=new Map(),learningReceipts=new Map();
+const recommendationTrials=new Map();
 const cfFixture=JSON.parse(readFileSync(new URL('./cf-problemset.json',import.meta.url),'utf8'));
 cfFixture.result.problems.forEach((p,n)=>{const id=`50000000-0000-4000-8000-${String(n+1).padStart(12,'0')}`;const stat=cfFixture.result.problemStatistics.find(s=>s.contestId===p.contestId&&s.index===p.index);problems.set(id,{id,owner_id:null,platform:'codeforces',contest_id:p.contestId,problem_index:p.index,title:p.name,rating:p.rating??null,tags:p.tags??[],statement:null,canonical_url:`https://codeforces.com/problemset/problem/${p.contestId}/${p.index}`,solved_count:stat?.solvedCount??null,metadata_synced_at:'2026-10-12T05:22:10.562Z',created_at:'2026-10-12T05:22:10.562Z'});});
 function cfProblem(r){return {id:r.id,contestId:r.contest_id,index:r.problem_index,name:r.title,rating:r.rating,tags:r.tags,solvedCount:r.solved_count};}
 function rpc(name, p, uid) {
+  if(name==='learning_evidence_guard'){if((learningPrefs.get(uid)?.revision??0)!==p.p_revision||p.p_official_revision!==0)failure('PT409');return true;}
+  if(name==='record_recommendation_run'){
+    const key=createHmac('sha256',fixtureSigningSecret).update('algopilot/cf/v1').digest('hex');
+    if(createHmac('sha256',key).update(p.p_payload??'').digest('hex')!==p.p_signature)failure('42501');
+    const v=JSON.parse(p.p_payload);if(v.userId!==uid||v.operation!=='recommendation_record'||Date.parse(v.expiresAt)<Date.now())failure('42501');
+    const fp=JSON.stringify(Object.fromEntries(Object.entries(v).filter(([k])=>!['expiresAt','userId'].includes(k))));
+    const old=[...recommendationTrials.values()].filter(r=>r.userId===uid&&r.runId===v.runId);
+    if(old.length){if(old[0].fp!==fp)failure('PT409');return {available:true,items:old.map(r=>({id:r.id,problemId:r.problemId}))};}
+    if((learningPrefs.get(uid)?.revision??0)!==v.revision)failure('PT409');
+    if(v.problemIds.some(id=>problems.get(id)?.platform!=='codeforces'))failure('23514');
+    for(const problemId of v.problemIds){const r={id:randomUUID(),userId:uid,runId:v.runId,problemId,issuedAt:now(),source:{focus:v.focus,baseline:v.baseline,revision:v.revision,repeat:v.repeat},fp,skippedAt:null,chosenAt:null,sessionId:null,originated:false};recommendationTrials.set(r.id,r);}
+    return {available:true,items:[...recommendationTrials.values()].filter(r=>r.userId===uid&&r.runId===v.runId).map(r=>({id:r.id,problemId:r.problemId}))};
+  }
+  if(name==='recommendation_choice'){
+    const r=recommendationTrials.get(p.p_id);if(!r||r.userId!==uid)failure('P0002');
+    if(p.p_action==='skip'){if(r.sessionId)failure('PT409');r.skippedAt??=now();return {sessionId:null,resumed:false};}
+    if(p.p_action!=='start')failure('23514');if(r.sessionId)return {sessionId:r.sessionId,resumed:true};
+    if((learningPrefs.get(uid)?.revision??0)!==r.source.revision)failure('PT409');
+    if(!r.source.repeat&&([...sessions.values()].some(s=>s.user_id===uid&&s.problem_id===r.problemId&&s.outcome==='solved_self_reported')||[...reviews.values()].some(s=>s.user_id===uid&&s.problem_id===r.problemId)))failure('PT409');
+    let s=[...sessions.values()].filter(s=>s.user_id===uid&&s.problem_id===r.problemId&&s.mode==='practice'&&s.status!=='completed').sort((a,b)=>b.created_at.localeCompare(a.created_at)||a.id.localeCompare(b.id))[0];
+    const resumed=Boolean(s);if(!s)[s]=rpc('start_cf_session',{p_input:{problemId:r.problemId,requestId:r.id,mode:'practice',timerEnabled:false}},uid);
+    r.sessionId=s.id;r.chosenAt=now();r.originated=!resumed;return {sessionId:s.id,resumed};
+  }
+  if(name==='recommendation_training_evidence'){
+    if(!['7','30','90','all'].includes(p.p_window))failure('23514');if(p.p_session_id)owned(p.p_session_id,uid);
+    const since=p.p_window==='all'?-Infinity:Date.now()-Number(p.p_window)*86400000;
+    const rows=[...recommendationTrials.values()].filter(r=>r.userId===uid&&Date.parse(r.issuedAt)>since&&(!p.p_session_id||r.sessionId===p.p_session_id)).sort((a,b)=>b.issuedAt.localeCompare(a.issuedAt)||a.id.localeCompare(b.id));
+    return {available:true,total:rows.length,asOf:now(),revision:learningPrefs.get(uid)?.revision??0,officialRevision:0,items:rows.slice(0,200).map(r=>{const s=r.sessionId?sessions.get(r.sessionId):null,problem=problems.get(r.problemId);return {id:r.id,runId:r.runId,problemId:r.problemId,contestId:problem.contest_id,index:problem.problem_index,issuedAt:r.issuedAt,focus:r.source.focus,baseline:r.source.baseline,skippedAt:r.skippedAt,chosenAt:r.chosenAt,sessionId:r.sessionId,originated:r.originated,sessionStatus:s?.status??null,outcome:s?.outcome??null,endedAt:s?.ended_at??null,official:'disabled',officialSyncedAt:null};})};
+  }
   if(name==='learning_write'){
     const v=p.p_input,key=`${uid}/${v.requestId}`,fp=JSON.stringify(v),old=learningReceipts.get(key);
     if(old){if(old!==fp)failure('PT409');return {saved:true};}

@@ -7,6 +7,7 @@ import { recommendationQuerySchema } from "@/lib/validation/learning";
 import { recommend, recommendationTarget } from "@/features/learning/engine";
 import { skillIntelligence } from "@/features/learning/intelligence";
 import { ApiError, handle, json, readJson } from "@/server/http";
+import {trainingFeedbackRepository} from '@/server/learning/training-feedback';
 export function POST(request: Request) {
     return handle(async () => {
         const { client, user } = await requireContext();
@@ -26,6 +27,11 @@ export function POST(request: Request) {
         }
         if (evidence.official) await repo.assertRevision(evidence.revision, evidence.official.revision);
         else await repo.assertRevision(evidence.revision);
-        return json({ ...recommendations, preferences: recommendationTarget(evidence).preferences, focus: diagnostic ? {topic:diagnostic.topic,window:input.focus!.window} : null, candidateCount: candidates.total, syncedAt: cache.syncedAt, stale: cache.stale, notice: cache.notice });
+        const tracking=input.trackingId && recommendations.items.length ? await trainingFeedbackRepository(client,user.id).record({runId:input.trackingId,revision:evidence.revision,officialRevision:evidence.official?.revision??0,
+            focus:input.focus??null,baseline:diagnostic ? {samples:diagnostic.knownOutcomes,concerns:diagnostic.concernSamples,solved:diagnostic.selfReportedSolved}:null,
+            repeat:preferences.repeat,problemIds:recommendations.items.map(i=>i.problem.id)}) : {available:false,items:[]};
+        // A persisted snapshot must not release stale official/review evidence after a concurrent revoke.
+        if(input.trackingId){if(evidence.official)await repo.assertRevision(evidence.revision,evidence.official.revision);else await repo.assertRevision(evidence.revision);}
+        return json({ ...recommendations,tracking, preferences: recommendationTarget(evidence).preferences, focus: diagnostic ? {topic:diagnostic.topic,window:input.focus!.window} : null, candidateCount: candidates.total, syncedAt: cache.syncedAt, stale: cache.stale, notice: cache.notice });
     });
 }

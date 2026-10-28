@@ -12,6 +12,7 @@ import { requestJson } from "@/lib/api-client";
 import type { TrainingSession, Problem, Thought } from "@/lib/validation/m1";
 import { DraftQueue } from "@/features/sessions/draft-queue";
 import { displayedSeconds, formatSeconds } from "@/features/sessions/time";
+import {TrainingFeedbackPanel} from '@/components/learning/training-feedback';
 
 const draftLabels = {
   saved: "已保存到服务器",
@@ -298,6 +299,7 @@ export function Workspace({
         </div>
       </div>
       <p className="mb-4 text-sm text-muted-foreground">在本地 VS Code / C++ 编译器编写、运行和调试，在 Codeforces 官网手动提交。计时可选，网页无需一直打开。</p>
+      <TrainingFeedbackPanel key={`${session.id}/${session.state_revision}`} sessionId={session.id}/>
       {session.mode !== "contest" && <Button asChild variant="outline" className="mb-4"><Link href={`/reviews?sessionId=${session.id}`}>AC 后导入代码复盘</Link></Button>}
       {completed && (
         <p role="status" className="mb-4 rounded-lg border bg-card p-4 text-sm">

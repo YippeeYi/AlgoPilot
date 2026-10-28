@@ -18,7 +18,7 @@ export type SkillWindow = z.infer<typeof skillWindowSchema>;
 export const skillQuerySchema = z.object({ window: skillWindowSchema.default("30") }).strict();
 export const skillFocusSchema = z.object({ topic: z.enum(learningTopics), window: skillWindowSchema }).strict();
 export type SkillFocus = z.infer<typeof skillFocusSchema>;
-export const recommendationQuerySchema = z.object({ exclude: z.array(idSchema).max(5).default([]), focus: skillFocusSchema.optional() }).strict();
+export const recommendationQuerySchema = z.object({ exclude: z.array(idSchema).max(5).default([]), focus: skillFocusSchema.optional(), trackingId:idSchema.optional() }).strict();
 export const evidenceSchema = z.object({
     official: officialEvidenceSchema.optional(),
     preferences: preferencesSchema.nullable(), revision: z.number().int().nonnegative(), totalSessions: z.number().int().nonnegative(),

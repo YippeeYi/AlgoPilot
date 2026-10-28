@@ -21,6 +21,8 @@ export function Recommendations({focus}: {focus?: SkillFocus}) {
     const [busy, setBusy] = useState(true);
     const [error, setError] = useState("");
     const [notice, setNotice] = useState("");
+    const round=useRef<string|null>(null);
+    const [skipped,setSkipped]=useState<string[]>([]);
     const attempts = useRef(new Map<string, {
         id: string;
         revision?: number;
@@ -32,7 +34,8 @@ export function Recommendations({focus}: {focus?: SkillFocus}) {
     } = { id: crypto.randomUUID() }; attempts.current.set(key, next); return next; }
     useEffect(() => {
         let active = true;
-        Promise.allSettled([requestJson<RecommendationResult>("/api/v1/recommendations", { method: "POST", body: focus ? {focus} : {} }), requestJson<{
+        round.current??=crypto.randomUUID();
+        Promise.allSettled([requestJson<RecommendationResult>("/api/v1/recommendations", { method: "POST", body: {trackingId:round.current,...(focus?{focus}:{})} }), requestJson<{
                 items: TrainingPlan[];
             }>("/api/v1/plans"), requestJson<{preferences: LearningPreferences | null; revision: number}>("/api/v1/learning")]).then(([rec, plan, learning]) => {
             if (!active)
@@ -60,7 +63,7 @@ export function Recommendations({focus}: {focus?: SkillFocus}) {
         });
         return () => { active = false; };
     }, [focus]);
-    async function reload(exclude: string[] = []) { const r = await requestJson<RecommendationResult>("/api/v1/recommendations", { method: "POST", body: { exclude, ...(focus ? {focus} : {}) } }); setResult(r); setRevision(r.revision); if (!preferencesReady) { setPrefs(r.preferences); setPreferencesReady(true); } return r; }
+    async function reload(exclude: string[] = []) { round.current=crypto.randomUUID(); const r = await requestJson<RecommendationResult>("/api/v1/recommendations", { method: "POST", body: { trackingId:round.current,exclude, ...(focus ? {focus} : {}) } }); setResult(r); setRevision(r.revision); if (!preferencesReady) { setPrefs(r.preferences); setPreferencesReady(true); } return r; }
     async function run(fn: () => Promise<void>) { setBusy(true); setError(""); setNotice(""); try {
         await fn();
     }
@@ -93,11 +96,16 @@ export function Recommendations({focus}: {focus?: SkillFocus}) {
         }
     }
     async function feedback(problemId: string, kind: string) { const key = `feedback/${problemId}/${kind}`; await requestJson("/api/v1/learning/feedback", { method: "POST", body: { requestId: attempt(key).id, problemId, kind } }); attempts.current.delete(key); await reload([problemId]); setNotice("反馈已保存并影响本轮排序；它是偏好信号，不是解题结果或能力结论。"); }
-    async function start(problemId: string) { const r = await requestJson<{
+    async function start(problemId: string) {
+        const receipt=result?.tracking?.items.find(r=>r.problemId===problemId);
+        if(receipt){const r=await requestJson<{sessionId:string;resumed:boolean}>("/api/v1/learning/training-feedback",{method:"POST",body:{id:receipt.id,action:"start"}});router.push(`/practice/${r.sessionId}`);return;}
+        const r = await requestJson<{
         session: {
             id: string;
         };
     }>("/api/v1/sessions", { method: "POST", body: { problemId, mode: "practice", timerEnabled: false, requestId: attempt(`start/${problemId}`).id } }); router.push(`/practice/${r.session.id}`); }
+    async function skip(problemId:string){const receipt=result?.tracking?.items.find(r=>r.problemId===problemId);if(!receipt)return;
+        await requestJson('/api/v1/learning/training-feedback',{method:'POST',body:{id:receipt.id,action:'skip'}});setSkipped(rows=>[...new Set([...rows,receipt.id])]);setNotice('已跳过本轮推荐；这不是未解记录，不改变能力判断。仍可明确选择开始训练。');}
     async function add(problemId: string) {
         const key = `plan/${planId}/${problemId}`;
         const a = attempt(key);
@@ -118,6 +126,7 @@ export function Recommendations({focus}: {focus?: SkillFocus}) {
     return <div className="space-y-5">
     {focus && <p role="status" className="rounded-lg border p-4 text-sm">来自能力画像的专项：{focus.topic}。服务端会重新核对诊断证据；本轮明确显示主题以提示算法方向，沿用已保存难度与去重设置，不自动修改已保存目标。<Link className="ml-2 text-primary underline" href="/dashboard">退出本轮专项</Link><Link className="ml-2 text-primary underline" href="/analytics">重新查看诊断</Link></p>}
     <p className="text-sm text-muted-foreground">每次最多推荐 5 题。无需关联 CF Handle；先选择愿意挑战的范围，它是自评偏好，不是官方 Rating。</p>
+    {result?.tracking && <p className="text-xs text-muted-foreground">{result.tracking.available?'本轮推荐来源已记录；生成快照不等于展示、做题或完成。明确进入训练后才记录选择，结束结果仍以训练记录为准。':'本轮来源追踪未就绪；普通推荐与原训练入口仍可用，不能据此统计推荐后的表现。'}</p>}
     <form onSubmit={e => { e.preventDefault(); void run(save); }} className="space-y-4 rounded-xl border p-4">
       <h2 className="font-semibold">简短能力自评与本轮目标</h2>
       <div className="grid gap-3 sm:grid-cols-3"><label className="text-sm">愿意挑战的最低难度<Input type="number" min={800} max={3500} required value={prefs.min} onChange={e => setPrefs({ ...prefs, min: Number(e.target.value) })}/></label><label className="text-sm">愿意挑战的最高难度<Input type="number" min={800} max={3500} required value={prefs.max} onChange={e => setPrefs({ ...prefs, max: Number(e.target.value) })}/></label><label className="text-sm">训练目标<select className="mt-2 w-full rounded-md border bg-background p-2" value={prefs.goal} onChange={e => setPrefs({ ...prefs, goal: e.target.value as LearningPreferences["goal"] })}><option value="balanced">难度与知识均衡</option><option value="independence">加强独立解题</option><option value="explore">探索更多知识方向</option></select></label></div>
@@ -130,7 +139,7 @@ export function Recommendations({focus}: {focus?: SkillFocus}) {
     <div className="flex flex-wrap items-center gap-3"><Button variant="outline" disabled={busy} onClick={() => void run(async () => { await reload(result?.items.map(i => i.problem.id) ?? []); })}>重新推荐</Button><Link className="text-sm text-primary underline" href="/analytics">查看能力画像与依据</Link><label className="text-sm">加入计划<select className="ml-2 max-w-full rounded-md border bg-background p-2" value={planId} onChange={e => setPlanId(e.target.value)}><option value="">选择现有计划</option>{plans.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select></label><Link className="text-sm underline" href="/plans">管理计划</Link></div>
     {busy && <p role="status" className="text-sm">正在读取证据与更新推荐…</p>}
     {result && <><p className="text-xs text-muted-foreground">可信缓存最后成功同步：{result.syncedAt ? new Date(result.syncedAt).toLocaleString() : "尚未同步"}{result.stale ? " · 缓存已过期，谨慎使用" : ""} · 过滤后 {result.candidateCount} 个候选</p>{result.notice && <p role="status" className="text-sm">{result.notice}</p>}{result.reused && <p className="text-xs">符合条件的替代题不足；保留部分上一轮题目。</p>}{!result.items.length && <p className="rounded-lg border p-5 text-sm">没有符合条件的推荐。可扩大难度范围、减少主题限制，或主动选择重新练习；系统不会补造题目或难度。</p>}
-      <div className="grid gap-4 xl:grid-cols-2">{result.items.map(item => <Card key={item.problem.id}><CardContent className="space-y-4 py-5"><h2 className="text-base font-semibold break-words">{cfKey(item.problem.contestId, item.problem.index)} · {item.problem.name}</h2><ul className="space-y-2 text-sm leading-6">{item.reasons.map(reason => <li key={reason}>{reason}</li>)}</ul><EvidenceLinks refs={item.refs}/><div className="flex flex-wrap items-center gap-2"><a className="text-sm text-primary underline" href={cfUrl(item.problem.contestId, item.problem.index)} target="_blank" rel="noreferrer">打开 CF 官方题目</a><Button disabled={busy} onClick={() => void run(() => start(item.problem.id))}>进入思维教练</Button><Button variant="outline" disabled={busy || !planId} onClick={() => void run(() => add(item.problem.id))}>加入所选计划</Button></div><div className="flex flex-wrap gap-2" aria-label="推荐反馈">{[["too_easy", "太简单"], ["too_hard", "太难"], ["off_goal", "不符合目标"]].map(([kind, label]) => <Button key={kind} size="sm" variant="ghost" disabled={busy} onClick={() => void run(() => feedback(item.problem.id, kind!))}>{label}</Button>)}</div></CardContent></Card>)}</div><p className="text-xs leading-6 text-muted-foreground">{result.limitations}</p></>}
+      <div className="grid gap-4 xl:grid-cols-2">{result.items.map(item => <Card key={item.problem.id}><CardContent className="space-y-4 py-5"><h2 className="text-base font-semibold break-words">{cfKey(item.problem.contestId, item.problem.index)} · {item.problem.name}</h2><ul className="space-y-2 text-sm leading-6">{item.reasons.map(reason => <li key={reason}>{reason}</li>)}</ul><EvidenceLinks refs={item.refs}/><div className="flex flex-wrap items-center gap-2"><a className="text-sm text-primary underline" href={cfUrl(item.problem.contestId, item.problem.index)} target="_blank" rel="noreferrer">打开 CF 官方题目</a><Button disabled={busy} onClick={() => void run(() => start(item.problem.id))}>进入思维教练</Button><Button variant="ghost" disabled={busy || !result.tracking?.items.some(r=>r.problemId===item.problem.id) || result.tracking.items.some(r=>r.problemId===item.problem.id && skipped.includes(r.id))} onClick={()=>void run(()=>skip(item.problem.id))}>跳过本轮推荐</Button><Button variant="outline" disabled={busy || !planId} onClick={() => void run(() => add(item.problem.id))}>加入所选计划</Button></div><div className="flex flex-wrap gap-2" aria-label="推荐反馈">{[["too_easy", "太简单"], ["too_hard", "太难"], ["off_goal", "不符合目标"]].map(([kind, label]) => <Button key={kind} size="sm" variant="ghost" disabled={busy} onClick={() => void run(() => feedback(item.problem.id, kind!))}>{label}</Button>)}</div></CardContent></Card>)}</div><p className="text-xs leading-6 text-muted-foreground">{result.limitations}</p></>}
     <div className="flex flex-wrap gap-4 border-t pt-4 text-sm"><Link href="/problems" className="underline">辅助选题：浏览题库</Link><Link href="/sessions" className="underline">训练记录</Link><Link href="/reviews" className="underline">题目分析 / AC 复盘</Link></div>
   </div>;
 }

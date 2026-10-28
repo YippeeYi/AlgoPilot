@@ -1,5 +1,9 @@
 # AlgoPilot 实施状态
 
+## M3.5 后续：推荐训练来源与反馈（2026-10-28）
+
+补充可信推荐快照、明确跳过/开始、恢复旧训练不重复归因、结果回流与来源基线回看。追加013仅本地准备，未托管应用；原推荐权重与已解排除不变。详细来源/分母/兼容性及实际验收见 [M35_TRAINING_FEEDBACK_VERIFICATION.md](M35_TRAINING_FEEDBACK_VERIFICATION.md)。不据此提升真人效果或原生验收计数。
+
 ## M3.5 后续：M3.2 画像诊断增量（2026-10-28）
 
 新增窗口化证据诊断及显式专项推荐闭环，复用现有 M3.2/M3.3 数据与权重，不新建综合能力评分、数据库表或后台同步。完成规则、实际检查、UNKNOWN 与真人效果边界见 [M35_SKILL_INTELLIGENCE_VERIFICATION.md](M35_SKILL_INTELLIGENCE_VERIFICATION.md)。原生20项、B4、托管及真实教学收益未因此通过。
