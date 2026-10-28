@@ -10,7 +10,7 @@ const files=execFileSync('git',['ls-files','--cached','--others','--exclude-stan
 for(const file of files){if(/(^|\/)\.env($|\.)/.test(file))continue;const to=join(workspace,file);await mkdir(dirname(to),{recursive:true});await copyFile(join(root,file),to);}
 await symlink(join(root,'node_modules'),join(workspace,'node_modules'),'dir');
 const env={PATH:dirname(process.execPath)+':/usr/bin:/bin',HOME:home,TMPDIR:temporary,CI:'1',NEXT_TELEMETRY_DISABLED:'1',NODE_OPTIONS:`--require=${join(workspace,'scripts/offline-audit-lifecycle.cjs')}`,M353_B3_AUDIT_DIRECTORY:audits};
-const targeted=['test','--','tests/unit/m34-replay.test.ts','tests/unit/m34-replay-cli.test.ts','tests/unit/offline-audit.test.ts','tests/unit/m34-results-validation.test.ts','tests/unit/m34-results-pairing.test.ts','tests/unit/m34-results-cli.test.ts','--maxWorkers=1'];
+const targeted=['test','--','tests/unit/m34-review.test.ts','tests/unit/m34-review-cli.test.ts','tests/unit/m34-replay.test.ts','tests/unit/m34-replay-cli.test.ts','tests/unit/offline-audit.test.ts','tests/unit/m34-results-validation.test.ts','tests/unit/m34-results-pairing.test.ts','tests/unit/m34-results-cli.test.ts','--maxWorkers=1'];
 const early=process.argv.slice(2).length===1&&process.argv[2]==='--targeted';
 if(process.argv.length>2&&!early)throw Error('Only --targeted is supported');
 const commands=[['lint'],['typecheck'],targeted,...early?[]:[['test','--','--maxWorkers=1'],['test:recommendations','--','--maxWorkers=1'],['build']]];

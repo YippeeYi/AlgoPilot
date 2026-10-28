@@ -83,3 +83,5 @@ report.md使用固定版式，同一合格输入重新排列记录、block、rev
 ## 准备输入与冻结复算
 
 新增只读入口 `node scripts/m34-replay.mjs private-freeze.json private-current.json private-existing-report-directory private-new-verification-directory`，不改变本页原CLI或模板。原准备输入复算、冻结差异、独立有理数统计、JSON/Markdown一致性、字节与语义摘要及审计生命周期见 [M34_REPLAY.md](M34_REPLAY.md)，实际验收见 [M34_REPLAY_VERIFICATION.md](M34_REPLAY_VERIFICATION.md)。来源/同意仍需独立核对，不因复算成功变成真实研究。
+
+人工填写工具见 [本地评审流程](M34_REVIEW_WORKFLOW.md)：分阶段材料、草稿/正式记录及追加修正最终导出为本页既有v1契约；不接收未授权真人研究，不改统计或原模板。

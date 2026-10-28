@@ -1,5 +1,8 @@
 # AlgoPilot
 
+M3.4本地人工评审：新增分人分阶段X/Y材料包、草稿恢复、显式提交、追加修正、撤权与原结果/独立复算工具链的离线闭环。只通过合成演练，真人计数不变。操作见 [人工评审流程](docs/M34_REVIEW_WORKFLOW.md)，验收见 [M34_REVIEW_WORKFLOW_VERIFICATION.md](docs/M34_REVIEW_WORKFLOW_VERIFICATION.md)。
+
+
 M3.4冻结复算：在已有准备输入和冻结旁车上重新核对案例、条件、追加历史、独立选手级统计及已有报告；只读输入，输出私有差异报告，不创建真实冻结或研究数据。契约见 [离线复算](docs/M34_REPLAY.md)，验收见 [M34_REPLAY_VERIFICATION.md](docs/M34_REPLAY_VERIFICATION.md)。
 
 M3.4 研究结果工具：`node scripts/m34-results.ts private-results.json new-private-report-directory` 可离线校验冻结研究对象、追加修正与来源，按选手配对汇总并生成 JSON/Markdown；合成/人工声明分开，缺失不填零，不输出教学收益结论。输入契约见 [M34_RESULTS.md](docs/M34_RESULTS.md)，实际验收见 [M34_RESULTS_VERIFICATION.md](docs/M34_RESULTS_VERIFICATION.md)。
