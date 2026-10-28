@@ -13,7 +13,12 @@ export type LearningPreferences = z.infer<typeof preferencesSchema>;
 export const defaultPreferences: LearningPreferences = { min: 800, max: 1200, themes: [], goal: "balanced", repeat: false, reviewEvidence: false };
 export const savePreferencesSchema = z.object({ requestId: idSchema, revision: z.number().int().nonnegative().max(2147483646), preferences: preferencesSchema }).strict();
 export const feedbackSchema = z.object({ requestId: idSchema, problemId: idSchema, kind: z.enum(["too_easy", "too_hard", "off_goal"]) }).strict();
-export const recommendationQuerySchema = z.object({ exclude: z.array(idSchema).max(5).default([]) }).strict();
+export const skillWindowSchema = z.enum(["7", "30", "90", "all"]);
+export type SkillWindow = z.infer<typeof skillWindowSchema>;
+export const skillQuerySchema = z.object({ window: skillWindowSchema.default("30") }).strict();
+export const skillFocusSchema = z.object({ topic: z.enum(learningTopics), window: skillWindowSchema }).strict();
+export type SkillFocus = z.infer<typeof skillFocusSchema>;
+export const recommendationQuerySchema = z.object({ exclude: z.array(idSchema).max(5).default([]), focus: skillFocusSchema.optional() }).strict();
 export const evidenceSchema = z.object({
     official: officialEvidenceSchema.optional(),
     preferences: preferencesSchema.nullable(), revision: z.number().int().nonnegative(), totalSessions: z.number().int().nonnegative(),

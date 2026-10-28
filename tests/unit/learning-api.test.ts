@@ -1,4 +1,5 @@
-import { beforeEach, describe, it, expect, vi } from "vitest";
+import { beforeEach, afterEach, describe, it, expect, vi } from "vitest";
+import { skillEvidence,skillId,skillNow } from "../fixtures/skill-intelligence";
 import { ApiError } from "@/server/http";
 import { defaultPreferences } from "@/lib/validation/learning";
 const auth = vi.hoisted(() => vi.fn());
@@ -8,7 +9,8 @@ vi.mock("@/server/auth", () => ({ requireContext: auth }));
 vi.mock("@/server/learning/repository", () => ({ learningRepository: () => repo }));
 vi.mock("@/server/codeforces/repository", () => ({ cfRepository: () => ({}) }));
 vi.mock("@/server/codeforces/catalog", () => ({ catalog: cf }));
-import { GET as profile } from "@/app/api/v1/learning/route";
+import { GET as profileRoute } from "@/app/api/v1/learning/route";
+const profile = (request = new Request("http://localhost/api/v1/learning")) => profileRoute(request);
 import { POST as rec } from "@/app/api/v1/recommendations/route";
 import { POST as prefs } from "@/app/api/v1/learning/preferences/route";
 import { POST as feedback } from "@/app/api/v1/learning/feedback/route";
@@ -33,4 +35,34 @@ it('guards official evidence revision on both profile and recommendations, retur
   repo.evidence.mockResolvedValue({preferences:null,revision:0,totalSessions:0,sessions:[],reviews:[],feedback:[],official:{revision:7,enabled:false,handle:'Public_Handle',ownershipVerified:false,totalAcceptedProblems:0,lastSyncedAt:null,lastFullScanAt:null,fullScanUpperId:null,oldestObservedAt:null,items:[]}});
   repo.assertRevision.mockRejectedValue(new ApiError(409,'LEARNING_EVIDENCE_CHANGED','retry'));
   expect((await profile()).status).toBe(409);expect((await rec(req({}))).status).toBe(409);expect(repo.assertRevision).toHaveBeenCalledWith(0,7);
+});
+
+describe("windowed diagnosis and explicit one-request training focus",()=>{
+  beforeEach(()=>{vi.spyOn(Date,'now').mockReturnValue(skillNow);repo.evidence.mockResolvedValue(skillEvidence(5));});
+  afterEach(()=>vi.restoreAllMocks());
+  it("validates window/owner query fields and returns bounded current evidence without invoking CF",async()=>{
+    for(const query of ['window=365','window=30&userId=other'])expect((await profile(new Request('http://localhost/api/v1/learning?'+query))).status).toBe(422);
+    const r=await profile(new Request('http://localhost/api/v1/learning?window=7'));expect(r.headers.get('Cache-Control')).toBe('private, no-store');
+    expect(await r.json()).toMatchObject({intelligence:{window:'7',asOf:new Date(skillNow).toISOString(),recent:{completedProblems:5}}});expect(cf).not.toHaveBeenCalled();
+  });
+  it("derives focus from fresh owned evidence, filters before shortlist, retains target/weights/exclusions and saved preferences",async()=>{
+    const candidate=(n:number,tags:string[])=>({id:skillId(n),contestId:30000+n,index:'A',name:'Fixture',rating:1400,tags,inPlan:false,practiced:false,solvedCount:null});
+    repo.candidates.mockResolvedValue({total:3,items:[candidate(900,['graphs']),candidate(901,['math']),candidate(10001,['graphs'])]});
+    const r=await rec(req({focus:{topic:'graphs',window:'30'}}));expect(r.status).toBe(200);const body=await r.json();
+    expect(body.items.map((i:{problem:{id:string}})=>i.problem.id)).toEqual([skillId(900)]);
+    expect(body.items[0].reasons.join()).toContain('5 道题有明确结果，其中 5 道');expect(body.items[0].refs).toContainEqual({kind:'training',id:skillId(1)});
+    expect(body.preferences.themes).toEqual([]);expect(repo.candidates).toHaveBeenCalledWith(expect.objectContaining({themes:['graphs'],min:1200,max:1800,repeat:false}),1300);
+    expect(repo.write).not.toHaveBeenCalled();
+  });
+  it("rejects forged, insufficient, expired or unsupported actions before touching catalog",async()=>{
+    for(const focus of [{topic:'graphs',window:'365'},{topic:'unknown',window:'30'},{topic:'graphs',window:'30',count:5}])expect((await rec(req({focus}))).status).toBe(422);
+    expect((await rec(req({focus:{topic:'math',window:'30'}}))).status).toBe(409);
+    const e=skillEvidence(4);repo.evidence.mockResolvedValue(e);expect((await rec(req({focus:{topic:'graphs',window:'30'}}))).status).toBe(409);
+    e.sessions=skillEvidence(5).sessions.map(s=>({...s,createdAt:'2026-01-01T00:00:00Z'}));expect((await rec(req({focus:{topic:'graphs',window:'7'}}))).status).toBe(409);
+    expect(cf).not.toHaveBeenCalled();expect(repo.candidates).not.toHaveBeenCalled();
+  });
+  it("does not return stale focus recommendations after consent revision changed",async()=>{
+    repo.assertRevision.mockRejectedValue(new ApiError(409,'LEARNING_EVIDENCE_CHANGED','retry'));
+    const r=await rec(req({focus:{topic:'graphs',window:'30'}}));expect(r.status).toBe(409);expect(await r.json()).not.toHaveProperty('items');
+  });
 });

@@ -1,5 +1,9 @@
 # AlgoPilot 实施状态
 
+## M3.5 后续：M3.2 画像诊断增量（2026-10-28）
+
+新增窗口化证据诊断及显式专项推荐闭环，复用现有 M3.2/M3.3 数据与权重，不新建综合能力评分、数据库表或后台同步。完成规则、实际检查、UNKNOWN 与真人效果边界见 [M35_SKILL_INTELLIGENCE_VERIFICATION.md](M35_SKILL_INTELLIGENCE_VERIFICATION.md)。原生20项、B4、托管及真实教学收益未因此通过。
+
 ## M3.5.3 原生状态验证补充（2026-10-27）
 
 - 已新增本地临时 PostgreSQL 专项入口与 20 项独立连接/恢复/RLS/门禁用例；实际前置检查因本机缺少可复用 runtime 返回 BLOCKED，20 项原生测试均 NOT_RUN。

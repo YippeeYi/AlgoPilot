@@ -6,11 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { requestJson, ClientError } from "@/lib/api-client";
-import { defaultPreferences, learningTopics, type LearningPreferences } from "@/lib/validation/learning";
+import { defaultPreferences, learningTopics, type LearningPreferences, type SkillFocus } from "@/lib/validation/learning";
 import { cfKey, cfUrl, type TrainingPlan, type PlanDetail } from "@/lib/validation/m3";
 import type { RecommendationResult } from "@/features/learning/engine";
 import { EvidenceLinks } from "./evidence-links";
-export function Recommendations() {
+export function Recommendations({focus}: {focus?: SkillFocus}) {
     const router = useRouter();
     const [result, setResult] = useState<RecommendationResult | null>(null);
     const [prefs, setPrefs] = useState<LearningPreferences>(defaultPreferences);
@@ -32,7 +32,7 @@ export function Recommendations() {
     } = { id: crypto.randomUUID() }; attempts.current.set(key, next); return next; }
     useEffect(() => {
         let active = true;
-        Promise.allSettled([requestJson<RecommendationResult>("/api/v1/recommendations", { method: "POST", body: {} }), requestJson<{
+        Promise.allSettled([requestJson<RecommendationResult>("/api/v1/recommendations", { method: "POST", body: focus ? {focus} : {} }), requestJson<{
                 items: TrainingPlan[];
             }>("/api/v1/plans"), requestJson<{preferences: LearningPreferences | null; revision: number}>("/api/v1/learning")]).then(([rec, plan, learning]) => {
             if (!active)
@@ -59,12 +59,13 @@ export function Recommendations() {
             setBusy(false);
         });
         return () => { active = false; };
-    }, []);
-    async function reload(exclude: string[] = []) { const r = await requestJson<RecommendationResult>("/api/v1/recommendations", { method: "POST", body: { exclude } }); setResult(r); setRevision(r.revision); if (!preferencesReady) { setPrefs(r.preferences); setPreferencesReady(true); } return r; }
+    }, [focus]);
+    async function reload(exclude: string[] = []) { const r = await requestJson<RecommendationResult>("/api/v1/recommendations", { method: "POST", body: { exclude, ...(focus ? {focus} : {}) } }); setResult(r); setRevision(r.revision); if (!preferencesReady) { setPrefs(r.preferences); setPreferencesReady(true); } return r; }
     async function run(fn: () => Promise<void>) { setBusy(true); setError(""); setNotice(""); try {
         await fn();
     }
     catch (e) {
+        if(e instanceof ClientError && e.code === "SKILL_ACTION_STALE") setResult(null);
         setError(e instanceof Error ? e.message : "操作未完成，请重试。");
     }
     finally {
@@ -115,6 +116,7 @@ export function Recommendations() {
         }
     }
     return <div className="space-y-5">
+    {focus && <p role="status" className="rounded-lg border p-4 text-sm">来自能力画像的专项：{focus.topic}。服务端会重新核对诊断证据；本轮明确显示主题以提示算法方向，沿用已保存难度与去重设置，不自动修改已保存目标。<Link className="ml-2 text-primary underline" href="/dashboard">退出本轮专项</Link><Link className="ml-2 text-primary underline" href="/analytics">重新查看诊断</Link></p>}
     <p className="text-sm text-muted-foreground">每次最多推荐 5 题。无需关联 CF Handle；先选择愿意挑战的范围，它是自评偏好，不是官方 Rating。</p>
     <form onSubmit={e => { e.preventDefault(); void run(save); }} className="space-y-4 rounded-xl border p-4">
       <h2 className="font-semibold">简短能力自评与本轮目标</h2>

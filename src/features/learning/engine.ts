@@ -32,7 +32,7 @@ export type EvidenceRef = {
     handle?: string;
     observedAt?: string;
 };
-function latestProblems(e: LearningEvidence) {
+export function latestProblems(e: LearningEvidence) {
     const seen = new Set<string>();
     return [...e.sessions].sort((a, b) => b.createdAt.localeCompare(a.createdAt) || a.id.localeCompare(b.id)).filter(s => {
         if (s.status !== "completed" || !s.problemId || seen.has(s.problemId))
