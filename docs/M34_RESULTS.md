@@ -79,3 +79,7 @@ INVALID或结构必要信息INCOMPLETE时整包停止配对统计，仍输出原
 report.md使用固定版式，同一合格输入重新排列记录、block、reviewer或JSON对象键时字节相同。输入指纹对这三类集合稳定排序，冻结列表排名保留顺序；没有运行时间戳、自由文本、真实ID/同意材料/代码/API Key。SHA仅便于在私有原件中定位；不是不可撤销匿名化或分享授权。
 
 不计算显著性、置信区间或综合教学分，不证明实际预测效度或因果学习收益；没有独立多人同题评审面板，不计算评审一致性。M34人工/AI评审CSV保持自己的review-integration/1体系，不合并成研究参与者。013来源与成长统计缺少随机分配/共同条件/训练前基线，不能自动导入为本研究对照。
+
+## 准备输入与冻结复算
+
+新增只读入口 `node scripts/m34-replay.mjs private-freeze.json private-current.json private-existing-report-directory private-new-verification-directory`，不改变本页原CLI或模板。原准备输入复算、冻结差异、独立有理数统计、JSON/Markdown一致性、字节与语义摘要及审计生命周期见 [M34_REPLAY.md](M34_REPLAY.md)，实际验收见 [M34_REPLAY_VERIFICATION.md](M34_REPLAY_VERIFICATION.md)。来源/同意仍需独立核对，不因复算成功变成真实研究。

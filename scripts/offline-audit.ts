@@ -1,0 +1,23 @@
+import {readdir,readFile} from 'node:fs/promises';
+import {join} from 'node:path';
+const counterNames=['networkBlocked','dnsBlocked','credentialReadBlocked','externalHTTP','realDNS','realCredentialReads'] as const;
+const object=(v:unknown):Record<string,unknown>=>v&&typeof v==='object'&&!Array.isArray(v)?v as Record<string,unknown>:{};
+const uint=(v:unknown)=>Number.isSafeInteger(v)&&Number(v)>=0;
+export async function collectOfflineAudit(directory:string){
+ const names=await readdir(directory),issues:{code:string;runtime:string}[]=[];
+ const starts=names.filter(n=>/^\d+-\d+\.started$/.test(n)),ends=names.filter(n=>/^\d+-\d+\.json$/.test(n));
+ const browserStarts=names.filter(n=>/^\d+\.browser\.started$/.test(n)),browserEnds=names.filter(n=>/^\d+\.browser\.json$/.test(n));
+ const counters={networkBlocked:0,dnsBlocked:0,credentialReadBlocked:0,externalHTTP:0,realDNS:0,realCredentialReads:0};
+ const load=async(name:string)=>{try{const text=await readFile(join(directory,name),'utf8');if(text.length>4096)throw Error();return object(JSON.parse(text));}catch{issues.push({code:'INVALID_RECORD',runtime:name.replace(/\..*/,'')});return {};}};
+ for(const n of starts){const r=await load(n),[pid,threadId]=n.slice(0,-8).split('-').map(Number);if(r.version!=='offline-audit-lifecycle/1'||r.pid!==pid||r.threadId!==threadId||Object.keys(r).some(k=>!['version','pid','threadId'].includes(k)))issues.push({code:'INVALID_START',runtime:n.slice(0,-8)});if(!ends.includes(n.replace('.started','.json')))issues.push({code:'MISSING_FINAL_RECORD',runtime:n.slice(0,-8)});}
+ for(const n of ends){const r=await load(n);if(!starts.includes(n.replace('.json','.started')))issues.push({code:'MISSING_START_RECORD',runtime:n.slice(0,-5)});if(r.version!=='m353-b3-guard/1'||counterNames.some(k=>!uint(r[k]))||Object.keys(r).some(k=>k!=='version'&&!counterNames.includes(k as typeof counterNames[number])))issues.push({code:'INVALID_FINAL_RECORD',runtime:n.slice(0,-5)});else for(const k of counterNames)counters[k]+=r[k] as number;}
+ for(const n of names.filter(n=>/^\d+-\d+\.pending$/.test(n))){const final=n.replace(/\.pending$/,'.json');if(!ends.includes(final))issues.push({code:'UNPUBLISHED_RECORD',runtime:n.replace(/\..*/,'')});else if(await readFile(join(directory,n),'utf8')!==await readFile(join(directory,final),'utf8'))issues.push({code:'CONFLICTING_PENDING_RECORD',runtime:n.replace(/\..*/,'')});}
+ let allowed=0,denied=0;
+ for(const n of browserStarts){const r=await load(n),pid=Number(n.split('.')[0]);if(r.version!=='offline-browser-lifecycle/1'||r.pid!==pid||Object.keys(r).some(k=>!['version','pid'].includes(k)))issues.push({code:'INVALID_BROWSER_START',runtime:String(pid)});if(!browserEnds.includes(n.replace('.started','.json')))issues.push({code:'MISSING_BROWSER_FINAL',runtime:String(pid)});}
+ for(const n of browserEnds){const r=await load(n),pid=n.split('.')[0]!;if(!browserStarts.includes(n.replace('.json','.started')))issues.push({code:'MISSING_BROWSER_START',runtime:pid});if(r.version!=='review-browser-routing/1'||!uint(r.allowed)||!uint(r.denied)||r.nativeBackgroundHTTP!==null||r.nativeBackgroundDNS!==null||Object.keys(r).some(k=>!['version','allowed','denied','nativeBackgroundHTTP','nativeBackgroundDNS'].includes(k)))issues.push({code:'INVALID_BROWSER_FINAL',runtime:pid});else {allowed+=r.allowed as number;denied+=r.denied as number;}}
+ for(const n of names)if(!/^\d+-\d+\.(started|json|pending)$/.test(n)&&!/^\d+\.browser\.(started|json)$/.test(n)&&n!=='checks.json')issues.push({code:'UNEXPECTED_ARTIFACT',runtime:'unknown'});
+ if(Object.values(counters).some(n=>!uint(n))||!uint(allowed)||!uint(denied))issues.push({code:'COUNTER_OVERFLOW',runtime:'unknown'});
+ if(!starts.length||!ends.length)issues.push({code:'NO_COMPLETE_NODE_COVERAGE',runtime:'unknown'});
+ const complete=issues.length===0;
+ return {version:'offline-audit-collection/1',state:complete?'COLLECTED':'UNKNOWN',status:complete&&!denied&&Object.values(counters).every(v=>v===0)?'PASS':'FAIL',started:starts.length,completed:ends.length,browserStarted:browserStarts.length,browserCompleted:browserEnds.length,issues:issues.sort((a,b)=>a.runtime.localeCompare(b.runtime)||a.code.localeCompare(b.code)),counters:complete?counters:null,browser:{allowed:complete&&browserStarts.length?allowed:null,denied:complete&&browserStarts.length?denied:null,completedAllowed:allowed,completedDenied:denied,nativeHTTP:'UNKNOWN',nativeDNS:'UNKNOWN'},boundary:'Only instrumented processes and page routes; native/background or uninstrumented activity remains UNKNOWN. Missing or unpublished records never imply zero.'};
+}

@@ -39,7 +39,8 @@ function isMissing(i:z.core.$ZodIssue,raw:unknown){const value=issueValue(raw,i.
 function schemaIssues(error:z.ZodError,raw:unknown):Issue[]{return error.issues.map(i=>({code:isMissing(i,raw)?'MISSING_FIELD':i.code==='unrecognized_keys'?'UNKNOWN_FIELDS':'INVALID_FIELD',path:i.path.length?i.path.join('.'):'$'}));}
 function schemaStatus(error:z.ZodError,raw:unknown):'INVALID'|'INCOMPLETE'{return error.issues.some(i=>!isMissing(i,raw))?'INVALID':'INCOMPLETE';}
 
-export function evaluateStudy(raw:unknown){
+export type StudyLedger={input:z.infer<typeof resultsInputSchema>;records:Checked[];latest:Checked[];inputIssues:Issue[];cases:{ref:string;participantRef:string;block:number;order:string;scenarioRef:string;reasons:string[];A:StudyObservation|undefined;B:StudyObservation|undefined}[]};
+function analyseStudy(raw:unknown,capture?:(ledger:StudyLedger)=>void){
   const sourceHash=hash(raw);
   const envelope=resultsInputSchema.safeParse(raw);
   if(!envelope.success)return {version:'m34-results/1' as const,criteriaVersion,sourceHash,status:schemaStatus(envelope.error,raw),inputIssues:schemaIssues(envelope.error,raw),counts:null,records:[],pairs:[],metrics:[],boundary:'Invalid or incomplete envelope: no observations analyzed.'};
@@ -119,6 +120,7 @@ export function evaluateStudy(raw:unknown){
     for(const row of [...a,...bb]){if(row.previously_seen===null||row.stopped===null)reasons.push('UNKNOWN_TRAINING_ELIGIBILITY');if(row.previously_seen)reasons.push('PREVIOUSLY_SEEN');if(row.stopped)reasons.push('STOPPED');if(row.protocol_deviation!==null)reasons.push('PROTOCOL_DEVIATION');if(row.missing_prerequisite===null)reasons.push('UNKNOWN_PREREQUISITE');if(row.missing_prerequisite)reasons.push('MISSING_PREREQUISITE');}
     return {ref:hash({study:v.study_id,case:identity(b)}),participantRef:hash({study:v.study_id,participant:pid}),block:b.prepared.block,order:b.prepared.order,scenarioRef:hash(b.scenario),reasons:[...new Set(reasons)].sort(),A:a[0],B:bb[0]};
   });
+  capture?.({input:v,records:checked,latest,inputIssues:issues,cases:pairResults});
   const pairs=pairResults.filter(p=>p.reasons.length===0);
   const summaries=Object.entries(metrics).map(([name,value])=>{
     const available=pairs.filter(p=>value(p.A!)!==null&&value(p.B!)!==null),byParticipant=new Map<string,typeof available>();
@@ -136,6 +138,10 @@ export function evaluateStudy(raw:unknown){
     pairs:pairResults.map(({ref,participantRef,block,order,scenarioRef,reasons})=>({ref,participantRef,block,order,scenarioRef,status:reasons.length?'NON_COMPARABLE':'VALID',reasons})).sort((a,b)=>compare(a.ref,b.ref)),exclusions,metrics:summaries,
     boundary:'Participant is the paired unit. A is personalized ranking; B is Rating/Tags. Different blocks share a participant, not independent samples. No significance, predictive validity, causal teaching benefit, model-quality or real consent claim.'};
 }
+
+// The result DTO and old CLI stay unchanged. The private offline verifier also needs admission evidence.
+export function evaluateStudy(raw:unknown){return analyseStudy(raw);}
+export function inspectStudy(raw:unknown){let ledger:StudyLedger|null=null;const result=analyseStudy(raw,value=>{ledger=value;});return {result,ledger};}
 
 export function renderStudyReport(r:ReturnType<typeof evaluateStudy>){
   const lines=['# M3.4 离线研究结果校验与配对观察','',`版本：${r.version}；标准：${r.criteriaVersion}；状态：${r.status}。`,'',`输入指纹：${'inputHash' in r?r.inputHash:r.sourceHash}`,'','研究目标：A 个性化排序 vs B Rating/Tags共同候选基线。Tutor权限与复盘机会保持相同，不是独立AI效果实验。'];

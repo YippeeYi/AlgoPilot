@@ -1,5 +1,7 @@
 # AlgoPilot
 
+M3.4冻结复算：在已有准备输入和冻结旁车上重新核对案例、条件、追加历史、独立选手级统计及已有报告；只读输入，输出私有差异报告，不创建真实冻结或研究数据。契约见 [离线复算](docs/M34_REPLAY.md)，验收见 [M34_REPLAY_VERIFICATION.md](docs/M34_REPLAY_VERIFICATION.md)。
+
 M3.4 研究结果工具：`node scripts/m34-results.ts private-results.json new-private-report-directory` 可离线校验冻结研究对象、追加修正与来源，按选手配对汇总并生成 JSON/Markdown；合成/人工声明分开，缺失不填零，不输出教学收益结论。输入契约见 [M34_RESULTS.md](docs/M34_RESULTS.md)，实际验收见 [M34_RESULTS_VERIFICATION.md](docs/M34_RESULTS_VERIFICATION.md)。
 
 成长观测复用训练证据，对比相邻 7/30/90 天创建的不同题目记录，区分样本量、难度构成和能力变化；历史截断时停止跨窗推断。推荐结果分开统计选择、恢复、新训练、自报结果与当前官方观察，曝光和推荐后官方完成保持 UNKNOWN。符合门槛的建议可进入原专项候选池，不自动升难度或调权。口径与离线验收见 [成长与推荐结果观测](docs/M35_GROWTH_OBSERVATIONS_VERIFICATION.md)。
