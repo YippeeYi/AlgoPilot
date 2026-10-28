@@ -67,6 +67,15 @@ describe("windowed diagnosis and explicit one-request training focus",()=>{
     repo.assertRevision.mockRejectedValue(new ApiError(409,'LEARNING_EVIDENCE_CHANGED','retry'));
     const r=await rec(req({focus:{topic:'graphs',window:'30'}}));expect(r.status).toBe(409);expect(await r.json()).not.toHaveProperty('items');
   });
+  it('recomputes a growth action from owned evidence without altering target, filters, weights or stored preferences',async()=>{
+    const e=skillEvidence(5);e.sessions=e.sessions.map(s=>({...s,maxHint:0}));repo.evidence.mockResolvedValue(e);
+    repo.candidates.mockResolvedValue({total:3,items:[{id:skillId(900),contestId:900,index:'A',name:'Fixture',rating:1400,tags:['graphs'],inPlan:false,practiced:false,solvedCount:null},{id:skillId(10001),contestId:901,index:'A',name:'Solved',rating:1400,tags:['graphs'],inPlan:false,practiced:false,solvedCount:null}]});
+    const r=await rec(req({focus:{topic:'graphs',window:'30'}}));expect(r.status).toBe(200);const body=await r.json();
+    expect(body.items).toHaveLength(1);expect(body.items[0].problem.id).toBe(skillId(900));expect(body.items[0].reasons.join()).toContain('来自成长观测的显式专项');
+    expect(body.items[0].reasons.join()).toContain('已加载前窗 0、本窗 5');expect(body.preferences).toEqual(e.preferences);
+    expect(repo.candidates).toHaveBeenCalledWith({...e.preferences,themes:['graphs']},1400);expect(repo.write).not.toHaveBeenCalled();
+    e.totalSessions=900;expect((await rec(req({focus:{topic:'graphs',window:'30'}}))).status).toBe(409);
+  });
 });
 
 describe('owned recommendation provenance is generated from actual ranking output',()=>{

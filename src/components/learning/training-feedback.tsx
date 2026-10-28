@@ -5,7 +5,7 @@ import {requestJson} from '@/lib/api-client';
 import type {TrainingFeedback} from '@/lib/validation/training-feedback';
 import type {SkillWindow} from '@/lib/validation/learning';
 import type {SkillIntelligence} from '@/features/learning/intelligence';
-import {trainingFeedbackState,trainingFeedbackSummary,feedbackStateNames} from '@/features/learning/training-feedback';
+import {trainingFeedbackState,trainingFeedbackSummary,recommendationObservation,feedbackStateNames} from '@/features/learning/training-feedback';
 function guardNavigation(event:React.MouseEvent<HTMLAnchorElement>){if(!globalThis.window.dispatchEvent(new Event('algopilot-before-navigate',{cancelable:true})))event.preventDefault();}
 const outcomeNames={not_recorded:'未记录结果',solved_self_reported:'已解出（用户自报）',unsolved:'暂未解出（用户自报）',abandoned:'放弃本次训练（用户自报）'};
 export function TrainingFeedbackPanel({window='all',sessionId,current}:{window?:SkillWindow;sessionId?:string;current?:SkillIntelligence}){
@@ -15,10 +15,21 @@ export function TrainingFeedbackPanel({window='all',sessionId,current}:{window?:
   if(!data)return <p className="text-sm" role="status">正在读取推荐训练反馈…</p>;
   if(!data.available)return <p className="text-sm text-muted-foreground">推荐来源追踪尚未配置或迁移未就绪；原训练和画像仍可用，当前不能统计来源。</p>;
   const summary=trainingFeedbackSummary(data.items);
+  const observation=recommendationObservation(data)!;
   return <section className="space-y-3 rounded-lg border p-4 text-sm" aria-label="推荐后的训练证据">
     <h2 className="font-semibold">{sessionId?'本次训练的推荐来源':'推荐后的训练反馈'}</h2>
     {!data.items.length ? <p>{sessionId?'没有可验证的推荐关联（旧训练不强行归因），本训练仍按原规则进入画像。':'本窗口暂无已记录的推荐来源；不能据此认定没有训练。'}</p> : <>
       {!sessionId && <><p>本窗口生成推荐条目 {summary.issued}，明确选择 {summary.chosen}，其中恢复旧训练 {summary.restored}；本轮新建训练 {summary.attempts}，已结束 {summary.ended}，自报解出 {summary.solved}，自报未解 {summary.unsolved}，当前跳过 {summary.skipped}。</p><p>新训练明确结果内的自报解出比例：{summary.completion?`${summary.completion.numerator}/${summary.completion.denominator}`:'UNKNOWN（至少5道不同题目有明确结果）'}。</p></>}
+      {!sessionId && <section aria-label="推荐效果观测" className="space-y-2 rounded-lg border p-3">
+        <h3 className="font-semibold">推荐结果观测（不评估因果效果）</h3>
+        <p>反馈读取截至 {observation.asOf}；画像与反馈分别读取，不保证同一事务快照。</p>
+        <p>真实展示数量：UNKNOWN；未追踪来源的训练数量：UNKNOWN。仅能核对已持久化的 {observation.loaded} 条推荐快照，不能计算曝光率。</p>
+        <p>尚未选择且未跳过 {observation.unselected} 条；历史跳过操作 {observation.skipEvents} 条（其中当前仍跳过 {observation.skipped} 条，先跳过后选择可重叠）。选择按来源条目计，恢复旧训练不归因本轮。</p>
+        <p>新建训练按 session 去重 {observation.started} 次：未结束 {observation.active}，结束但结果未记录 {observation.unknownEnded}；尚无明确自报结果合计 {observation.awaitingResult}。明确放弃 {observation.abandoned}；未开始、跳过和未记录结果都不是失败。</p>
+        <p>新建训练题目中当前官方 OK 观察：{observation.official.observedOK??'UNKNOWN'}；可用已同步观察覆盖 {observation.official.checkedProblems} 道不同题，另 {observation.official.unavailableProblems} 道未启用或未同步。这里仅查询已有缓存，不表示这些题的提交历史完整或实时。按题去重，与自报次数不相加。</p>
+        <p>推荐后官方确认完成数：UNKNOWN。当前接口没有 OK 的首次发生时间，历史 OK 不能归因本轮推荐；官方 OK 也不证明独立完成。历史恢复与来源缺失不进入新训练结果分母。</p>
+        <p className="text-xs text-muted-foreground">所有计数仅对应本窗口已读取的推荐条目及当前关联状态；窗口按生成时间，不按完成时间。明确结果比例分母是已结束且自报解出/未解/放弃的新训练次数，至少覆盖5道不同题；重复练习可贡献不同训练，不能视为不同题量。历史截断时不外推全窗口比例，不跨窗口比较完成率。</p>
+      </section>}
       <p className="text-xs text-muted-foreground">窗口按推荐生成时间，统计当前状态；生成不等于展示或点击，选择不等于做题或完成。恢复旧训练不计本轮新尝试/成功，官方 OK 单列；不能证明推荐造成成长。</p>
       {data.total>data.items.length && <p>仅统计本窗口最近 {data.items.length}/{data.total} 条推荐记录，不代表全部历史。</p>}
       {data.items.slice(0,8).map(r=>{const topic=r.focus&&current?.window===r.focus.window?current.topics.find(t=>t.topic===r.focus!.topic):null;return <div key={r.id} className="space-y-1 rounded-lg border p-3">

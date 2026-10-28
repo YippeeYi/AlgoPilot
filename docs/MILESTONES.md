@@ -1,5 +1,9 @@
 # AlgoPilot 实施状态
 
+## M3.5 后续：成长与推荐结果观测（2026-10-28）
+
+复用 M3.2/M3.3/013 证据，补相邻窗口的题目/明确结果/可见知识方向/难度统计、样本门槛变化、来源与训练分母分离、带证据的下一轮显式专项。无新迁移、权重或自动目标变更；没有曝光与推荐后首次 OK 证据时保持 UNKNOWN。验收及未验证的预测/真实效果见 [M35_GROWTH_OBSERVATIONS_VERIFICATION.md](M35_GROWTH_OBSERVATIONS_VERIFICATION.md)。原生 PostgreSQL、B4 与托管门禁维持独立状态。
+
 ## M3.5 后续：推荐训练来源与反馈（2026-10-28）
 
 补充可信推荐快照、明确跳过/开始、恢复旧训练不重复归因、结果回流与来源基线回看。追加013仅本地准备，未托管应用；原推荐权重与已解排除不变。详细来源/分母/兼容性及实际验收见 [M35_TRAINING_FEEDBACK_VERIFICATION.md](M35_TRAINING_FEEDBACK_VERIFICATION.md)。不据此提升真人效果或原生验收计数。

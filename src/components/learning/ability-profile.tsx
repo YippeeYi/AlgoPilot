@@ -9,6 +9,7 @@ import type { SkillIntelligence } from "@/features/learning/intelligence";
 import type { SkillWindow } from "@/lib/validation/learning";
 import { SkillInsights } from "./skill-insights";
 import {TrainingFeedbackPanel} from './training-feedback';
+import {GrowthInsights} from './growth-insights';
 export function AbilityProfile() {
     const [profile, setProfile] = useState<Profile | null>(null);
     const [error, setError] = useState("");
@@ -29,8 +30,9 @@ export function AbilityProfile() {
     const names: Record<string, string> = { boundary: "边界处理", overflow: "整数溢出", complexity: "复杂度风险" };
     return <div className="space-y-6">
     {controls}
-    {intelligence && <SkillInsights data={intelligence}/>}
+    {intelligence && <GrowthInsights data={intelligence.growth}/>}
     <TrainingFeedbackPanel key={`${window}/${refresh}`} window={window} current={intelligence??undefined}/>
+    {intelligence && <SkillInsights data={intelligence}/>}
     <h2 className="font-semibold">完整已加载证据概览（不受诊断窗口筛选）</h2>
     <p className="text-sm leading-7 text-muted-foreground">{profile.totalSessions} 次训练记录；画像分析最近 {profile.analyzedSessions} 次，其中 {profile.distinctCompletedProblems} 道不同题目有完成记录。{profile.thoughtRecordedSessions} 次保存过思路版本（记录数量不能衡量思考质量）。能力分析不生成综合分，也不等同于 CF 官方 Rating。</p>
     <section className="space-y-2 text-sm"><h2 className="font-semibold">关联公开账号的官方依据</h2>{profile.official.enabled ? <><p>{profile.official.handle}：已观察到 {profile.official.totalAcceptedProblems} 道不同题目的 OK，本画像取最近 {profile.official.analyzedAccepted} 道。账号归属、独立完成和导入源码一致性均未验证。</p><p>最近成功批次：{profile.official.lastSyncedAt ?? "尚无"}；最近历史到尾部：{profile.official.lastFullScanAt ?? "尚未到尾部，覆盖不完整"}。先前到尾部不代表当前实时完整。</p></> : <p>官方证据未启用，不参与本轮能力判断。</p>}<Link className="text-primary underline" href="/settings">管理公开账号、同步与证据授权</Link></section>

@@ -6,7 +6,7 @@ import type {PGlite} from '@electric-sql/pglite';
 import {database,publish,query,alice,fixtureSecret} from '../evaluation/database';
 import {signTutorPayload} from '@/server/tutor/repository';
 import {trainingFeedbackSchema,type TrainingFeedback} from '@/lib/validation/training-feedback';
-import {trainingFeedbackSummary,trainingFeedbackState} from '@/features/learning/training-feedback';
+import {trainingFeedbackSummary,trainingFeedbackState,recommendationObservation} from '@/features/learning/training-feedback';
 import {evidenceSchema} from '@/lib/validation/learning';
 import {skillIntelligence} from '@/features/learning/intelligence';
 vi.mock('server-only',()=>({}));
@@ -87,6 +87,17 @@ it('self-reported completion flows into current profile and full-history exclusi
   expect(pool.items.map(p=>p.id)).not.toContain(ids[1]!);expect(await choose(id)).toEqual({sessionId:a.sessionId,resumed:true});
   const stale=await record([ids[1]!]);await expect(choose(stale.result.items[0]!.id)).rejects.toMatchObject({code:'PT409'});
   expect((await query(db,'select id from public.training_sessions',[],owner)).rows).toHaveLength(1);
+});
+it('five actual SQL-linked results refresh growth, source denominators and owned next-action evidence without a new metric table',async()=>{
+  const r=await record(ids.slice(1,6));expect(recommendationObservation(await read())).toMatchObject({loaded:5,selected:0,started:0,solved:0});
+  for(const receipt of r.result.items){const a=await choose(receipt.id);await finish(a.sessionId!);expect(await choose(receipt.id)).toEqual({sessionId:a.sessionId,resumed:true});}
+  const feedback=await read();expect(recommendationObservation(feedback)).toMatchObject({loaded:5,started:5,ended:5,solved:5,completion:{numerator:5,denominator:5},officialAfterRecommendation:null});
+  const e=evidenceSchema.parse((await query<{v:unknown}>(db,'select public.learning_evidence() v',[],owner)).rows[0]!.v);
+  const growth=skillIntelligence(e,'30',Date.now()+1).growth;
+  expect(growth).toMatchObject({current:{problems:5,known:5,solved:5},previous:{problems:0},comparison:'insufficient',medianChange:null});
+  expect(growth.actions).toMatchObject([{topic:'graphs',reason:'new_evidence'}]);
+  expect(recommendationObservation(await read(other))).toMatchObject({loaded:0,started:0,solved:0});
+  const peer=evidenceSchema.parse((await query<{v:unknown}>(db,'select public.learning_evidence() v',[],other)).rows[0]!.v);expect(skillIntelligence(peer,'30',Date.now()+1).growth.current.problems).toBe(0);
 });
 it.each(['unsolved','abandoned','not_recorded'])('preserves %s as a distinct result, never official or synthetic success',async outcome=>{
   const r=await record([ids[1]!]),a=await choose(r.result.items[0]!.id);await finish(a.sessionId!,outcome);

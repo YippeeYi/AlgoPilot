@@ -1,5 +1,6 @@
 import { latestProblems, officialItems, type EvidenceRef } from "./engine";
 import { learningTopics, type LearningEvidence, type SkillWindow } from "@/lib/validation/learning";
+import { growthObservations } from './growth';
 
 // Descriptive evidence rules, NOT scoring weights, an Elo model, or a prediction of mastery.
 export const skillRules = Object.freeze({ version: "evidence-diagnostics/1", minimum: 5, concernMinimum: 2, concernRatio: 0.4, concentrationMinimum: 10, concentrationRatio: 0.8, limit: 500 });
@@ -61,7 +62,10 @@ export function skillIntelligence(e: LearningEvidence, window: SkillWindow, now:
       highHints: rows.filter(s => s.maxHint >= 3).length, refs: rows.map(s => ref(s.id)) };
   };
   const recent = summary(training);
-  const previous = start === null ? null : summary(completed.filter(s => timestamp(s.createdAt) <= start && timestamp(s.createdAt) > start - Number(window) * day));
+  const previousRows = start === null ? null : completed.filter(s => timestamp(s.createdAt) <= start && timestamp(s.createdAt) > start - Number(window) * day);
+  const previous = previousRows === null ? null : summary(previousRows);
+  const incomplete = e.totalSessions > sessions.length || normalized.length !== e.sessions.length || sessions.some(s => s.status === 'completed' && !s.problemId && (start === null || timestamp(s.createdAt) > start - Number(window) * day));
+  const growth = growthObservations(training, previousRows, { window, now, incomplete, ...skillRules });
   const tagged = training.filter(s => s.tags.length), top = [...topics].sort((a, b) => b.trainingSamples - a.trainingSamples || a.topic.localeCompare(b.topic))[0];
   const concentration = tagged.length >= skillRules.concentrationMinimum && top && top.trainingSamples / tagged.length >= skillRules.concentrationRatio
     ? { topic: top.topic, numerator: top.trainingSamples, denominator: tagged.length, refs: top.refs } : null;
@@ -71,9 +75,9 @@ export function skillIntelligence(e: LearningEvidence, window: SkillWindow, now:
       missingRating: training.filter(s => s.rating === null).length, missingVisibleTags: training.filter(s => !s.tags.length).length,
       unlinkedCompleted: sessions.filter(s => s.status === "completed" && !s.problemId && inWindow(s)).length,
       activeOrPaused: sessions.filter(s => s.status !== "completed" && inWindow(s)).length },
-    recent, previous, topics, bands, concentration,
+    recent, previous, topics, bands, concentration, growth,
     // Compare descriptive sample medians only. Never label this as improvement/decline of ability.
-    medianChange: recent.medianSolvedRating !== null && previous?.medianSolvedRating != null ? recent.medianSolvedRating - previous.medianSolvedRating : null,
+    medianChange: growth.medianChange,
     limitations: ["窗口按训练创建时间；不是完成时间、解题耗时或训练量的完整历史。范围为 (起点, 本次读取时间]，全部指已加载证据。",
       "每题取已加载窗口中最新完成训练，再按时间筛选；未结束训练不进入完成比例，未记录结果不进入比例分母。",
       "完成比例只指这些已结束且结果明确的训练中的自报解出比例；不等于真实成功概率或独立完成率。",

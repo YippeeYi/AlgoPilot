@@ -14,7 +14,9 @@ export function POST(request: Request) {
         const input = await readJson(request, recommendationQuerySchema);
         const repo = learningRepository(client);
         const evidence = await repo.evidence();
-        const diagnostic = input.focus ? skillIntelligence(evidence,input.focus.window,Date.now()).topics.find(t=>t.topic===input.focus!.topic && t.action) : null;
+        const analysis = input.focus ? skillIntelligence(evidence,input.focus.window,Date.now()) : null;
+        const growthAction = analysis?.growth.actions.find(a=>a.topic===input.focus!.topic);
+        const diagnostic = analysis?.topics.find(t=>t.topic===input.focus!.topic && (t.action || growthAction));
         if(input.focus && !diagnostic) throw new ApiError(409,"SKILL_ACTION_STALE","当前证据不再支持这条专项建议，请刷新能力画像；也可手动选择训练主题。");
         const effective = diagnostic ? {...evidence,preferences:{...recommendationTarget(evidence).preferences,themes:[diagnostic.topic]}} : evidence;
         const { preferences, target } = recommendationTarget(effective);
@@ -22,8 +24,10 @@ export function POST(request: Request) {
         const candidates = await repo.candidates(preferences, target);
         const recommendations = recommend(effective, candidates.items, input.exclude);
         if(diagnostic) for(const item of recommendations.items) {
-            item.reasons.push(`来自能力画像的显式专项：${diagnostic.topic}，${input.focus!.window === "all" ? "已加载全部" : `最近 ${input.focus!.window} 天创建的`}训练中 ${diagnostic.knownOutcomes} 道题有明确结果，其中 ${diagnostic.concernSamples} 道存在 L3+ 或未解/放弃记录（并集）。这是待验证的训练信号，不是能力缺陷结论。`);
-            item.refs = [...new Map([...item.refs,...diagnostic.refs].map(r=>[r.id,r])).values()];
+            item.reasons.push(growthAction
+                ? `来自成长观测的显式专项：${diagnostic.topic}。${growthAction.explanation} 仅在已保存难度内筛选，不证明能力提升或推荐有效。`
+                : `来自能力画像的显式专项：${diagnostic.topic}，${input.focus!.window === "all" ? "已加载全部" : `最近 ${input.focus!.window} 天创建的`}训练中 ${diagnostic.knownOutcomes} 道题有明确结果，其中 ${diagnostic.concernSamples} 道存在 L3+ 或未解/放弃记录（并集）。这是待验证的训练信号，不是能力缺陷结论。`);
+            item.refs = [...new Map([...item.refs,...(growthAction?.refs ?? diagnostic.refs)].map(r=>[r.id,r])).values()];
         }
         if (evidence.official) await repo.assertRevision(evidence.revision, evidence.official.revision);
         else await repo.assertRevision(evidence.revision);
