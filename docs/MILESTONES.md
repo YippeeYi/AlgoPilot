@@ -1,5 +1,9 @@
 # AlgoPilot 实施状态
 
+## M3.4 研究结果工具补充（2026-10-28）
+
+沿既定共同候选 A/B 方案补离线结果校验、追加修正/撤权、按选手配对汇总及可复现 JSON/Markdown。原准备v1/模板与人工队列保留，新增结果字段契约，不改变研究假设、推荐权重或生产功能。来源声明不等于真实同意/真人证据，真实参与者仍0；验收与限制见 [M34_RESULTS_VERIFICATION.md](M34_RESULTS_VERIFICATION.md)。
+
 ## M3.5 后续：成长与推荐结果观测（2026-10-28）
 
 复用 M3.2/M3.3/013 证据，补相邻窗口的题目/明确结果/可见知识方向/难度统计、样本门槛变化、来源与训练分母分离、带证据的下一轮显式专项。无新迁移、权重或自动目标变更；没有曝光与推荐后首次 OK 证据时保持 UNKNOWN。验收及未验证的预测/真实效果见 [M35_GROWTH_OBSERVATIONS_VERIFICATION.md](M35_GROWTH_OBSERVATIONS_VERIFICATION.md)。原生 PostgreSQL、B4 与托管门禁维持独立状态。

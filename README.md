@@ -1,5 +1,7 @@
 # AlgoPilot
 
+M3.4 研究结果工具：`node scripts/m34-results.ts private-results.json new-private-report-directory` 可离线校验冻结研究对象、追加修正与来源，按选手配对汇总并生成 JSON/Markdown；合成/人工声明分开，缺失不填零，不输出教学收益结论。输入契约见 [M34_RESULTS.md](docs/M34_RESULTS.md)，实际验收见 [M34_RESULTS_VERIFICATION.md](docs/M34_RESULTS_VERIFICATION.md)。
+
 成长观测复用训练证据，对比相邻 7/30/90 天创建的不同题目记录，区分样本量、难度构成和能力变化；历史截断时停止跨窗推断。推荐结果分开统计选择、恢复、新训练、自报结果与当前官方观察，曝光和推荐后官方完成保持 UNKNOWN。符合门槛的建议可进入原专项候选池，不自动升难度或调权。口径与离线验收见 [成长与推荐结果观测](docs/M35_GROWTH_OBSERVATIONS_VERIFICATION.md)。
 
 推荐来源与训练反馈增量：来源追踪就绪时可明确跳过或进入训练，重复选择恢复已有训练，旧训练不强行归因；结束结果继续由用户自报，官方OK另列，画像按原规则更新。013尚未托管部署，未就绪时普通推荐/训练入口保留。规则与验收见 [训练反馈闭环](docs/M35_TRAINING_FEEDBACK_VERIFICATION.md)。
