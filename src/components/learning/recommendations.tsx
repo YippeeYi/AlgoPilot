@@ -21,6 +21,7 @@ export function Recommendations({focus}: {focus?: SkillFocus}) {
     const [busy, setBusy] = useState(true);
     const [error, setError] = useState("");
     const [notice, setNotice] = useState("");
+    const operationInFlight = useRef(false);
     const round=useRef<string|null>(null);
     const [skipped,setSkipped]=useState<string[]>([]);
     const attempts = useRef(new Map<string, {
@@ -63,28 +64,40 @@ export function Recommendations({focus}: {focus?: SkillFocus}) {
         });
         return () => { active = false; };
     }, [focus]);
-    async function reload(exclude: string[] = []) { round.current=crypto.randomUUID(); const r = await requestJson<RecommendationResult>("/api/v1/recommendations", { method: "POST", body: { trackingId:round.current,exclude, ...(focus ? {focus} : {}) } }); setResult(r); setRevision(r.revision); if (!preferencesReady) { setPrefs(r.preferences); setPreferencesReady(true); } return r; }
-    async function run(fn: () => Promise<void>) { setBusy(true); setError(""); setNotice(""); try {
+    async function reload(exclude: string[] = []) {
+        // A refresh must revalidate the current permissions/target. Never leave an old
+        // actionable snapshot visible if that read fails or its revision is rejected.
+        setResult(null);
+        round.current=crypto.randomUUID();
+        const r = await requestJson<RecommendationResult>("/api/v1/recommendations", { method: "POST", body: { trackingId:round.current,exclude, ...(focus ? {focus} : {}) } });
+        setResult(r); setSkipped([]); setRevision(r.revision);
+        if (!preferencesReady) { setPrefs(r.preferences); setPreferencesReady(true); }
+        return r;
+    }
+    async function run(fn: () => Promise<void>) {
+        if (operationInFlight.current) return;
+        operationInFlight.current=true;
+        setBusy(true); setError(""); setNotice(""); try {
         await fn();
     }
     catch (e) {
-        if(e instanceof ClientError && e.code === "SKILL_ACTION_STALE") setResult(null);
+        if(e instanceof ClientError && (e.code === "SKILL_ACTION_STALE" || [401,403,409].includes(e.status))) setResult(null);
+        if(e instanceof ClientError && [401,403].includes(e.status)) setPreferencesReady(false);
         setError(e instanceof Error ? e.message : "操作未完成，请重试。");
     }
     finally {
+        operationInFlight.current=false;
         setBusy(false);
     } }
     async function save() {
         if (!preferencesReady)
             return;
         const key = `preferences/${revision}/${JSON.stringify(prefs)}`;
+        // The mutation can change evidence consent, even when its acknowledgement is
+        // lost. Do not retain recommendations from the previous permission snapshot.
+        setResult(null);
         try {
             await requestJson("/api/v1/learning/preferences", { method: "POST", body: { requestId: attempt(key).id, revision, preferences: prefs } });
-            attempts.current.delete(key);
-            const current = await requestJson<{revision:number}>("/api/v1/learning");
-            setRevision(current.revision);
-            await reload();
-            setNotice("目标已保存；推荐与能力画像使用相同证据。 ");
         }
         catch (e) {
             if (e instanceof ClientError && e.status === 409) {
@@ -92,6 +105,16 @@ export function Recommendations({focus}: {focus?: SkillFocus}) {
                 const current = await requestJson<{revision:number}>("/api/v1/learning");
                 setRevision(current.revision);
             }
+            throw e;
+        }
+        attempts.current.delete(key);
+        try {
+            const current = await requestJson<{revision:number}>("/api/v1/learning");
+            setRevision(current.revision);
+            await reload();
+            setNotice("目标已保存；推荐与能力画像使用相同证据。 ");
+        } catch (e) {
+            setNotice("目标已保存；推荐尚未更新，点击“重新推荐”恢复，无需再次保存目标。");
             throw e;
         }
     }
@@ -127,14 +150,18 @@ export function Recommendations({focus}: {focus?: SkillFocus}) {
     {focus && <p role="status" className="rounded-lg border p-4 text-sm">来自能力画像的专项：{focus.topic}。服务端会重新核对诊断证据；本轮明确显示主题以提示算法方向，沿用已保存难度与去重设置，不自动修改已保存目标。<Link className="ml-2 text-primary underline" href="/dashboard">退出本轮专项</Link><Link className="ml-2 text-primary underline" href="/analytics">重新查看诊断</Link></p>}
     <p className="text-sm text-muted-foreground">每次最多推荐 5 题。无需关联 CF Handle；先选择愿意挑战的范围，它是自评偏好，不是官方 Rating。</p>
     {result?.tracking && <p className="text-xs text-muted-foreground">{result.tracking.available?'本轮推荐来源已记录；生成快照不等于展示、做题或完成。明确进入训练后才记录选择，结束结果仍以训练记录为准。':'本轮来源追踪未就绪；普通推荐与原训练入口仍可用，不能据此统计推荐后的表现。'}</p>}
-    <form onSubmit={e => { e.preventDefault(); void run(save); }} className="space-y-4 rounded-xl border p-4">
+    {!preferencesReady && <p role="status" className="text-sm text-muted-foreground">当前目标状态尚未确认，暂不可编辑。读取成功后再填写；失败时可点击“重新推荐”恢复。</p>}
+    <form onSubmit={e => { e.preventDefault(); void run(save); }} className="rounded-xl border p-4">
+      <fieldset disabled={busy || !preferencesReady} className="space-y-4">
       <h2 className="font-semibold">简短能力自评与本轮目标</h2>
       <div className="grid gap-3 sm:grid-cols-3"><label className="text-sm">愿意挑战的最低难度<Input type="number" min={800} max={3500} required value={prefs.min} onChange={e => setPrefs({ ...prefs, min: Number(e.target.value) })}/></label><label className="text-sm">愿意挑战的最高难度<Input type="number" min={800} max={3500} required value={prefs.max} onChange={e => setPrefs({ ...prefs, max: Number(e.target.value) })}/></label><label className="text-sm">训练目标<select className="mt-2 w-full rounded-md border bg-background p-2" value={prefs.goal} onChange={e => setPrefs({ ...prefs, goal: e.target.value as LearningPreferences["goal"] })}><option value="balanced">难度与知识均衡</option><option value="independence">加强独立解题</option><option value="explore">探索更多知识方向</option></select></label></div>
       <details><summary className="cursor-pointer text-sm">训练主题（可选，最多 5 个；选定主题可能提示算法方向）</summary><div className="mt-3 flex flex-wrap gap-3">{learningTopics.map(topic => <label key={topic} className="flex items-center gap-2 text-xs"><input type="checkbox" checked={prefs.themes.includes(topic)} disabled={!prefs.themes.includes(topic) && prefs.themes.length >= 5} onChange={e => setPrefs({ ...prefs, themes: e.target.checked ? [...prefs.themes, topic] : prefs.themes.filter(t => t !== topic) })}/>{topic}</label>)}</div></details>
       <label className="flex items-start gap-2 text-sm"><input className="mt-1" type="checkbox" checked={prefs.repeat} onChange={e => setPrefs({ ...prefs, repeat: e.target.checked })}/>主动重新练习已知解出的题目</label>
       <label className="flex items-start gap-2 text-sm"><input className="mt-1" type="checkbox" checked={prefs.reviewEvidence} onChange={e => setPrefs({ ...prefs, reviewEvidence: e.target.checked })}/>授权从已生成的 AI 复盘提取知识词汇与风险类别，用于画像和推荐（仅本服务内处理，可关闭；AI 建议仍未验证）</label>
       <Button type="submit" disabled={busy || !preferencesReady || prefs.min > prefs.max}>保存目标并推荐</Button>
+      </fieldset>
     </form>
+    {result && JSON.stringify(prefs)!==JSON.stringify(result.preferences) && <p role="status" className="text-sm">当前目标修改尚未保存；下方推荐仍按服务端已保存目标计算。点击“保存目标并推荐”后才会应用修改。</p>}
     {error && <p role="alert" className="text-sm text-destructive">{error}</p>}{notice && <p role="status" className="text-sm">{notice}</p>}
     <div className="flex flex-wrap items-center gap-3"><Button variant="outline" disabled={busy} onClick={() => void run(async () => { await reload(result?.items.map(i => i.problem.id) ?? []); })}>重新推荐</Button><Link className="text-sm text-primary underline" href="/analytics">查看能力画像与依据</Link><label className="text-sm">加入计划<select className="ml-2 max-w-full rounded-md border bg-background p-2" value={planId} onChange={e => setPlanId(e.target.value)}><option value="">选择现有计划</option>{plans.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select></label><Link className="text-sm underline" href="/plans">管理计划</Link></div>
     {busy && <p role="status" className="text-sm">正在读取证据与更新推荐…</p>}

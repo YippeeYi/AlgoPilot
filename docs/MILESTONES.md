@@ -1,5 +1,9 @@
 # AlgoPilot 实施状态
 
+## M3.5 后续：核心产品可用性审查（2026-10-29）
+
+沿既有推荐/训练闭环审查，复现推荐目标加载覆盖、已保存目标与失败候选混淆、revision拒绝后旧候选残留三类问题；最小修复只改推荐客户端及测试。目标/算法/来源语义、权限校验与模型默认拒绝不变；完整流程和本地验收见 [M35_CORE_USABILITY_VERIFICATION.md](M35_CORE_USABILITY_VERIFICATION.md)。不据此提升真人效果、Safari、原生数据库或托管验收状态。
+
 ## M3.5 后续：浏览器导航与 Tutor 草稿（2026-10-29）
 
 沿核心训练连续性任务补齐原生同文档后退/前进与未发送 Tutor 输入保护；统一实时风险读取、确认/取消、组件卸载后的队列和迟到请求隔离。仅页面内存，不创建持久草稿或自动发送；浏览器原生警告及未支持 Navigation API 的边界单列。离线验证、修复前复现与剩余事项见 [M35_NAVIGATION_DRAFT_VERIFICATION.md](M35_NAVIGATION_DRAFT_VERIFICATION.md)。原生 PostgreSQL、B4、托管及真实用户效果门槛不变。
