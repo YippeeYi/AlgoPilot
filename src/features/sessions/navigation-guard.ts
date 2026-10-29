@@ -16,7 +16,7 @@ export function installNavigationGuard(
   };
   const ask = (risks: string[]) => {
     try {
-      return window.confirm(`当前页面还有：${risks.join('、')}。\n尚未确认保存的内容和 Tutor 草稿仅保留在当前页面，离开后不保证恢复。已提交请求可能仍在处理。\n仍要离开吗？此操作不会发送或重试 Tutor 内容。`);
+      return window.confirm(`当前页面还有：${risks.join('、')}。\n未保存内容与本页的待核对信息离开后不保证恢复。已提交请求可能仍在处理。\n仍要离开吗？此操作不会发送或重试模型内容。`);
     } catch {
       return false;
     }

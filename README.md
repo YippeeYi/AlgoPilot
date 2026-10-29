@@ -1,5 +1,7 @@
 # AlgoPilot
 
+Review 连续性增量：复用原生导航保护，覆盖代码、题面、笔记、追问及未确认请求；快照 UNKNOWN 沿原编号重试，笔记 UNKNOWN 可只读核对。浏览器前进按当前 URL 重新核验历史，离开不自动取消已提交操作或重新生成。边界与离线结果见 [Review 导航与草稿验收](docs/M35_REVIEW_CONTINUITY_VERIFICATION.md)。
+
 核心流程可用性增量：推荐目标读取/保存期间锁定输入，避免异步覆盖；目标已保存但推荐失败时明确区分两种结果，可只重取推荐。权限或证据刷新失败后不继续展示旧候选。训练/Tutor/复盘/成长的合成桌面与移动流程见 [全流程审查与验收](docs/M35_CORE_USABILITY_VERIFICATION.md)。
 
 工作台导航与 Tutor 草稿：统一笔记、代码、题面、在途操作及未发送输入的离开判断；Chromium 同文档后退/前进可取消，刷新/关闭由浏览器原生警告保护。不写入浏览器持久存储，不承诺跨刷新恢复。生产模型门禁不变，见 [导航与草稿验收](docs/M35_NAVIGATION_DRAFT_VERIFICATION.md)。

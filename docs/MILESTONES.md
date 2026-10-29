@@ -1,5 +1,9 @@
 # AlgoPilot 实施状态
 
+## M3.5 后续：Review 原生导航与草稿连续性（2026-10-30）
+
+复用已有导航保护，补 Review 导入草稿、UNKNOWN 快照/笔记、卸载后的异步隔离与前进历史只读恢复；权限读取失败先隐藏旧私人内容，成功核验后才恢复。没有改变模型门禁、Review Schema、Provider/重试、SQL或研究定义。实际复现、状态图、测试及未验证项见 [M35_REVIEW_CONTINUITY_VERIFICATION.md](M35_REVIEW_CONTINUITY_VERIFICATION.md)。
+
 ## M3.5 后续：核心产品可用性审查（2026-10-29）
 
 沿既有推荐/训练闭环审查，复现推荐目标加载覆盖、已保存目标与失败候选混淆、revision拒绝后旧候选残留三类问题；最小修复只改推荐客户端及测试。目标/算法/来源语义、权限校验与模型默认拒绝不变；完整流程和本地验收见 [M35_CORE_USABILITY_VERIFICATION.md](M35_CORE_USABILITY_VERIFICATION.md)。不据此提升真人效果、Safari、原生数据库或托管验收状态。
