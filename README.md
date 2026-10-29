@@ -1,5 +1,8 @@
 # AlgoPilot
 
+训练工作台连续性：补充题面后可直接请求教练或结束训练，先安全保存笔记/上下文；未确认响应沿原编号恢复，工作台计划/复盘链接保护未保存内容。生产模型门禁不变；仅合成验收，见 [核心训练连续性](docs/M35_TRAINING_CONTINUITY_VERIFICATION.md)。
+
+
 M3.4本地人工评审：新增分人分阶段X/Y材料包、草稿恢复、显式提交、追加修正、撤权与原结果/独立复算工具链的离线闭环。只通过合成演练，真人计数不变。操作见 [人工评审流程](docs/M34_REVIEW_WORKFLOW.md)，验收见 [M34_REVIEW_WORKFLOW_VERIFICATION.md](docs/M34_REVIEW_WORKFLOW_VERIFICATION.md)。
 
 

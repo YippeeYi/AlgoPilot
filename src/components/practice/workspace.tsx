@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TutorConversation } from "@/components/practice/tutor-conversation";
-import { requestJson } from "@/lib/api-client";
+import { ClientError, requestJson } from "@/lib/api-client";
 import type { TrainingSession, Problem, Thought } from "@/lib/validation/m1";
 import { DraftQueue } from "@/features/sessions/draft-queue";
 import { displayedSeconds, formatSeconds } from "@/features/sessions/time";
@@ -26,6 +26,11 @@ const outcomes = {
   unsolved: "暂未解出",
   abandoned: "放弃本次训练",
 };
+
+function guardNavigation(event: React.MouseEvent<HTMLAnchorElement>) {
+  if (!window.dispatchEvent(new Event("algopilot-before-navigate", {cancelable:true})))
+    event.preventDefault();
+}
 
 function useDraft(queue: DraftQueue, enabled: boolean) {
   const snapshot = useSyncExternalStore(
@@ -60,6 +65,7 @@ export function Workspace({
   const [contextText,setContextText]=useState("");
   const [contextSaved,setContextSaved]=useState(false);
   const contextAttempt=useRef<{content:string;revision:number;requestId:string}|null>(null);
+  const operationInFlight = useRef(false);
   const [versions, setVersions] = useState<Thought[]>([]);
   const [nextOffset, setNextOffset] = useState<number | null>(0);
   const [historyError, setHistoryError] = useState("");
@@ -103,10 +109,11 @@ export function Workspace({
       ),
   );
   const completed = session.status === "completed";
-  const thought = useDraft(thoughtQueue, !completed && !busy);
+  const contextPending = Boolean(contextAttempt.current);
+  const thought = useDraft(thoughtQueue, !completed && !busy && !contextPending);
   const code = useDraft(codeQueue, !completed && !busy);
   const dirty =
-    thought.value !== thought.savedValue || code.value !== code.savedValue || Boolean(contextText);
+    thought.value !== thought.savedValue || code.value !== code.savedValue || Boolean(contextText) || contextPending || busy;
   useEffect(() => {
     receiptClock.current = performance.now();
     const interval = setInterval(
@@ -121,7 +128,7 @@ export function Workspace({
       if (
         thoughtQueue.getSnapshot().value !==
           thoughtQueue.getSnapshot().savedValue ||
-        codeQueue.getSnapshot().value !== codeQueue.getSnapshot().savedValue || Boolean(contextText)
+        codeQueue.getSnapshot().value !== codeQueue.getSnapshot().savedValue || Boolean(contextText) || contextAttempt.current || busy
       ) {
         event.preventDefault();
         event.returnValue = "";
@@ -131,7 +138,7 @@ export function Workspace({
       if (dirty) {
         event.preventDefault();
         setError(
-          "还有未保存的修改，请先保存再离开。保存失败时可复制本地内容。",
+          busy ? "训练操作尚未结束，请等待保存或状态更新完成后再离开。" : "还有未保存的修改，请先保存再离开。保存失败时可复制本地内容。",
         );
       }
     };
@@ -141,7 +148,7 @@ export function Workspace({
       window.removeEventListener("beforeunload", warn);
       window.removeEventListener("algopilot-before-navigate", guard);
     };
-  }, [dirty, thoughtQueue, codeQueue, contextText]);
+  }, [dirty, thoughtQueue, codeQueue, contextText, busy]);
   async function history(offset: number, append = false) {
     setHistoryError("");
     try {
@@ -176,6 +183,8 @@ export function Workspace({
     };
   }, [initialSession.id]);
   async function saveVersion() {
+    if (operationInFlight.current) return;
+    operationInFlight.current = true;
     setBusy(true);
     setError("");
     try {
@@ -213,15 +222,17 @@ export function Workspace({
     } catch (failure) {
       setError(failure instanceof Error ? failure.message : "保存版本失败。");
     } finally {
+      operationInFlight.current = false;
       setBusy(false);
     }
   }
   async function transition(action: "pause" | "resume" | "finish") {
+    if (operationInFlight.current) return;
+    operationInFlight.current = true;
     setBusy(true);
     setError("");
     try {
-      if (action === "finish")
-        await Promise.all([thoughtQueue.flush(), codeQueue.flush()]);
+      const current = action === "finish" ? await prepareDrafts() : session;
       const result = await requestJson<{
         session: TrainingSession;
         serverNow: string;
@@ -229,7 +240,7 @@ export function Workspace({
         method: "PATCH",
         body: {
           action,
-          expectedRevision: session.state_revision,
+          expectedRevision: current.state_revision,
           ...(action === "finish" ? { outcome } : {}),
         },
       });
@@ -241,18 +252,50 @@ export function Workspace({
     } catch (failure) {
       setError(failure instanceof Error ? failure.message : "状态更新失败。");
     } finally {
+      operationInFlight.current = false;
       setBusy(false);
     }
   }
-  async function supplement() {
-    setBusy(true);setError("");setContextSaved(false);
+  async function persistContext() {
+    const attempt = contextAttempt.current!;
     try {
-      await thoughtQueue.flush();
-      const revision=thoughtQueue.getSnapshot().revision;
-      if(contextAttempt.current?.content!==contextText)contextAttempt.current={content:contextText,revision,requestId:crypto.randomUUID()};
-      const r=await requestJson<{session:TrainingSession;thought:Thought}>(`/api/v1/sessions/${session.id}/context`,{method:"POST",body:{content:contextText,expectedRevision:contextAttempt.current.revision,requestId:contextAttempt.current.requestId}});
-      setSession(r.session);thoughtQueue.setValue(r.session.thought_draft);thoughtQueue.acceptVersion(r.session.thought_draft,r.session.thought_revision);setVersions(old=>[r.thought,...old.filter(t=>t.id!==r.thought.id)]);setContextText("");contextAttempt.current=null;setContextSaved(true);
-    }catch(e){setError(e instanceof Error?e.message:"题面上下文保存失败。");}finally{setBusy(false);}
+      const r = await requestJson<{session:TrainingSession;thought:Thought}>(`/api/v1/sessions/${session.id}/context`, {
+        method:"POST", timeoutMs:15_000, body:{content:attempt.content, expectedRevision:attempt.revision, requestId:attempt.requestId},
+      });
+      setSession(r.session);
+      thoughtQueue.setValue(r.session.thought_draft);
+      thoughtQueue.acceptVersion(r.session.thought_draft,r.session.thought_revision);
+      setVersions(old=>[r.thought,...old.filter(t=>t.id!==r.thought.id)]);
+      setContextText(""); contextAttempt.current=null; setContextSaved(true);
+      return r.session;
+    } catch (e) {
+      // A lost acknowledgement may follow a committed append. Resolve that same ticket
+      // before editing/merging another draft; a definitive refusal can be corrected locally.
+      if (e instanceof ClientError) {
+        if ([400,401,403,404,405,409,413,415,422].includes(e.status)) contextAttempt.current=null;
+        throw e;
+      }
+      throw new Error("题面上下文保存结果尚未确认，请重试原保存；本地草稿仍保留。", {cause:e});
+    }
+  }
+  async function prepareDrafts(includeCode = true) {
+    const recovering = Boolean(contextAttempt.current);
+    let current = recovering ? await persistContext() : session;
+    await Promise.all([thoughtQueue.flush(), ...(includeCode ? [codeQueue.flush()] : [])]);
+    if (!recovering && contextText) {
+      if (!contextText.trim()) throw new Error("请填写有效题面上下文，或清空空白后再继续。");
+      setContextSaved(false);
+      contextAttempt.current={content:contextText,revision:thoughtQueue.getSnapshot().revision,requestId:crypto.randomUUID()};
+      current = await persistContext();
+    }
+    return current;
+  }
+  async function supplement() {
+    if (operationInFlight.current) return;
+    operationInFlight.current=true; setBusy(true); setError("");
+    try { await prepareDrafts(false); }
+    catch(e){setError(e instanceof Error?e.message:"题面上下文保存失败。");}
+    finally{operationInFlight.current=false;setBusy(false);}
   }
   return (
     <>
@@ -265,7 +308,7 @@ export function Workspace({
             {problem?.title ?? "历史自主训练"}
           </h1>
           {problem?.platform==="codeforces"&&<p className="mt-2 text-sm">{problem.contest_id}{problem.problem_index} · Rating {problem.rating??"未定级"} · <a className="underline" href={problem.canonical_url??undefined} target="_blank" rel="noreferrer">在 Codeforces 打开</a></p>}
-          <Link className="mt-2 block text-xs underline" href={planId?`/plans/${planId}`:"/plans"}>返回我的计划</Link>
+          <Link onClick={guardNavigation} className="mt-2 block text-xs underline" href={planId?`/plans/${planId}`:"/plans"}>返回我的计划</Link>
           <p className="mt-2 text-xs text-muted-foreground">
             {session.mode === "contest" ? "比赛模式 · AI 禁用" : "独立训练"} ·{" "}
             {completed
@@ -300,7 +343,7 @@ export function Workspace({
       </div>
       <p className="mb-4 text-sm text-muted-foreground">在本地 VS Code / C++ 编译器编写、运行和调试，在 Codeforces 官网手动提交。计时可选，网页无需一直打开。</p>
       <TrainingFeedbackPanel key={`${session.id}/${session.state_revision}`} sessionId={session.id}/>
-      {session.mode !== "contest" && <Button asChild variant="outline" className="mb-4"><Link href={`/reviews?sessionId=${session.id}`}>AC 后导入代码复盘</Link></Button>}
+      {session.mode !== "contest" && <Button asChild variant="outline" className="mb-4"><Link onClick={guardNavigation} href={`/reviews?sessionId=${session.id}`}>AC 后导入代码复盘</Link></Button>}
       {completed && (
         <p role="status" className="mb-4 rounded-lg border bg-card p-4 text-sm">
           训练已完成，用时不再累计。结果：
@@ -341,7 +384,7 @@ export function Workspace({
               ))}
             </select>
             <p className="text-xs text-muted-foreground">
-              会先保存思路。完成后冻结训练记录；AC 后可单独确认进入代码复盘。
+              会先保存思路、历史代码草稿和当前题面补充；任何保存失败都不会结束训练。完成后冻结训练记录；AC 后可单独确认进入代码复盘。
             </p>
             <div className="flex gap-3">
               <Button onClick={() => void transition("finish")} disabled={busy}>
@@ -390,7 +433,7 @@ export function Workspace({
                   "尚未提供题面。请在 Codeforces 阅读，或为当前题目补充上下文供 AI 使用。"}
               </p>
               <p className="text-xs text-muted-foreground">算法标签默认隐藏。题面以纯文本安全展示。</p>
-              {problem?.platform==="codeforces"&&!completed&&<div className="space-y-3"><label htmlFor="cf-context" className="text-sm">补充当前题目的题面、约束与样例</label><Textarea id="cf-context" value={contextText} maxLength={63000} onChange={e=>setContextText(e.target.value)} disabled={busy}/><p className="text-xs text-muted-foreground">保存为思路历史版本，保留已有笔记；随后请求 AI 时作为用户提供的上下文。不会创建题目。</p><Button variant="outline" disabled={busy||!contextText.trim()} onClick={()=>void supplement()}>保存题面上下文</Button>{contextSaved&&<p role="status" className="text-xs">题面上下文已保存为笔记版本。</p>}</div>}
+              {problem?.platform==="codeforces"&&!completed&&<div className="space-y-3"><label htmlFor="cf-context" className="text-sm">补充当前题目的题面、约束与样例</label><Textarea id="cf-context" value={contextText} maxLength={63000} onChange={e=>{setContextText(e.target.value);setContextSaved(false);}} readOnly={busy||contextPending}/><p className="text-xs text-muted-foreground">保存为思路历史版本，保留已有笔记；请求教练或结束训练前也会先保存此处内容。不会创建题目。</p><Button variant="outline" disabled={busy||!contextText.trim()} onClick={()=>void supplement()}>{contextPending?"重试保存题面上下文":"保存题面上下文"}</Button>{contextPending&&<p role="status" className="text-sm">题面保存结果尚未确认。原题面与思路暂时只读，请重试原保存；不会重复追加历史。其他训练草稿仍保留。</p>}{contextSaved&&<p role="status" className="text-xs">题面上下文已保存为笔记版本。</p>}</div>}
             </CardContent>
           </Card>
         </TabsContent>
@@ -418,7 +461,7 @@ export function Workspace({
                     thoughtQueue.setValue(event.target.value)
                   }
                   maxLength={64000}
-                  readOnly={busy || completed}
+                  readOnly={busy || completed || contextPending}
                   className="min-h-40"
                 />
                 <p role="status" className="mt-2 text-xs text-muted-foreground">
@@ -435,14 +478,14 @@ export function Workspace({
                     size="sm"
                     variant="outline"
                     onClick={() => void thoughtQueue.flush().catch(() => {})}
-                    disabled={busy || completed}
+                    disabled={busy || completed || contextPending}
                   >
                     保存思路草稿
                   </Button>
                   <Button
                     size="sm"
                     onClick={() => void saveVersion()}
-                    disabled={busy || completed}
+                    disabled={busy || completed || contextPending}
                   >
                     保存历史版本
                   </Button>
@@ -505,7 +548,7 @@ export function Workspace({
                     <Button
                       size="sm"
                       variant="outline"
-                      disabled={busy || completed}
+                      disabled={busy || completed || contextPending}
                       onClick={() =>
                         thoughtQueue.setValue(selectedVersion.content)
                       }
@@ -559,7 +602,10 @@ export function Workspace({
             mode={session.mode}
             completed={session.status === "completed"}
             prepare={async () => {
-              await Promise.all([thoughtQueue.flush(), codeQueue.flush()]);
+              if (operationInFlight.current) throw new Error("训练内容正在保存，请稍后再请求教练。");
+              operationInFlight.current=true;setBusy(true);setError("");
+              try { await prepareDrafts(); }
+              finally {operationInFlight.current=false;setBusy(false);}
             }}
           />
         </TabsContent>

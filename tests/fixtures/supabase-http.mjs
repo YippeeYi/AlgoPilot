@@ -161,7 +161,13 @@ function rpc(name, p, uid) {
     if(owned(v.sessionId,uid).problem_id!==problem.id)failure('23514');v.problemUrl=problem.canonical_url;return rpc('create_code_review',{p_input:v},uid);
   }
   if(name==='supplement_cf_context'){
-    const s=owned(p.p_id,uid);return rpc('append_training_thought',{p_id:s.id,p_content:s.thought_draft+'\n【用户补充的题面上下文】\n'+p.p_content,p_expected_revision:p.p_revision,p_request_id:p.p_request_id},uid);
+    const s=owned(p.p_id,uid),suffix='\n【用户补充的题面上下文】\n'+p.p_content;
+    if(problems.get(s.problem_id)?.platform!=='codeforces')failure('23514');
+    // Match 006: resolve a prior append before concatenating the now-updated draft.
+    const old=[...thoughts.values()].find(t=>t.session_id===s.id&&t.request_id===p.p_request_id);
+    if(old){if(!old.content.endsWith(suffix))failure('PT409');return {session:s,thought:old};}
+    if(Array.from(s.thought_draft).length+Array.from(p.p_content).length>63000)failure('23514');
+    return rpc('append_training_thought',{p_id:s.id,p_content:s.thought_draft+suffix,p_expected_revision:p.p_revision,p_request_id:p.p_request_id},uid);
   }
 
   if(name === "create_untimed_session") {
