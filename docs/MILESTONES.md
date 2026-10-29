@@ -1,5 +1,9 @@
 # AlgoPilot 实施状态
 
+## M3.5 后续：Review 列表失败与单记录恢复（2026-10-30）
+
+补齐独立列表状态/显式重试、合法已知ID只读恢复、契约校验及迟到响应/归属隔离；保留原草稿、UNKNOWN编号、CAS与模型默认拒绝。没有新页面、数据库迁移或推荐/研究变更。实际复现和回归见 [M35_REVIEW_LIST_RECOVERY_VERIFICATION.md](M35_REVIEW_LIST_RECOVERY_VERIFICATION.md)。本轮后停止，不继续自动扩展导航；原生/托管/免费资格/客户端/真人验收按 [MVP_RELEASE_GAPS.md](MVP_RELEASE_GAPS.md) 分别推进。
+
 ## M3.5 后续：Review 原生导航与草稿连续性（2026-10-30）
 
 复用已有导航保护，补 Review 导入草稿、UNKNOWN 快照/笔记、卸载后的异步隔离与前进历史只读恢复；权限读取失败先隐藏旧私人内容，成功核验后才恢复。没有改变模型门禁、Review Schema、Provider/重试、SQL或研究定义。实际复现、状态图、测试及未验证项见 [M35_REVIEW_CONTINUITY_VERIFICATION.md](M35_REVIEW_CONTINUITY_VERIFICATION.md)。
