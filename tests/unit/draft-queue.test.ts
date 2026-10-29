@@ -2,6 +2,11 @@ import { describe, expect, it, vi } from "vitest";
 import { DraftQueue } from "@/features/sessions/draft-queue";
 
 describe("草稿串行队列（业务单测）", () => {
+  it("卸载后只允许已发出的保存结算，不继续发送队列中的新草稿", async()=>{
+    let done!:(revision:number)=>void;const persist=vi.fn(()=>new Promise<number>(r=>{done=r;}));const q=new DraftQueue('',0,persist);
+    q.setValue('A');const saving=q.flush();q.setValue('B');q.dispose();done(1);await saving;expect(persist).toHaveBeenCalledOnce();expect(q.getSnapshot()).toMatchObject({value:'B',savedValue:'A'});
+  });
+  it("StrictMode重新挂载可重新启用同一个队列", async()=>{const persist=vi.fn().mockResolvedValue(1),q=new DraftQueue('',0,persist);q.dispose();q.activate();q.setValue('A');await q.flush();expect(persist).toHaveBeenCalledOnce();expect(q.getSnapshot().status).toBe('saved');});
   it("旧响应不会覆盖后来输入，随后用新 revision 保存最新内容", async () => {
     let release!: (revision: number) => void;
     const persist = vi

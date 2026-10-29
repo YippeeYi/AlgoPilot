@@ -30,17 +30,24 @@ type History = {
   messages: TutorMessage[];
   nextBefore: number | null;
 };
-export function TutorConversation({
-  sessionId,
-  mode,
-  completed,
-  prepare,
-}: {
+export type TutorDraftRisk = {unsent:boolean;submitting:boolean;uncertain:boolean};
+type TutorProps = {
   sessionId: string;
   mode: "practice" | "contest";
   completed: boolean;
   prepare: () => Promise<void>;
-}) {
+  registerNavigationRisk?: (read:()=>TutorDraftRisk)=>()=>void;
+};
+export function TutorConversation(props:TutorProps) {
+  return <SessionTutor key={props.sessionId} {...props}/>;
+}
+function SessionTutor({
+  sessionId,
+  mode,
+  completed,
+  prepare,
+  registerNavigationRisk,
+}: TutorProps) {
   const [state, setState] = useState<TutorState | null>(null);
   const [messages, setMessages] = useState<TutorMessage[]>([]);
   const [nextBefore, setNextBefore] = useState<number | null>(null);
@@ -59,7 +66,12 @@ export function TutorConversation({
     requestId: string;
   } | null>(null);
   const inFlight = useRef(false);
+  const inputRef = useRef("");
+  const pendingRef = useRef<typeof pending>(null);
+  const changeInput=(value:string)=>{inputRef.current=value;setInput(value);};
+  const changePending=(value:typeof pending)=>{pendingRef.current=value;setPending(value);};
   const generation = useRef(0);
+  useEffect(()=>registerNavigationRisk?.(()=>({unsent:inputRef.current.length>0,submitting:inFlight.current,uncertain:Boolean(pendingRef.current)&&!inFlight.current})),[registerNavigationRisk]);
   const load = useCallback(async () => {
     const result = await requestJson<History>(
       `/api/v1/sessions/${sessionId}/tutor`,
@@ -96,6 +108,7 @@ export function TutorConversation({
     const current = generation.current;
     try {
       await prepare();
+      if (generation.current !== current) return;
       const body =
         retry && pending
           ? pending
@@ -107,7 +120,7 @@ export function TutorConversation({
                 "请围绕我的已有思路提出一个问题。",
               requestId: crypto.randomUUID(),
             };
-      setPending(body);
+      changePending(body);
       const r = await requestJson<History>(
         `/api/v1/sessions/${sessionId}/tutor`,
         { method: "POST", body },
@@ -116,11 +129,11 @@ export function TutorConversation({
       setState(r.state);
       setMessages(r.messages);
       setNextBefore(r.messages.length === 50 ? r.messages[0]!.ordinal : null);
-      setPending(null);
-      setInput("");
+      changePending(null);
+      changeInput("");
     } catch (e) {
       if (generation.current === current) {
-        if (e instanceof ClientError && (isGenerationDenied(e.code) || e.code === "TUTOR_REQUEST_FAILED")) setPending(null);
+        if (e instanceof ClientError && (isGenerationDenied(e.code) || e.code === "TUTOR_REQUEST_FAILED")) changePending(null);
         setError(e instanceof Error ? e.message : "AI 请求失败。");
       }
     } finally {
@@ -133,6 +146,7 @@ export function TutorConversation({
     inFlight.current = true;
     setBusy(true);
     setError("");
+    const current=generation.current;
     try {
       const requestId =
         operation === "confirm_l5" ? challenge!.requestId : crypto.randomUUID();
@@ -155,6 +169,7 @@ export function TutorConversation({
         challengeId?: string;
         expiresAt?: string;
       }>(`/api/v1/sessions/${sessionId}/hints`, { method: "POST", body });
+      if(generation.current!==current)return;
       setState({
         ...state,
         allowedLevel: r.allowedLevel,
@@ -171,12 +186,13 @@ export function TutorConversation({
         setConfirmationOpen(false);
       }
     } catch (e) {
+      if(generation.current!==current)return;
       setError(e instanceof Error ? e.message : "提示升级失败。");
       const r = await load().catch(() => null);
       if (r) setState(r.state);
     } finally {
       inFlight.current = false;
-      setBusy(false);
+      if(generation.current===current)setBusy(false);
     }
   }
   return (
@@ -278,11 +294,12 @@ export function TutorConversation({
         <Textarea
           id={`tutor-message-${sessionId}`}
           value={input}
-          onChange={(e) => setInput(e.target.value)}
+          onChange={(e) => changeInput(e.target.value)}
           maxLength={6000}
-          disabled={disabled}
+          readOnly={busy || Boolean(pending) || completed || mode==='contest'}
           placeholder="描述已有推导或卡点；也可以直接说明“完全没有思路”…"
         />
+        <p className="text-xs text-muted-foreground">未发送输入仅保留在当前页面，不写入对话历史或浏览器持久存储。刷新、关闭或确认离开后不保证恢复；请先复制需要保留的内容。</p>
         <div className="flex flex-wrap gap-2">
           <Button
             size="sm"
@@ -291,6 +308,7 @@ export function TutorConversation({
           >
             发送
           </Button>
+          <Button size="sm" variant="ghost" disabled={busy || Boolean(pending) || !input.length} onClick={()=>changeInput("")}>清空未发送草稿</Button>
           <Button
             size="sm"
             variant="outline"

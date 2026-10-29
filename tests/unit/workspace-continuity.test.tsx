@@ -1,6 +1,7 @@
 import {act, fireEvent, render, screen, waitFor} from '@testing-library/react';
 import {afterEach, beforeEach, expect, it, vi} from 'vitest';
 import {Workspace} from '@/components/practice/workspace';
+import {StrictMode} from 'react';
 import type {TrainingSession, Problem} from '@/lib/validation/m1';
 
 vi.mock('next/link', () => ({default: (props: React.AnchorHTMLAttributes<HTMLAnchorElement>) => <a {...props}/> }));
@@ -18,6 +19,7 @@ const finish=()=>{fireEvent.click(screen.getByRole('button',{name:'结束训练'
 async function mount(p:Problem|null=problem){render(<Workspace initialSession={session} problem={p} serverNow={now}/>);await waitFor(()=>expect(screen.getByLabelText('发送给思维教练')).toBeEnabled());}
 const denial=()=>Response.json({error:{code:'LLM_FREE_TIER_UNVERIFIED',message:'AI 生成已阻止：免费资格未确认。'}},{status:403});
 beforeEach(()=>{
+ vi.spyOn(window,'confirm').mockReturnValue(false);
  session={...initial};calls.length=0;context.mockReset();fetcher.mockReset();
  context.mockImplementation(async(_path,init)=>{const b=body(init);session={...session,thought_draft:session.thought_draft+'\n【用户补充的题面上下文】\n'+b.content,thought_revision:session.thought_revision+1};return Response.json({session,thought:{id:'31000000-0000-4000-8000-000000000004',session_id:id,version:1,content:session.thought_draft,created_at:now}});});
  fetcher.mockImplementation(async(path,init)=>{
@@ -145,4 +147,14 @@ it('saving one thought version does not silently append a second context version
 it('manual context save stays independent from an unrelated legacy code draft write',async()=>{
  await mount();fireEvent.change(screen.getByLabelText('C++ 草稿'),{target:{value:'// independent legacy draft'}});fireEvent.change(contextField(),{target:{value:'只保存本题上下文'}});fireEvent.click(screen.getByRole('button',{name:'保存题面上下文'}));await screen.findByText('题面上下文已保存为笔记版本。');
  expect(calls.some(c=>c.path.endsWith('/code'))).toBe(false);expect(context).toHaveBeenCalledOnce();expect(session.thought_draft).toContain('只保存本题上下文');
+});
+
+it('StrictMode cleanup does not disable subsequent real draft saves',async()=>{render(<StrictMode><Workspace initialSession={session} problem={problem} serverNow={now}/></StrictMode>);fireEvent.change(thoughtField(),{target:{value:'StrictMode note'}});fireEvent.click(screen.getByRole('button',{name:'保存思路草稿',hidden:true}));await waitFor(()=>expect(session.thought_draft).toBe('StrictMode note'));});
+it('leaving while preparing evidence cannot later append context or send Tutor content',async()=>{
+ const base=fetcher.getMockImplementation()!;let done!:(r:Response)=>void;
+ fetcher.mockImplementation(async(path,init)=>String(path).endsWith('/thought-draft')?new Promise(r=>{done=r;}):base(path,init));
+ const view=render(<Workspace initialSession={session} problem={problem} serverNow={now}/>);await waitFor(()=>expect(screen.getByRole('button',{name:'给我一点提示',hidden:true})).toBeEnabled());
+ fireEvent.change(thoughtField(),{target:{value:'pending note'}});fireEvent.change(contextField(),{target:{value:'pending context'}});fireEvent.change(screen.getByLabelText('发送给思维教练'),{target:{value:'must not dispatch'}});fireEvent.click(screen.getByRole('button',{name:'发送',hidden:true}));
+ await waitFor(()=>expect(done).toBeDefined());view.unmount();await act(async()=>done(Response.json({session:{...session,thought_revision:1}})));
+ expect(context).not.toHaveBeenCalled();expect(calls.some(c=>c.path.endsWith('/tutor'))).toBe(false);
 });

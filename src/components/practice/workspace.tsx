@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { TutorConversation } from "@/components/practice/tutor-conversation";
+import { TutorConversation, type TutorDraftRisk } from "@/components/practice/tutor-conversation";
+import { installNavigationGuard } from "@/features/sessions/navigation-guard";
 import { ClientError, requestJson } from "@/lib/api-client";
 import type { TrainingSession, Problem, Thought } from "@/lib/validation/m1";
 import { DraftQueue } from "@/features/sessions/draft-queue";
@@ -66,6 +67,13 @@ export function Workspace({
   const [contextSaved,setContextSaved]=useState(false);
   const contextAttempt=useRef<{content:string;revision:number;requestId:string}|null>(null);
   const operationInFlight = useRef(false);
+  const lifecycle = useRef(0);
+  const liveContext = useRef("");
+  const tutorRisk = useRef<()=>TutorDraftRisk>(()=>({unsent:false,submitting:false,uncertain:false}));
+  const registerNavigationRisk = useCallback((read:()=>TutorDraftRisk)=>{
+    tutorRisk.current=read;
+    return ()=>{if(tutorRisk.current===read)tutorRisk.current=()=>({unsent:false,submitting:false,uncertain:false});};
+  },[]);
   const [versions, setVersions] = useState<Thought[]>([]);
   const [nextOffset, setNextOffset] = useState<number | null>(0);
   const [historyError, setHistoryError] = useState("");
@@ -112,8 +120,7 @@ export function Workspace({
   const contextPending = Boolean(contextAttempt.current);
   const thought = useDraft(thoughtQueue, !completed && !busy && !contextPending);
   const code = useDraft(codeQueue, !completed && !busy);
-  const dirty =
-    thought.value !== thought.savedValue || code.value !== code.savedValue || Boolean(contextText) || contextPending || busy;
+  useLayoutEffect(()=>{liveContext.current=contextText;},[contextText]);
   useEffect(() => {
     receiptClock.current = performance.now();
     const interval = setInterval(
@@ -124,31 +131,22 @@ export function Workspace({
     return () => clearInterval(interval);
   }, []);
   useEffect(() => {
-    const warn = (event: BeforeUnloadEvent) => {
-      if (
-        thoughtQueue.getSnapshot().value !==
-          thoughtQueue.getSnapshot().savedValue ||
-        codeQueue.getSnapshot().value !== codeQueue.getSnapshot().savedValue || Boolean(contextText) || contextAttempt.current || busy
-      ) {
-        event.preventDefault();
-        event.returnValue = "";
-      }
-    };
-    const guard = (event: Event) => {
-      if (dirty) {
-        event.preventDefault();
-        setError(
-          busy ? "训练操作尚未结束，请等待保存或状态更新完成后再离开。" : "还有未保存的修改，请先保存再离开。保存失败时可复制本地内容。",
-        );
-      }
-    };
-    window.addEventListener("beforeunload", warn);
-    window.addEventListener("algopilot-before-navigate", guard);
-    return () => {
-      window.removeEventListener("beforeunload", warn);
-      window.removeEventListener("algopilot-before-navigate", guard);
-    };
-  }, [dirty, thoughtQueue, codeQueue, contextText, busy]);
+    const epoch=++lifecycle.current;
+    thoughtQueue.activate();codeQueue.activate();
+    const remove=installNavigationGuard(()=>{
+      const risks:string[]=[],t=thoughtQueue.getSnapshot(),c=codeQueue.getSnapshot(),coach=tutorRisk.current();
+      if(t.value!==t.savedValue||t.status==='saving')risks.push('思路笔记尚未确认保存');
+      if(c.value!==c.savedValue||c.status==='saving')risks.push('代码草稿尚未确认保存');
+      if(contextAttempt.current)risks.push('题面保存结果 UNKNOWN');
+      else if(liveContext.current)risks.push('题面补充尚未保存');
+      if(operationInFlight.current)risks.push('训练保存或状态更新进行中');
+      if(coach.submitting)risks.push('教练操作进行中');
+      else if(coach.uncertain)risks.push('Tutor 请求结果 UNKNOWN（原编号仅在当前页）');
+      else if(coach.unsent)risks.push('Tutor 未发送草稿');
+      return risks;
+    },risks=>setError(`还有未保存的修改，请先保存再离开。${risks.join('；')}。保存失败时可复制本地内容。`));
+    return ()=>{lifecycle.current=epoch+1;remove();thoughtQueue.dispose();codeQueue.dispose();};
+  }, [thoughtQueue,codeQueue]);
   async function history(offset: number, append = false) {
     setHistoryError("");
     try {
@@ -183,12 +181,14 @@ export function Workspace({
     };
   }, [initialSession.id]);
   async function saveVersion() {
+    const epoch=lifecycle.current;
     if (operationInFlight.current) return;
     operationInFlight.current = true;
     setBusy(true);
     setError("");
     try {
       await thoughtQueue.flush();
+      if(epoch!==lifecycle.current)return;
       const snapshot = thoughtQueue.getSnapshot();
       if (!snapshot.value.trim())
         throw new Error("请先写下思路，再保存历史版本。");
@@ -213,6 +213,7 @@ export function Workspace({
           requestId: versionRequest.current.id,
         },
       });
+      if(epoch!==lifecycle.current)return;
       thoughtQueue.acceptVersion(
         result.session.thought_draft,
         result.session.thought_revision,
@@ -220,19 +221,20 @@ export function Workspace({
       versionRequest.current = null;
       await history(0);
     } catch (failure) {
-      setError(failure instanceof Error ? failure.message : "保存版本失败。");
+      if(epoch===lifecycle.current)setError(failure instanceof Error ? failure.message : "保存版本失败。");
     } finally {
-      operationInFlight.current = false;
-      setBusy(false);
+      if(epoch===lifecycle.current){operationInFlight.current = false;setBusy(false);}
     }
   }
   async function transition(action: "pause" | "resume" | "finish") {
+    const epoch=lifecycle.current;
     if (operationInFlight.current) return;
     operationInFlight.current = true;
     setBusy(true);
     setError("");
     try {
       const current = action === "finish" ? await prepareDrafts() : session;
+      if(epoch!==lifecycle.current)return;
       const result = await requestJson<{
         session: TrainingSession;
         serverNow: string;
@@ -244,24 +246,26 @@ export function Workspace({
           ...(action === "finish" ? { outcome } : {}),
         },
       });
+      if(epoch!==lifecycle.current)return;
       setSession(result.session);
       baseClock.current = Date.parse(result.serverNow);
       receiptClock.current = performance.now();
       setClock(baseClock.current);
       setFinishOpen(false);
     } catch (failure) {
-      setError(failure instanceof Error ? failure.message : "状态更新失败。");
+      if(epoch===lifecycle.current)setError(failure instanceof Error ? failure.message : "状态更新失败。");
     } finally {
-      operationInFlight.current = false;
-      setBusy(false);
+      if(epoch===lifecycle.current){operationInFlight.current = false;setBusy(false);}
     }
   }
   async function persistContext() {
+    const epoch=lifecycle.current;
     const attempt = contextAttempt.current!;
     try {
       const r = await requestJson<{session:TrainingSession;thought:Thought}>(`/api/v1/sessions/${session.id}/context`, {
         method:"POST", timeoutMs:15_000, body:{content:attempt.content, expectedRevision:attempt.revision, requestId:attempt.requestId},
       });
+      if(epoch!==lifecycle.current)throw new Error('训练页面已切换，原操作不会继续。');
       setSession(r.session);
       thoughtQueue.setValue(r.session.thought_draft);
       thoughtQueue.acceptVersion(r.session.thought_draft,r.session.thought_revision);
@@ -279,9 +283,12 @@ export function Workspace({
     }
   }
   async function prepareDrafts(includeCode = true) {
+    const epoch=lifecycle.current;
     const recovering = Boolean(contextAttempt.current);
     let current = recovering ? await persistContext() : session;
+    if(epoch!==lifecycle.current)throw new Error('训练页面已切换，原操作不会继续。');
     await Promise.all([thoughtQueue.flush(), ...(includeCode ? [codeQueue.flush()] : [])]);
+    if(epoch!==lifecycle.current)throw new Error('训练页面已切换，原操作不会继续。');
     if (!recovering && contextText) {
       if (!contextText.trim()) throw new Error("请填写有效题面上下文，或清空空白后再继续。");
       setContextSaved(false);
@@ -291,11 +298,12 @@ export function Workspace({
     return current;
   }
   async function supplement() {
+    const epoch=lifecycle.current;
     if (operationInFlight.current) return;
     operationInFlight.current=true; setBusy(true); setError("");
     try { await prepareDrafts(false); }
-    catch(e){setError(e instanceof Error?e.message:"题面上下文保存失败。");}
-    finally{operationInFlight.current=false;setBusy(false);}
+    catch(e){if(epoch===lifecycle.current)setError(e instanceof Error?e.message:"题面上下文保存失败。");}
+    finally{if(epoch===lifecycle.current){operationInFlight.current=false;setBusy(false);}}
   }
   return (
     <>
@@ -342,6 +350,7 @@ export function Workspace({
         </div>
       </div>
       <p className="mb-4 text-sm text-muted-foreground">在本地 VS Code / C++ 编译器编写、运行和调试，在 Codeforces 官网手动提交。计时可选，网页无需一直打开。</p>
+      <p className="mb-4 text-xs text-muted-foreground">未保存内容与 Tutor 草稿仅保留在当前页面。刷新、关闭及跨文档离开由浏览器决定是否显示原生警告；不支持 Navigation API 的浏览器无法保证拦截站内后退，请先保存或复制。</p>
       <TrainingFeedbackPanel key={`${session.id}/${session.state_revision}`} sessionId={session.id}/>
       {session.mode !== "contest" && <Button asChild variant="outline" className="mb-4"><Link onClick={guardNavigation} href={`/reviews?sessionId=${session.id}`}>AC 后导入代码复盘</Link></Button>}
       {completed && (
@@ -601,11 +610,13 @@ export function Workspace({
             sessionId={session.id}
             mode={session.mode}
             completed={session.status === "completed"}
+            registerNavigationRisk={registerNavigationRisk}
             prepare={async () => {
+              const epoch=lifecycle.current;
               if (operationInFlight.current) throw new Error("训练内容正在保存，请稍后再请求教练。");
               operationInFlight.current=true;setBusy(true);setError("");
               try { await prepareDrafts(); }
-              finally {operationInFlight.current=false;setBusy(false);}
+              finally {if(epoch===lifecycle.current){operationInFlight.current=false;setBusy(false);}}
             }}
           />
         </TabsContent>

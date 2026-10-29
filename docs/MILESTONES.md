@@ -1,5 +1,9 @@
 # AlgoPilot 实施状态
 
+## M3.5 后续：浏览器导航与 Tutor 草稿（2026-10-29）
+
+沿核心训练连续性任务补齐原生同文档后退/前进与未发送 Tutor 输入保护；统一实时风险读取、确认/取消、组件卸载后的队列和迟到请求隔离。仅页面内存，不创建持久草稿或自动发送；浏览器原生警告及未支持 Navigation API 的边界单列。离线验证、修复前复现与剩余事项见 [M35_NAVIGATION_DRAFT_VERIFICATION.md](M35_NAVIGATION_DRAFT_VERIFICATION.md)。原生 PostgreSQL、B4、托管及真实用户效果门槛不变。
+
 ## M3.5 后续：核心训练连续性（2026-10-28–29）
 
 对既有M2.5/M3.5工作台做本地可靠性修复：Tutor/完成前保存题面补充、原编号恢复未知保存、同步防重与页面内导航保护；独立保存历史/代码的兼容行为保留。推荐权重、研究定义、模型默认拒绝和迁移不变，真实研究/原生/托管门槛未提升。实际复现、验证与限制见 [M35_TRAINING_CONTINUITY_VERIFICATION.md](M35_TRAINING_CONTINUITY_VERIFICATION.md)。

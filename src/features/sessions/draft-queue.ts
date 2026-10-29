@@ -85,4 +85,7 @@ export class DraftQueue {
     this.disposed = true;
     this.listeners.clear();
   }
+  activate() {
+    this.disposed = false;
+  }
 }
