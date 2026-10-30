@@ -1,6 +1,6 @@
 # MVP 发布前缺口清单
 
-核查日期：2026-10-30。依据 DEVELOPMENT_PLAN.md v3.4、MILESTONES 与各阶段验收；本表不是发布批准，不自动执行任何真实环境操作。最新 R0 证据、三个 P0 的可执行清单及原生入口说明见 [MVP_RELEASE_GATE_VERIFICATION.md](MVP_RELEASE_GATE_VERIFICATION.md)；此前 [Review 列表与单记录恢复验收](M35_REVIEW_LIST_RECOVERY_VERIFICATION.md) 保留。
+核查日期：2026-10-30。依据 DEVELOPMENT_PLAN.md v3.4、MILESTONES 与各阶段验收；本表不是发布批准，不自动执行任何真实环境操作。最新原生准备/审计接线见 [MVP_R1_NATIVE_READINESS_VERIFICATION.md](MVP_R1_NATIVE_READINESS_VERIFICATION.md)；R0 三个 P0 清单与历史结论见 [MVP_RELEASE_GATE_VERIFICATION.md](MVP_RELEASE_GATE_VERIFICATION.md)，此前 [Review 列表与单记录恢复验收](M35_REVIEW_LIST_RECOVERY_VERIFICATION.md) 保留。
 
 ## 已实现并通过离线验收
 
@@ -12,13 +12,15 @@
 
 | 缺口 | 当前证据/状态 | 下一步与所需条件 |
 | --- | --- | --- |
-| P0-A：原生 PostgreSQL 多连接与 RLS | **BLOCKED**；现有 20 项 **NOT_RUN**；本轮未提供授权 runtime。入口只覆盖 001–012；直接 guard 无 lifecycle/完整审计汇总，不能把功能退出值当全部审计。PGlite/HTTP 不替代原生事务/角色 | 用户提供四程序同版本且 >=16 的现成目录并授权临时集群后，按 R0 说明执行既有专项；审计覆盖独立核验，013 另验。维持不下载/安装/拉镜像/启动系统服务及不再搜索环境 |
+| P0-A：原生 PostgreSQL 多连接与 RLS | **BLOCKED**；原 20 与新增独立 013 的 14 项均 **NOT_RUN**。R1 入口已接 lifecycle/阶段/根 PID/诊断关联，功能、Node 审计及 20/14 完整数独立判定；013 首次迁移前后核对历史摘要。原生进程流量/读取仍 UNKNOWN，不能把 Node PASS 当全部审计或 PGlite 当原生 | 用户提供四程序同版本且 >=16 的现成目录，并明确授权临时集群、001–013/重放负例、20+14 与清理后，按 R1 说明执行。维持不下载/安装/拉镜像/启动系统服务及不再搜索环境 |
 | P0-B：托管结构、迁移与真实身份隔离 | 011–013 托管部署/验收未完成；001–010 有历史目录核验，但执行账本曾缺失，不能据此推断当前部署状态。当前目标实际状态 **UNKNOWN/NOT_RUN** | 先明确专用目标、只读核验与变更清单，再取得当前授权。真实签发 JWT、两用户 RLS/归属、Cookie 刷新、撤权时序、HMAC 配置一致性及多连接/多应用实例分别验收；不读取密钥、不自动 db push/db pull/repair 或补账本 |
 | P0-C：免费模型资格和独立生成许可 | 可信免费资格 **BLOCKED**；B4 **NOT_RUN**；生产没有可信验证器/授权源，本地默认拒绝通过不证明账户免费 | 先建立可信、绑定项目/凭据且有期限的资格证据及独立当前授权，再按批准范围检查真实 Provider/网络/恢复/输出安全与质量、usage/费用。模型名、Flash、环境布尔、自签文件、历史预算不能放行；不能用生成试探资格，禁止付费回退 |
 
 前三项按数据持久化、身份隔离、AI 核心能力排序。带 Tutor/生成式 Review 的完整 MVP 不能仅凭离线 PASS 宣称已可发布。若计划提供明确禁用 AI 的有限试用版，应另行决定产品范围并向用户准确说明，不能自动降低现有完整验收标准。
 
 历史执行审计仍 **UNRESOLVED / UNKNOWN**：两批静态检查各1次 networkBlocked，累计2；受监控 externalHTTP/realDNS/realCredentialReads 各0。R0 重读原始记录并补齐测试专用阶段/进程/线程/单调时间/脱敏栈关联，原 guard、计数和 collector 拒绝规则不改；有界离线回归未再次观察未知拒绝。新增诊断回归中的合成拒绝保持预期 FAIL，不能算历史复现。两批历史包装检查仍 FAIL，无因果修复证据，不将来源归给任何产品或工具；没有系统级全流量测量，浏览器后台仍 UNKNOWN。R0 的新 PASS 不覆盖旧 FAIL。
+
+R1 另有 1 次专项 fetch 被拒绝，阶段与调用点已关联到 TrainingFeedbackPanel/requestJson，保持该轮审计 FAIL。具体触发时序尚未证明；已独立、稳定复现并修复工作台测试在卸载前恢复 fetch 的夹具生命周期缺陷，不把它当作历史两次或这次拦截的完整因果归因。复验结果及边界见 R1 报告，不为审计变绿忽略事件。
 
 禁用 AI 也不能绕过 P0-A/B：确定性推荐、计划/笔记/训练反馈和已存 Review 读取仍依赖真实身份/数据库安全，013 同样服务非 AI 功能。任何新真实用户数据进入前必须完成对应安全门禁并单独审阅未归因审计风险；有限试用需另定产品范围和授权，明确没有 AI 提示/新分析/追问，不能宣称免费模型已接通、验证代码正确或证明教学收益。
 

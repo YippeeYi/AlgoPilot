@@ -1,7 +1,7 @@
-import {act, fireEvent, render, screen, waitFor} from '@testing-library/react';
+import {act,cleanup, fireEvent, render, screen, waitFor} from '@testing-library/react';
 import {afterEach, beforeEach, expect, it, vi} from 'vitest';
 import {Workspace} from '@/components/practice/workspace';
-import {StrictMode} from 'react';
+import {StrictMode,useEffect} from 'react';
 import type {TrainingSession, Problem} from '@/lib/validation/m1';
 
 vi.mock('next/link', () => ({default: (props: React.AnchorHTMLAttributes<HTMLAnchorElement>) => <a {...props}/> }));
@@ -35,7 +35,12 @@ beforeEach(()=>{
    throw new Error('Unexpected synthetic route');
  });vi.stubGlobal('fetch',fetcher);
 });
-afterEach(()=>{vi.unstubAllGlobals();vi.restoreAllMocks();});
+afterEach(()=>{cleanup();vi.unstubAllGlobals();vi.restoreAllMocks();});
+
+it('keeps the fetch fixture installed until every mounted effect has been cleaned up',()=>{
+ function LifetimeProbe(){useEffect(()=>()=>{expect(globalThis.fetch).toBe(fetcher);},[]);return null;}
+ render(<LifetimeProbe/>);
+});
 
 it('saves supplemental context together with current notes and legacy code before freezing completion',async()=>{
  await mount();fireEvent.change(thoughtField(),{target:{value:'新的思路'}});fireEvent.change(screen.getByLabelText('C++ 草稿'),{target:{value:'// SYNTHETIC'}});fireEvent.change(contextField(),{target:{value:'新约束 n<=10'}});finish();

@@ -12,7 +12,7 @@ const id = `${process.pid}-${threadId}`;
 const write = fs.writeFileSync;
 const root = process.cwd() + path.sep;
 const phaseName = path.basename(directory);
-const phase = /^(probe|lint|typecheck|targeted|test|recommendations|build)$/.test(phaseName) ? phaseName : 'unknown';
+const phase = /^(probe|lint|typecheck|targeted|test|recommendations|build|native-state|native-feedback)$/.test(phaseName) ? phaseName : 'unknown';
 fs.mkdirSync(diagnostics, {recursive:true, mode:0o700});
 write(path.join(diagnostics, id + '.context.json'), JSON.stringify({
   version:'offline-diagnostic/1', auditRecord:id + '.json', pid:process.pid,

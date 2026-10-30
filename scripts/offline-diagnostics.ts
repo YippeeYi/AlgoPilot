@@ -19,7 +19,7 @@ export async function collectOfflineDiagnostics(auditDirectory:string) {
     const [pid,threadId]=id.split('-').map(Number);
     if(!c || c.version!=='offline-diagnostic/1' || c.auditRecord!==id+'.json' || c.pid!==pid || c.threadId!==threadId ||
       !Number.isSafeInteger(c.ppid) || c.ppid<=0 || c.isMainThread!==(threadId===0) ||
-      !/^(probe|lint|typecheck|targeted|test|recommendations|build)$/.test(c.phase) || !/^[0-9]{1,30}$/.test(c.startedNs) ||
+      !/^(probe|lint|typecheck|targeted|test|recommendations|build|native-state|native-feedback)$/.test(c.phase) || !/^[0-9]{1,30}$/.test(c.startedNs) ||
       Object.keys(c).some(k=>!['version','auditRecord','pid','ppid','threadId','isMainThread','phase','startedNs'].includes(k))) {
       issues.push('INVALID_CONTEXT'); continue;
     }

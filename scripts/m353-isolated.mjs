@@ -7,12 +7,16 @@ import { constants } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { createServer } from 'node:net';
 import { PsqlConnection, nativeEnvironment, applyMigration } from '../tests/native/psql.ts';
+import { runNativeNodePhase, nativeAuditBoundary, nativeHistorySql, nativeCaseCounts, readNativeTestSummary } from './native-node-audit.ts';
+import {collectOfflineAudit} from './offline-audit.ts';
+import {collectOfflineDiagnostics} from './offline-diagnostics.ts';
 
 const root=process.cwd();
 const temporary=await mkdtemp('/private/tmp/algopilot-m353-native-');
 await mkdir(join(temporary,'home'),{mode:0o700});
 const report={boundary:'Native local PostgreSQL, synthetic JWT claims; NOT hosted Supabase/JWT/PostgREST',
-  status:'NOT_RUN',reason:null,temporary,migrations:[],target:null,regressionExitCode:null};
+  status:'NOT_RUN',reason:null,temporary,migrations:[],target:null,regressionExitCode:null,
+  original20:'NOT_RUN',incremental013:'NOT_RUN',nodeAuditStatus:'NOT_RUN',stages:[],auditBoundary:nativeAuditBoundary};
 const reportPath=join(temporary,'native-postgres.json');
 console.log('NATIVE_REPORT='+reportPath);
 const args=process.argv.slice(2);
@@ -30,6 +34,10 @@ async function attest() {
   const v=await admin.value(`select json_build_object('database',current_database(),'directory',current_setting('data_directory'),'host',inet_server_addr()::text,'port',inet_server_port(),'listen',current_setting('listen_addresses'),'role',current_user)`);
   assert.deepEqual(v,{database:target.database,directory:target.directory,host:'127.0.0.1',port:target.port,listen:'127.0.0.1',role:'fixture_admin'});
   return v;
+}
+// Hash/count only. Never persist SQL inputs or row contents in the readiness report.
+async function historySnapshot() {
+  return await admin.value(nativeHistorySql);
 }
 try {
   if(process.env.M353_ALLOW_DATABASE_TESTS!=='isolated')throw Object.assign(Error(),{blocked:'EXPLICIT_ISOLATION_SWITCH_REQUIRED'});
@@ -71,9 +79,25 @@ try {
   report.historyPreserved=JSON.stringify(await admin.value(`select to_jsonb(s) from public.training_sessions s where id='${before.id}'`))===JSON.stringify(before);assert(report.historyPreserved);
   report.roles=await admin.value("select json_agg(json_build_object('role',rolname,'superuser',rolsuper,'bypassrls',rolbypassrls,'inherit',rolinherit,'login',rolcanlogin)) from pg_roles where rolname in('anon','authenticated')");
   const audits=join(temporary,'audits');await mkdir(audits,{mode:0o700});
-  const childEnv={...env,PATH:dirname(process.execPath)+':/usr/bin:/bin',CI:'1',M353_NATIVE_TARGET:JSON.stringify(target),NODE_OPTIONS:`--require=${join(workspace,'scripts/m353-b3-offline-guard.cjs')}`,M353_B3_AUDIT_DIRECTORY:audits};
-  const v=await execute(process.execPath,[join(root,'node_modules/vitest/vitest.mjs'),'run','--config','vitest.native.config.ts','--reporter=default','--reporter=json',`--outputFile=${join(temporary,'vitest.json')}`],childEnv,{cwd:workspace,inherit:true});
-  report.regressionExitCode=v.code;report.status=v.code===0?'PASS':'FAIL';if(v.code)process.exitCode=1;
+  async function phase(name,file,output) {
+    const result=await runNativeNodePhase({phase:name,workspace,directory:join(audits,name),collectors:{audit:collectOfflineAudit,diagnostics:collectOfflineDiagnostics},
+      environment:{...env,M353_NATIVE_TARGET:JSON.stringify(target)},inheritOutput:true,
+      args:[join(root,'node_modules/vitest/vitest.mjs'),'run',file,'--config','vitest.native.config.ts','--reporter=default','--reporter=json',`--outputFile=${join(temporary,output)}`]});
+    result.testSummary=await readNativeTestSummary(join(temporary,output),nativeCaseCounts[name]);
+    if(!result.testSummary.complete){result.functionalStatus='FAIL';result.status='FAIL';}
+    report.stages.push(result);report.nodeAuditStatus=report.stages.every(s=>s.auditStatus==='PASS')?'PASS':'FAIL';
+    return result;
+  }
+  const state=await phase('native-state','tests/native/recovery.native.test.ts','vitest.json');
+  report.original20=state.functionalStatus;report.regressionExitCode=state.exitCode;
+  if(state.status!=='PASS')throw Error('Native state phase failed');
+  await attest();const before013=await historySnapshot();
+  const migration013='202610280013_recommendation_training_feedback.sql';
+  await applyMigration(target,join(workspace,'supabase/migrations',migration013));report.migrations.push(migration013);
+  report.history013={before:before013,after:await historySnapshot()};assert.deepEqual(report.history013.after,before013);
+  const feedback=await phase('native-feedback','tests/native/training-feedback.native.test.ts','vitest-013.json');
+  report.incremental013=feedback.functionalStatus;report.status=feedback.status;
+  if(report.status!=='PASS')process.exitCode=1;
 } catch(error) {
   report.status=error.blocked||error.code==='ENOENT'?'BLOCKED':'FAIL';
   report.reason=error.blocked??(error.code==='ENOENT'?'LOCAL_POSTGRES_BINARIES_UNAVAILABLE':'ISOLATED_VALIDATION_FAILED');
