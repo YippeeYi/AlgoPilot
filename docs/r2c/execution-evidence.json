@@ -1,0 +1,922 @@
+{
+  "format": "r2c-execution/1",
+  "verifiedAt": "2026-11-02T11:43:01.799126+00:00",
+  "head": "40fd472e46525eafba396b941d94152f07204ec3",
+  "initialWorktree": "CLEAN",
+  "result": "PASS_LOCAL_J01_J16",
+  "singleFullBatchAllPass": true,
+  "j05Resolution": "GoTrue error shape and PostgREST 30s skew proven; focused retest and final full J01-J16 batch PASS. Earlier failures retained.",
+  "environment": {
+    "macOS": "27.2",
+    "architecture": "arm64",
+    "uid": 501,
+    "memoryGiB": 24,
+    "supabaseCli": "2.122.0",
+    "colima": "0.10.3",
+    "lima": "2.2.1",
+    "dockerCli": "29.9.2",
+    "dockerEngine": "29.5.2",
+    "postgres": "17.11",
+    "vm": {
+      "cpus": 4,
+      "memoryGiB": 8,
+      "diskGiB": 40,
+      "hostMounts": "NONE",
+      "globalContextChange": false
+    }
+  },
+  "images": [
+    {
+      "Id": "sha256:ed9b00c609e77e99c79b93f1178255ebc271868920f2c69a8d166bd5634ed10d",
+      "RepoTags": [
+        "public.ecr.aws/supabase/mailpit:v1.31.3"
+      ],
+      "RepoDigests": [
+        "public.ecr.aws/supabase/mailpit@sha256:ed9b00c609e77e99c79b93f1178255ebc271868920f2c69a8d166bd5634ed10d"
+      ],
+      "Architecture": "arm64",
+      "Os": "linux"
+    },
+    {
+      "Id": "sha256:1b53405d8680a09d6f44494b7990bf7da2ea43f84a258c59717d4539abf09f6d",
+      "RepoTags": [
+        "public.ecr.aws/supabase/kong:2.8.1"
+      ],
+      "RepoDigests": [
+        "public.ecr.aws/supabase/kong@sha256:1b53405d8680a09d6f44494b7990bf7da2ea43f84a258c59717d4539abf09f6d"
+      ],
+      "Architecture": "arm64",
+      "Os": "linux"
+    },
+    {
+      "Id": "sha256:1347d7552b88f17832912c06afbf7c43209af6eeeb60834b04aae12c9bd9d5cc",
+      "RepoTags": [
+        "public.ecr.aws/supabase/postgrest:v16.5"
+      ],
+      "RepoDigests": [
+        "public.ecr.aws/supabase/postgrest@sha256:1347d7552b88f17832912c06afbf7c43209af6eeeb60834b04aae12c9bd9d5cc"
+      ],
+      "Architecture": "arm64",
+      "Os": "linux"
+    },
+    {
+      "Id": "sha256:c141fd17ac6a76c4323e90b3aee8ff1a23d2e89e547c2b963cfadc309c079cc2",
+      "RepoTags": [
+        "public.ecr.aws/supabase/postgres:17.11.0.006"
+      ],
+      "RepoDigests": [
+        "public.ecr.aws/supabase/postgres@sha256:c141fd17ac6a76c4323e90b3aee8ff1a23d2e89e547c2b963cfadc309c079cc2"
+      ],
+      "Architecture": "arm64",
+      "Os": "linux"
+    },
+    {
+      "Id": "sha256:1736a63078f5922b198c4cbe50f80ab9a2d3b54fe8b7b6cfb2e9dc5dbbc12c6b",
+      "RepoTags": [
+        "public.ecr.aws/supabase/gotrue:v2.197.0"
+      ],
+      "RepoDigests": [
+        "public.ecr.aws/supabase/gotrue@sha256:1736a63078f5922b198c4cbe50f80ab9a2d3b54fe8b7b6cfb2e9dc5dbbc12c6b"
+      ],
+      "Architecture": "arm64",
+      "Os": "linux"
+    }
+  ],
+  "migrations": [
+    {
+      "file": "202610110001_m1_training.sql",
+      "sha256": "e0ae87a804f0dc14fda1d54b646ee29f4da8d0e4e9f9de48d154de8f027d4ca7"
+    },
+    {
+      "file": "202610110002_m2_tutor.sql",
+      "sha256": "d27691a0e3b0b3fcc6998c7fc5c120696c29b33fa2b94e7a900ccded5b8850d2"
+    },
+    {
+      "file": "202610110003_gemini_usage.sql",
+      "sha256": "0bc06c8305655f475f5ae893eec5d333714a257127d79cdbdaad3a1481881093"
+    },
+    {
+      "file": "202610120004_business_conflicts.sql",
+      "sha256": "7055e9c94fbbe93f50bfeec82b0324df382c4b9cfc13345fcbd74f0c651ec68f"
+    },
+    {
+      "file": "202610120005_ac_reviews.sql",
+      "sha256": "44c6f2b11943e1d3428ce7103cc6f2657dd2e9bf8dc5495db99e48ec28944c92"
+    },
+    {
+      "file": "202610120006_cf_catalog_plans.sql",
+      "sha256": "94817343f8a98ce8af1f5aa56762cf1f2a2e051e5efc4a1d1c00da4684e4af43"
+    },
+    {
+      "file": "202610140007_learning_recommendations.sql",
+      "sha256": "c50ed33ab82dda95530a2dea348396080f81a8d4a00c4da3a1471185b98bdd0c"
+    },
+    {
+      "file": "202610140008_recommendation_audit.sql",
+      "sha256": "3e7a99a920825d2d1f9ce99fbccc0b0bdd66248e65f7d375035335eea90e88c4"
+    },
+    {
+      "file": "202610140009_recommendation_fit.sql",
+      "sha256": "95b26bf784ed84858037a6e4762076d7d3cc762e6376273c6a1eb6480c2e4897"
+    },
+    {
+      "file": "202610150010_cf_official_evidence.sql",
+      "sha256": "5ca7c5cb6ddb31351d79ba6782fd51b2508310b2225be74cdd2985bbb5809184"
+    },
+    {
+      "file": "202610260011_review_retry_recovery.sql",
+      "sha256": "a2bdd2ccaf4b0d925fe37de59aa51c4e38f9d8f0de8bb2992ac5b4f567701e7d"
+    },
+    {
+      "file": "202610270012_tutor_retry_recovery.sql",
+      "sha256": "1358538fcf5b21615ca6f82f985ce2373230c3e996cf4c6ff6afafae96a2254a"
+    },
+    {
+      "file": "202610280013_recommendation_training_feedback.sql",
+      "sha256": "1b0e5b1cd20eebabd3afb0c786069e4c297b6ae0ea93e05ad1417fd107f31ca4"
+    }
+  ],
+  "ledger": [
+    "202610110001",
+    "202610110002",
+    "202610110003",
+    "202610120004",
+    "202610120005",
+    "202610120006",
+    "202610140007",
+    "202610140008",
+    "202610140009",
+    "202610150010",
+    "202610260011",
+    "202610270012",
+    "202610280013"
+  ],
+  "platformBaseline": {
+    "scope": "auth/storage/realtime/vault relations + auth/storage/realtime/extensions/vault functions only",
+    "unchanged": true,
+    "secondFreshPlatformAlsoMatches": true
+  },
+  "localCatalog": {
+    "functions": 42,
+    "relations": 27,
+    "columns": 246,
+    "indexes": 68,
+    "constraints": 175,
+    "policies": 16,
+    "triggers": 3,
+    "strict013Comparison": "MISMATCH",
+    "mismatchCount": 51,
+    "extraObjects": 0,
+    "functionAclServiceRoleExecuteDifferences": 34,
+    "relationAclServiceRoleDifferences": 16,
+    "schemaAclDifferences": 1,
+    "equivalentPg18NotNullConstraints": 187,
+    "otherComparedDefinitionDifferences": 0,
+    "remoteStateUnchanged": true
+  },
+  "cases": {
+    "J01": {
+      "status": "PASS",
+      "evidence": {
+        "confirmationRequired": true,
+        "unconfirmedRejected": 401,
+        "mail": "local Mailpit",
+        "callback": true,
+        "jwtIssuerLoopback": true,
+        "role": "authenticated",
+        "ttl": 60
+      }
+    },
+    "J02": {
+      "status": "PASS",
+      "evidence": {
+        "confirmationRequired": true,
+        "unconfirmedRejected": 401,
+        "mail": "local Mailpit",
+        "callback": true,
+        "jwtIssuerLoopback": true,
+        "role": "authenticated",
+        "ttl": 60
+      }
+    },
+    "J03": {
+      "status": "PASS",
+      "evidence": {
+        "databaseSubjectMatchesAuth": true,
+        "distinctUsers": true,
+        "pids": [
+          82407,
+          82408
+        ],
+        "anonymous": 401
+      }
+    },
+    "J06": {
+      "status": "PASS",
+      "evidence": {
+        "users": 2,
+        "training": 4,
+        "plans": 2,
+        "thoughtSnapshots": 2,
+        "reviewSnapshots": 2,
+        "providerCalls": 0
+      }
+    },
+    "J07": {
+      "status": "PASS",
+      "evidence": {
+        "ownVisible": true,
+        "foreignAbsent": true,
+        "collections": 3
+      }
+    },
+    "J08": {
+      "status": "PASS",
+      "evidence": {
+        "api404": 4,
+        "postgrestEmpty": true,
+        "rpc": "P0002"
+      }
+    },
+    "J09": {
+      "status": "PASS",
+      "evidence": {
+        "api404": 2,
+        "rpc": "P0002",
+        "planWrite": "P0002",
+        "planUnchanged": true,
+        "snapshotUnchanged": true
+      }
+    },
+    "J10": {
+      "status": "PASS",
+      "evidence": {
+        "dmlAndPrivateColumnDenials": 6,
+        "forgery": "42501",
+        "normalJwt": true
+      }
+    },
+    "J11": {
+      "status": "PASS",
+      "evidence": {
+        "casStatuses": [
+          200,
+          409
+        ],
+        "appendSameId": true,
+        "readyProcesses": 2,
+        "barrierCasStatuses": [
+          200,
+          409
+        ]
+      }
+    },
+    "J12": {
+      "status": "PASS",
+      "evidence": {
+        "unknown": "ACK discarded by synthetic driver",
+        "pending": 409,
+        "completedCached": true,
+        "newGeneration": "LLM_FREE_TIER_UNVERIFIED",
+        "modelCalls": 0
+      }
+    },
+    "J15": {
+      "status": "PASS",
+      "evidence": {
+        "concurrentRunSameReceipt": true,
+        "concurrentSkip": true,
+        "concurrentStartSameSession": true,
+        "sameTrainingDifferentRun": true,
+        "oneOrigin": true,
+        "selfReportDistinctFromOfficial": true,
+        "foreign": "P0002",
+        "legacyUnchanged": true,
+        "officialVsSelfReport": "disabled is separate from self_reported"
+      }
+    },
+    "J14": {
+      "status": "PASS",
+      "evidence": {
+        "evidence": "HTTP409",
+        "officialAnalysisRevocation": "HTTP409",
+        "lateAccepted": false,
+        "historyUnchanged": true
+      }
+    },
+    "J13": {
+      "status": "PASS",
+      "evidence": {
+        "simultaneous": [
+          200,
+          409
+        ],
+        "otherUserIndependent": true,
+        "waitMs": 183652,
+        "sameIdAfterExpiry": "REVIEW_REQUEST_FAILED",
+        "otherKindExpiry": "TUTOR_REQUEST_FAILED",
+        "lateAccepted": false,
+        "utcQuota": 30,
+        "exhausted": 429,
+        "usage": "no model usage"
+      }
+    },
+    "J04": {
+      "status": "PASS",
+      "evidence": {
+        "realExpiryWaited": true,
+        "cookieChanged": true,
+        "identityPreserved": true,
+        "cachePrivate": true,
+        "setCookieObserved": true,
+        "cookieAttributes": [
+          {
+            "secure": false,
+            "httpOnly": false,
+            "sameSite": "Lax"
+          },
+          {
+            "secure": false,
+            "httpOnly": false,
+            "sameSite": "Lax"
+          },
+          {
+            "secure": false,
+            "httpOnly": false,
+            "sameSite": "Lax"
+          }
+        ],
+        "localHttp": true
+      }
+    },
+    "J05": {
+      "status": "PASS",
+      "evidence": {
+        "expiredAuth": {
+          "status": 403,
+          "code": "bad_jwt"
+        },
+        "expiredPostgrest": {
+          "status": 401,
+          "code": "PGRST303"
+        },
+        "unexpiredAccessAfterLogout": 200,
+        "revokedRefresh": 400,
+        "logoutCookieAccess": 401,
+        "relogin": true,
+        "localSignOut": "does not imply immediate revocation of other unexpired access JWTs"
+      }
+    },
+    "J16": {
+      "status": "PASS",
+      "evidence": {
+        "pids": [
+          82407,
+          82408
+        ],
+        "sameTarget": true,
+        "cookieIsolation": true,
+        "sharedSlotGapMs": 3040,
+        "fixtureOnly": true,
+        "stoppedPid": 82407,
+        "otherInstanceRecovered": true,
+        "cachedResultCount": 1
+      }
+    }
+  },
+  "notRunSubcases": [
+    "Hosted JWT/RLS/HTTPS/multi-instance runtime",
+    "Real CF and Provider calls; SMTP delivery; storage/realtime/functions; Safari/real devices; participants; B4"
+  ],
+  "regression": {
+    "fullTests": 887,
+    "fullFiles": 78,
+    "boundaryTests": 6,
+    "targeted": 265,
+    "recommendations": 36,
+    "mockChromiumE2E": 136,
+    "hostedReadinessOffline": 36,
+    "lint": "PASS",
+    "typecheck": "PASS",
+    "build": "PASS"
+  },
+  "nodeAudits": {
+    "full": [
+      {
+        "phase": "lint",
+        "exitCode": 0,
+        "audit": {
+          "version": "offline-audit-collection/1",
+          "state": "COLLECTED",
+          "status": "PASS",
+          "started": 2,
+          "completed": 2,
+          "browserStarted": 0,
+          "browserCompleted": 0,
+          "issues": [],
+          "counters": {
+            "networkBlocked": 0,
+            "dnsBlocked": 0,
+            "credentialReadBlocked": 0,
+            "externalHTTP": 0,
+            "realDNS": 0,
+            "realCredentialReads": 0
+          },
+          "browser": {
+            "allowed": null,
+            "denied": null,
+            "completedAllowed": 0,
+            "completedDenied": 0,
+            "nativeHTTP": "UNKNOWN",
+            "nativeDNS": "UNKNOWN"
+          },
+          "boundary": "Only instrumented processes and page routes; native/background or uninstrumented activity remains UNKNOWN. Missing or unpublished records never imply zero."
+        },
+        "diagnosticsState": "CORRELATED"
+      },
+      {
+        "phase": "typecheck",
+        "exitCode": 0,
+        "audit": {
+          "version": "offline-audit-collection/1",
+          "state": "COLLECTED",
+          "status": "PASS",
+          "started": 3,
+          "completed": 3,
+          "browserStarted": 0,
+          "browserCompleted": 0,
+          "issues": [],
+          "counters": {
+            "networkBlocked": 0,
+            "dnsBlocked": 0,
+            "credentialReadBlocked": 0,
+            "externalHTTP": 0,
+            "realDNS": 0,
+            "realCredentialReads": 0
+          },
+          "browser": {
+            "allowed": null,
+            "denied": null,
+            "completedAllowed": 0,
+            "completedDenied": 0,
+            "nativeHTTP": "UNKNOWN",
+            "nativeDNS": "UNKNOWN"
+          },
+          "boundary": "Only instrumented processes and page routes; native/background or uninstrumented activity remains UNKNOWN. Missing or unpublished records never imply zero."
+        },
+        "diagnosticsState": "CORRELATED"
+      },
+      {
+        "phase": "targeted",
+        "exitCode": 0,
+        "audit": {
+          "version": "offline-audit-collection/1",
+          "state": "COLLECTED",
+          "status": "PASS",
+          "started": 40,
+          "completed": 40,
+          "browserStarted": 0,
+          "browserCompleted": 0,
+          "issues": [],
+          "counters": {
+            "networkBlocked": 0,
+            "dnsBlocked": 0,
+            "credentialReadBlocked": 0,
+            "externalHTTP": 0,
+            "realDNS": 0,
+            "realCredentialReads": 0
+          },
+          "browser": {
+            "allowed": null,
+            "denied": null,
+            "completedAllowed": 0,
+            "completedDenied": 0,
+            "nativeHTTP": "UNKNOWN",
+            "nativeDNS": "UNKNOWN"
+          },
+          "boundary": "Only instrumented processes and page routes; native/background or uninstrumented activity remains UNKNOWN. Missing or unpublished records never imply zero."
+        },
+        "diagnosticsState": "CORRELATED"
+      },
+      {
+        "phase": "test",
+        "exitCode": 0,
+        "audit": {
+          "version": "offline-audit-collection/1",
+          "state": "COLLECTED",
+          "status": "PASS",
+          "started": 113,
+          "completed": 113,
+          "browserStarted": 0,
+          "browserCompleted": 0,
+          "issues": [],
+          "counters": {
+            "networkBlocked": 0,
+            "dnsBlocked": 0,
+            "credentialReadBlocked": 0,
+            "externalHTTP": 0,
+            "realDNS": 0,
+            "realCredentialReads": 0
+          },
+          "browser": {
+            "allowed": null,
+            "denied": null,
+            "completedAllowed": 0,
+            "completedDenied": 0,
+            "nativeHTTP": "UNKNOWN",
+            "nativeDNS": "UNKNOWN"
+          },
+          "boundary": "Only instrumented processes and page routes; native/background or uninstrumented activity remains UNKNOWN. Missing or unpublished records never imply zero."
+        },
+        "diagnosticsState": "CORRELATED"
+      },
+      {
+        "phase": "recommendations",
+        "exitCode": 0,
+        "audit": {
+          "version": "offline-audit-collection/1",
+          "state": "COLLECTED",
+          "status": "PASS",
+          "started": 10,
+          "completed": 10,
+          "browserStarted": 0,
+          "browserCompleted": 0,
+          "issues": [],
+          "counters": {
+            "networkBlocked": 0,
+            "dnsBlocked": 0,
+            "credentialReadBlocked": 0,
+            "externalHTTP": 0,
+            "realDNS": 0,
+            "realCredentialReads": 0
+          },
+          "browser": {
+            "allowed": null,
+            "denied": null,
+            "completedAllowed": 0,
+            "completedDenied": 0,
+            "nativeHTTP": "UNKNOWN",
+            "nativeDNS": "UNKNOWN"
+          },
+          "boundary": "Only instrumented processes and page routes; native/background or uninstrumented activity remains UNKNOWN. Missing or unpublished records never imply zero."
+        },
+        "diagnosticsState": "CORRELATED"
+      },
+      {
+        "phase": "build",
+        "exitCode": 0,
+        "audit": {
+          "version": "offline-audit-collection/1",
+          "state": "COLLECTED",
+          "status": "PASS",
+          "started": 34,
+          "completed": 34,
+          "browserStarted": 0,
+          "browserCompleted": 0,
+          "issues": [],
+          "counters": {
+            "networkBlocked": 0,
+            "dnsBlocked": 0,
+            "credentialReadBlocked": 0,
+            "externalHTTP": 0,
+            "realDNS": 0,
+            "realCredentialReads": 0
+          },
+          "browser": {
+            "allowed": null,
+            "denied": null,
+            "completedAllowed": 0,
+            "completedDenied": 0,
+            "nativeHTTP": "UNKNOWN",
+            "nativeDNS": "UNKNOWN"
+          },
+          "boundary": "Only instrumented processes and page routes; native/background or uninstrumented activity remains UNKNOWN. Missing or unpublished records never imply zero."
+        },
+        "diagnosticsState": "CORRELATED"
+      }
+    ],
+    "quality": [
+      {
+        "phase": "lint",
+        "exitCode": 0,
+        "audit": {
+          "version": "offline-audit-collection/1",
+          "state": "COLLECTED",
+          "status": "PASS",
+          "started": 2,
+          "completed": 2,
+          "browserStarted": 0,
+          "browserCompleted": 0,
+          "issues": [],
+          "counters": {
+            "networkBlocked": 0,
+            "dnsBlocked": 0,
+            "credentialReadBlocked": 0,
+            "externalHTTP": 0,
+            "realDNS": 0,
+            "realCredentialReads": 0
+          },
+          "browser": {
+            "allowed": null,
+            "denied": null,
+            "completedAllowed": 0,
+            "completedDenied": 0,
+            "nativeHTTP": "UNKNOWN",
+            "nativeDNS": "UNKNOWN"
+          },
+          "boundary": "Only instrumented processes and page routes; native/background or uninstrumented activity remains UNKNOWN. Missing or unpublished records never imply zero."
+        },
+        "diagnosticsState": "CORRELATED"
+      },
+      {
+        "phase": "typecheck",
+        "exitCode": 0,
+        "audit": {
+          "version": "offline-audit-collection/1",
+          "state": "COLLECTED",
+          "status": "PASS",
+          "started": 3,
+          "completed": 3,
+          "browserStarted": 0,
+          "browserCompleted": 0,
+          "issues": [],
+          "counters": {
+            "networkBlocked": 0,
+            "dnsBlocked": 0,
+            "credentialReadBlocked": 0,
+            "externalHTTP": 0,
+            "realDNS": 0,
+            "realCredentialReads": 0
+          },
+          "browser": {
+            "allowed": null,
+            "denied": null,
+            "completedAllowed": 0,
+            "completedDenied": 0,
+            "nativeHTTP": "UNKNOWN",
+            "nativeDNS": "UNKNOWN"
+          },
+          "boundary": "Only instrumented processes and page routes; native/background or uninstrumented activity remains UNKNOWN. Missing or unpublished records never imply zero."
+        },
+        "diagnosticsState": "CORRELATED"
+      },
+      {
+        "phase": "build",
+        "exitCode": 0,
+        "audit": {
+          "version": "offline-audit-collection/1",
+          "state": "COLLECTED",
+          "status": "PASS",
+          "started": 34,
+          "completed": 34,
+          "browserStarted": 0,
+          "browserCompleted": 0,
+          "issues": [],
+          "counters": {
+            "networkBlocked": 0,
+            "dnsBlocked": 0,
+            "credentialReadBlocked": 0,
+            "externalHTTP": 0,
+            "realDNS": 0,
+            "realCredentialReads": 0
+          },
+          "browser": {
+            "allowed": null,
+            "denied": null,
+            "completedAllowed": 0,
+            "completedDenied": 0,
+            "nativeHTTP": "UNKNOWN",
+            "nativeDNS": "UNKNOWN"
+          },
+          "boundary": "Only instrumented processes and page routes; native/background or uninstrumented activity remains UNKNOWN. Missing or unpublished records never imply zero."
+        },
+        "diagnosticsState": "CORRELATED"
+      }
+    ],
+    "reference": [
+      {
+        "phase": "probe",
+        "exitCode": 0,
+        "audit": {
+          "version": "offline-audit-collection/1",
+          "state": "COLLECTED",
+          "status": "PASS",
+          "started": 10,
+          "completed": 10,
+          "browserStarted": 0,
+          "browserCompleted": 0,
+          "issues": [],
+          "counters": {
+            "networkBlocked": 0,
+            "dnsBlocked": 0,
+            "credentialReadBlocked": 0,
+            "externalHTTP": 0,
+            "realDNS": 0,
+            "realCredentialReads": 0
+          },
+          "browser": {
+            "allowed": null,
+            "denied": null,
+            "completedAllowed": 0,
+            "completedDenied": 0,
+            "nativeHTTP": "UNKNOWN",
+            "nativeDNS": "UNKNOWN"
+          },
+          "boundary": "Only instrumented processes and page routes; native/background or uninstrumented activity remains UNKNOWN. Missing or unpublished records never imply zero."
+        },
+        "diagnosticsState": "CORRELATED"
+      }
+    ],
+    "mockE2E": {
+      "version": "offline-audit-collection/1",
+      "state": "COLLECTED",
+      "status": "PASS",
+      "started": 55,
+      "completed": 55,
+      "browserStarted": 12,
+      "browserCompleted": 12,
+      "issues": [],
+      "counters": {
+        "networkBlocked": 0,
+        "dnsBlocked": 0,
+        "credentialReadBlocked": 0,
+        "externalHTTP": 0,
+        "realDNS": 0,
+        "realCredentialReads": 0
+      },
+      "browser": {
+        "allowed": 9687,
+        "denied": 0,
+        "completedAllowed": 9687,
+        "completedDenied": 0,
+        "nativeHTTP": "UNKNOWN",
+        "nativeDNS": "UNKNOWN"
+      },
+      "boundary": "Only instrumented processes and page routes; native/background or uninstrumented activity remains UNKNOWN. Missing or unpublished records never imply zero."
+    },
+    "matrix": {
+      "version": "offline-audit-collection/1",
+      "state": "COLLECTED",
+      "status": "PASS",
+      "started": 35,
+      "completed": 35,
+      "browserStarted": 1,
+      "browserCompleted": 1,
+      "issues": [],
+      "counters": {
+        "networkBlocked": 0,
+        "dnsBlocked": 0,
+        "credentialReadBlocked": 0,
+        "externalHTTP": 0,
+        "realDNS": 0,
+        "realCredentialReads": 0
+      },
+      "browser": {
+        "allowed": 48,
+        "denied": 0,
+        "completedAllowed": 48,
+        "completedDenied": 0,
+        "nativeHTTP": "UNKNOWN",
+        "nativeDNS": "UNKNOWN"
+      },
+      "boundary": "Only instrumented processes and page routes; native/background or uninstrumented activity remains UNKNOWN. Missing or unpublished records never imply zero."
+    },
+    "j05Retest": {
+      "version": "offline-audit-collection/1",
+      "state": "COLLECTED",
+      "status": "PASS",
+      "started": 35,
+      "completed": 35,
+      "browserStarted": 1,
+      "browserCompleted": 1,
+      "issues": [],
+      "counters": {
+        "networkBlocked": 0,
+        "dnsBlocked": 0,
+        "credentialReadBlocked": 0,
+        "externalHTTP": 0,
+        "realDNS": 0,
+        "realCredentialReads": 0
+      },
+      "browser": {
+        "allowed": 16,
+        "denied": 0,
+        "completedAllowed": 16,
+        "completedDenied": 0,
+        "nativeHTTP": "UNKNOWN",
+        "nativeDNS": "UNKNOWN"
+      },
+      "boundary": "Only instrumented processes and page routes; native/background or uninstrumented activity remains UNKNOWN. Missing or unpublished records never imply zero."
+    }
+  },
+  "preStopSyntheticCounts": {
+    "database": "postgres",
+    "directory": "/var/lib/postgresql/data",
+    "authUsers": 2,
+    "syntheticOnly": true,
+    "sessions": 7,
+    "reviews": 2,
+    "tutorReceipts": 29,
+    "reviewReceipts": 2,
+    "trials": 7,
+    "usageRows": 0,
+    "allTrialsOwned": true,
+    "migrationVersions": [
+      "202610110001",
+      "202610110002",
+      "202610110003",
+      "202610120004",
+      "202610120005",
+      "202610120006",
+      "202610140007",
+      "202610140008",
+      "202610140009",
+      "202610150010",
+      "202610260011",
+      "202610270012",
+      "202610280013"
+    ]
+  },
+  "cleanup": {
+    "colimaStopExit": 0,
+    "colimaStatusExit": 1,
+    "loopbackPortsReleased": [
+      59670,
+      59671,
+      59672,
+      59673,
+      59674,
+      59675,
+      59676,
+      59677,
+      59678
+    ],
+    "listenersRemaining": 0,
+    "softwareAndImagesRetained": true,
+    "globalServicesStarted": false
+  },
+  "platformCleanup": {
+    "projectId": "algopilot-r2c-58aaf00f",
+    "containersRemaining": 0,
+    "projectVolumesRemaining": 0,
+    "ownNetworkRemoved": true,
+    "syntheticDatabaseDataDeleted": true
+  },
+  "history": {
+    "twoUnknownNetworkBlocks": "FAIL / UNRESOLVED",
+    "r1AdditionalBlock": "FAIL / chain known, complete timing UNRESOLVED",
+    "r2b0Storage": "FAIL",
+    "iCloudSync": "UNKNOWN / not accessed this round"
+  },
+  "gates": {
+    "P0-A": "R1 34/34 PASS reused; native facilities unchanged",
+    "P0-B": "BLOCKED hosted / local scoped case evidence only",
+    "P0-C": "BLOCKED; B4 NOT_RUN"
+  },
+  "nativeAndBackgroundCounters": "UNKNOWN; no substitute zeros",
+  "processes": [
+    {
+      "phase": "local-build",
+      "pid": 82279,
+      "ppid": 82274,
+      "startedNs": "338155021807416",
+      "finishedNs": "338164519421208",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "phase": "instance1",
+      "pid": 82407,
+      "ppid": 82274,
+      "startedNs": "338164825470500",
+      "finishedNs": "338360780483375",
+      "exitCode": 143,
+      "signal": null
+    },
+    {
+      "phase": "instance2",
+      "pid": 82408,
+      "ppid": 82274,
+      "startedNs": "338164825954875",
+      "finishedNs": "338361049410000",
+      "exitCode": 143,
+      "signal": null
+    },
+    {
+      "phase": "local-integration",
+      "pid": 82409,
+      "ppid": 82274,
+      "startedNs": "338164826631458",
+      "finishedNs": "338361040234208",
+      "exitCode": 0,
+      "signal": null
+    }
+  ],
+  "rawEvidenceHashes": {
+    "attempt-0qAzBM/j01-j16.json": "8a63472d05c02784fb44c56797c494e5d5e31057ab3b98ae9b49ce6e4da0675b",
+    "attempt-0qAzBM/node-audit.json": "a87a2edfffa62ee95248d62ddcffbf847d57b227fcac331cdcf40d7ad6267794",
+    "attempt-0qAzBM/processes.json": "b52c61b623761bf3e5d9ee99c70b994c61cf7b14395637be03c6bc2d21ad0746",
+    "attempt-SMnuXn/j05-retest.json": "676dabe4cc5678c60aa369cd391f037ece68a78183b9f067e5657b5c767a1f4a",
+    "evidence/epoch2-final-cleanup.json": "d17b582193183cc599560a19bb518acc9ae59c5780a28c1d7d893673fe6409de"
+  }
+}
