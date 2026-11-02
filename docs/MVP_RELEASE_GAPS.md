@@ -1,6 +1,6 @@
 # MVP 发布前缺口清单
 
-核查日期：2026-11-02。依据 DEVELOPMENT_PLAN.md v3.4、MILESTONES 与各阶段验收；本表不是发布批准，不自动执行任何真实环境操作。最新真实原生执行见 [MVP_R1_NATIVE_EXECUTION_VERIFICATION.md](MVP_R1_NATIVE_EXECUTION_VERIFICATION.md)；此前 [R1 准备](MVP_R1_NATIVE_READINESS_VERIFICATION.md)、[R0 门禁](MVP_RELEASE_GATE_VERIFICATION.md) 和 [Review 列表恢复](M35_REVIEW_LIST_RECOVERY_VERIFICATION.md) 保留原始状态与失败证据。
+核查日期：2026-11-02。依据 DEVELOPMENT_PLAN.md v3.4、MILESTONES 与各阶段验收；本表不是发布批准，不自动执行任何真实环境操作。最新托管准备见 [MVP_R2A_HOSTED_READINESS_VERIFICATION.md](MVP_R2A_HOSTED_READINESS_VERIFICATION.md)，真实原生执行见 [R1 正式报告](MVP_R1_NATIVE_EXECUTION_VERIFICATION.md)；此前 [R1 准备](MVP_R1_NATIVE_READINESS_VERIFICATION.md)、[R0 门禁](MVP_RELEASE_GATE_VERIFICATION.md) 和 [Review 列表恢复](M35_REVIEW_LIST_RECOVERY_VERIFICATION.md) 保留原始状态与失败证据。
 
 ## 已实现并通过离线验收
 
@@ -13,7 +13,7 @@
 | 缺口 | 当前证据/状态 | 下一步与所需条件 |
 | --- | --- | --- |
 | P0-A：原生 PostgreSQL 多连接与 RLS | **PASS（本轮原生范围）**：Homebrew PostgreSQL 16.15，原 **20/20** 与 013 **14/14** 实际通过；独立 authenticated 后端、真实锁/事务、RLS/ACL、幂等/租约、001–013 与历史摘要均有证据。两阶段 Node 审计各 2/2 PASS，测试置于仅 loopback 系统沙箱；临时 trust 已替换为私有合成 SCRAM。原生进程完整流量/读取计数仍 UNKNOWN | 环境与正式执行授权已于本轮明确取得并使用，仅限新建本机合成库。软件保留且不启动常驻服务；后续真实用户/托管/模型依然独立审批，不能据此宣称 Supabase/JWT/多应用实例通过。原生失败及修复证据见执行报告 |
-| P0-B：托管结构、迁移与真实身份隔离 | 011–013 托管部署/验收未完成；001–010 有历史目录核验，但执行账本曾缺失，不能据此推断当前部署状态。当前目标实际状态 **UNKNOWN/NOT_RUN** | 先明确专用目标、只读核验与变更清单，再取得当前授权。真实签发 JWT、两用户 RLS/归属、Cookie 刷新、撤权时序、HMAC 配置一致性及多连接/多应用实例分别验收；不读取密钥、不自动 db push/db pull/repair 或补账本 |
+| P0-B：托管结构、迁移与真实身份隔离 | **R2A 本地准备 PASS；R2B BLOCKED / 托管 NOT_RUN**。已补 001–013 SELECT-only 元数据/完整 ACL/旧重载检查、四前缀参考、独立账本读取和离线差异/迁移提案工具、16 项真实 JWT/双用户矩阵、两 Next 实例流程。当前目标 **NOT_SELECTED / UNKNOWN**；历史生产项目不是默认对象，旧账本缺失仍保留 | 负责人另提供专用 TEST 项目及可核查远端身份，再分项批准目录读取、确实缺失迁移/备份恢复、Auth/配置、A/B 夹具/故障/清理。preflight 不信任自签文件/TEST 布尔，始终无远端执行能力；当前不连接，不自动 db push/db pull/repair/补账本，不用 service-role 代普通 JWT |
 | P0-C：免费模型资格和独立生成许可 | 可信免费资格 **BLOCKED**；B4 **NOT_RUN**；生产没有可信验证器/授权源，本地默认拒绝通过不证明账户免费 | 先建立可信、绑定项目/凭据且有期限的资格证据及独立当前授权，再按批准范围检查真实 Provider/网络/恢复/输出安全与质量、usage/费用。模型名、Flash、环境布尔、自签文件、历史预算不能放行；不能用生成试探资格，禁止付费回退 |
 
 前三项按数据持久化、身份隔离、AI 核心能力排序。带 Tutor/生成式 Review 的完整 MVP 不能仅凭离线 PASS 宣称已可发布。若计划提供明确禁用 AI 的有限试用版，应另行决定产品范围并向用户准确说明，不能自动降低现有完整验收标准。
@@ -36,4 +36,4 @@ R1 另有 1 次专项 fetch 被拒绝，阶段与调用点已关联到 TrainingF
 
 ## 执行边界
 
-本轮本机隔离原生验收已完成。下一步先由人工审查本轮未提交变更，再明确专用托管验收的目标、环境和授权；真实免费资格及限定范围模型实验仍有独立门禁。客户端与获授权的基础产品试用可按依赖安排，不自动开启新专项、招募评审、托管操作或部署。
+R1 本机原生验收已完成，R2A 仅补托管准备工具/材料。下一步先由人工审查本轮未提交变更，再明确 R2B 专用目标、环境和分项授权；真实免费资格及限定范围模型实验仍有独立门禁。客户端与获授权的基础产品试用可按依赖安排，不自动进入 R2B/R3/B4、招募评审、托管操作或部署。

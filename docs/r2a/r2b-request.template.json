@@ -1,0 +1,11 @@
+{
+  "proposed": {
+    "projectRef": "REQUIRES_OWNER_PROJECT_REF",
+    "url": "REQUIRES_OWNER_PROJECT_URL",
+    "environment": "TEST"
+  },
+  "scopes": ["metadata"],
+  "accounts": [],
+  "migrationState": "UNKNOWN",
+  "useExistingUserData": false
+}

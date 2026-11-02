@@ -1,0 +1,326 @@
+{
+  "format": "r2a-local-verification/1",
+  "date": "2026-11-02",
+  "head": "dc5fee5b1e5380f6de3f77d601041b01218c8f64",
+  "initialWorktree": "CLEAN",
+  "remoteTarget": "NOT_SELECTED",
+  "remote": "NOT_RUN",
+  "native": "NOT_RERUN_REUSE_R1",
+  "targeted": {
+    "artifact": "/var/folders/tw/b3ckg3250kd_tv1mh95l05740000gn/T/algopilot-replay-checks-tYBjyG/checks.json",
+    "passed": 36,
+    "audit": {
+      "version": "offline-audit-collection/1",
+      "state": "COLLECTED",
+      "status": "PASS",
+      "started": 10,
+      "completed": 10,
+      "browserStarted": 0,
+      "browserCompleted": 0,
+      "issues": [],
+      "counters": {
+        "networkBlocked": 0,
+        "dnsBlocked": 0,
+        "credentialReadBlocked": 0,
+        "externalHTTP": 0,
+        "realDNS": 0,
+        "realCredentialReads": 0
+      },
+      "browser": {
+        "allowed": null,
+        "denied": null,
+        "completedAllowed": 0,
+        "completedDenied": 0,
+        "nativeHTTP": "UNKNOWN",
+        "nativeDNS": "UNKNOWN"
+      },
+      "boundary": "Only instrumented processes and page routes; native/background or uninstrumented activity remains UNKNOWN. Missing or unpublished records never imply zero."
+    },
+    "diagnosticState": "CORRELATED"
+  },
+  "reference": {
+    "artifact": "/var/folders/tw/b3ckg3250kd_tv1mh95l05740000gn/T/algopilot-replay-checks-tYBjyG/r2a-reference/catalog-references.json",
+    "serverVersion": "18.3",
+    "querySha256": "65d8c53d6b358175427fc0bedabbcb358d54eacb3e876b3323c028b0257dde63"
+  },
+  "regression": {
+    "artifact": "/var/folders/tw/b3ckg3250kd_tv1mh95l05740000gn/T/algopilot-replay-checks-Ol17xi/checks.json",
+    "unitIntegrationPassed": 881,
+    "recommendationsPassed": 36,
+    "relatedPassed": 265,
+    "stages": [
+      {
+        "phase": "lint",
+        "exitCode": 0,
+        "audit": {
+          "version": "offline-audit-collection/1",
+          "state": "COLLECTED",
+          "status": "PASS",
+          "started": 2,
+          "completed": 2,
+          "browserStarted": 0,
+          "browserCompleted": 0,
+          "issues": [],
+          "counters": {
+            "networkBlocked": 0,
+            "dnsBlocked": 0,
+            "credentialReadBlocked": 0,
+            "externalHTTP": 0,
+            "realDNS": 0,
+            "realCredentialReads": 0
+          },
+          "browser": {
+            "allowed": null,
+            "denied": null,
+            "completedAllowed": 0,
+            "completedDenied": 0,
+            "nativeHTTP": "UNKNOWN",
+            "nativeDNS": "UNKNOWN"
+          },
+          "boundary": "Only instrumented processes and page routes; native/background or uninstrumented activity remains UNKNOWN. Missing or unpublished records never imply zero."
+        },
+        "diagnosticState": "CORRELATED",
+        "diagnosticIssues": []
+      },
+      {
+        "phase": "typecheck",
+        "exitCode": 0,
+        "audit": {
+          "version": "offline-audit-collection/1",
+          "state": "COLLECTED",
+          "status": "PASS",
+          "started": 3,
+          "completed": 3,
+          "browserStarted": 0,
+          "browserCompleted": 0,
+          "issues": [],
+          "counters": {
+            "networkBlocked": 0,
+            "dnsBlocked": 0,
+            "credentialReadBlocked": 0,
+            "externalHTTP": 0,
+            "realDNS": 0,
+            "realCredentialReads": 0
+          },
+          "browser": {
+            "allowed": null,
+            "denied": null,
+            "completedAllowed": 0,
+            "completedDenied": 0,
+            "nativeHTTP": "UNKNOWN",
+            "nativeDNS": "UNKNOWN"
+          },
+          "boundary": "Only instrumented processes and page routes; native/background or uninstrumented activity remains UNKNOWN. Missing or unpublished records never imply zero."
+        },
+        "diagnosticState": "CORRELATED",
+        "diagnosticIssues": []
+      },
+      {
+        "phase": "targeted",
+        "exitCode": 0,
+        "audit": {
+          "version": "offline-audit-collection/1",
+          "state": "COLLECTED",
+          "status": "PASS",
+          "started": 40,
+          "completed": 40,
+          "browserStarted": 0,
+          "browserCompleted": 0,
+          "issues": [],
+          "counters": {
+            "networkBlocked": 0,
+            "dnsBlocked": 0,
+            "credentialReadBlocked": 0,
+            "externalHTTP": 0,
+            "realDNS": 0,
+            "realCredentialReads": 0
+          },
+          "browser": {
+            "allowed": null,
+            "denied": null,
+            "completedAllowed": 0,
+            "completedDenied": 0,
+            "nativeHTTP": "UNKNOWN",
+            "nativeDNS": "UNKNOWN"
+          },
+          "boundary": "Only instrumented processes and page routes; native/background or uninstrumented activity remains UNKNOWN. Missing or unpublished records never imply zero."
+        },
+        "diagnosticState": "CORRELATED",
+        "diagnosticIssues": []
+      },
+      {
+        "phase": "test",
+        "exitCode": 0,
+        "audit": {
+          "version": "offline-audit-collection/1",
+          "state": "COLLECTED",
+          "status": "PASS",
+          "started": 112,
+          "completed": 112,
+          "browserStarted": 0,
+          "browserCompleted": 0,
+          "issues": [],
+          "counters": {
+            "networkBlocked": 0,
+            "dnsBlocked": 0,
+            "credentialReadBlocked": 0,
+            "externalHTTP": 0,
+            "realDNS": 0,
+            "realCredentialReads": 0
+          },
+          "browser": {
+            "allowed": null,
+            "denied": null,
+            "completedAllowed": 0,
+            "completedDenied": 0,
+            "nativeHTTP": "UNKNOWN",
+            "nativeDNS": "UNKNOWN"
+          },
+          "boundary": "Only instrumented processes and page routes; native/background or uninstrumented activity remains UNKNOWN. Missing or unpublished records never imply zero."
+        },
+        "diagnosticState": "CORRELATED",
+        "diagnosticIssues": []
+      },
+      {
+        "phase": "recommendations",
+        "exitCode": 0,
+        "audit": {
+          "version": "offline-audit-collection/1",
+          "state": "COLLECTED",
+          "status": "PASS",
+          "started": 10,
+          "completed": 10,
+          "browserStarted": 0,
+          "browserCompleted": 0,
+          "issues": [],
+          "counters": {
+            "networkBlocked": 0,
+            "dnsBlocked": 0,
+            "credentialReadBlocked": 0,
+            "externalHTTP": 0,
+            "realDNS": 0,
+            "realCredentialReads": 0
+          },
+          "browser": {
+            "allowed": null,
+            "denied": null,
+            "completedAllowed": 0,
+            "completedDenied": 0,
+            "nativeHTTP": "UNKNOWN",
+            "nativeDNS": "UNKNOWN"
+          },
+          "boundary": "Only instrumented processes and page routes; native/background or uninstrumented activity remains UNKNOWN. Missing or unpublished records never imply zero."
+        },
+        "diagnosticState": "CORRELATED",
+        "diagnosticIssues": []
+      },
+      {
+        "phase": "build",
+        "exitCode": 0,
+        "audit": {
+          "version": "offline-audit-collection/1",
+          "state": "COLLECTED",
+          "status": "PASS",
+          "started": 34,
+          "completed": 34,
+          "browserStarted": 0,
+          "browserCompleted": 0,
+          "issues": [],
+          "counters": {
+            "networkBlocked": 0,
+            "dnsBlocked": 0,
+            "credentialReadBlocked": 0,
+            "externalHTTP": 0,
+            "realDNS": 0,
+            "realCredentialReads": 0
+          },
+          "browser": {
+            "allowed": null,
+            "denied": null,
+            "completedAllowed": 0,
+            "completedDenied": 0,
+            "nativeHTTP": "UNKNOWN",
+            "nativeDNS": "UNKNOWN"
+          },
+          "boundary": "Only instrumented processes and page routes; native/background or uninstrumented activity remains UNKNOWN. Missing or unpublished records never imply zero."
+        },
+        "diagnosticState": "CORRELATED",
+        "diagnosticIssues": []
+      }
+    ]
+  },
+  "e2e": {
+    "artifact": "/var/folders/tw/b3ckg3250kd_tv1mh95l05740000gn/T/algopilot-gate-e2e-X16JR1/e2e-audits-U4QjPB/checks.json",
+    "passed": 136,
+    "buildExitCode": 0,
+    "exitCode": 0,
+    "audit": {
+      "version": "offline-audit-collection/1",
+      "state": "COLLECTED",
+      "status": "PASS",
+      "started": 55,
+      "completed": 55,
+      "browserStarted": 12,
+      "browserCompleted": 12,
+      "issues": [],
+      "counters": {
+        "networkBlocked": 0,
+        "dnsBlocked": 0,
+        "credentialReadBlocked": 0,
+        "externalHTTP": 0,
+        "realDNS": 0,
+        "realCredentialReads": 0
+      },
+      "browser": {
+        "allowed": 9668,
+        "denied": 0,
+        "completedAllowed": 9668,
+        "completedDenied": 0,
+        "nativeHTTP": "UNKNOWN",
+        "nativeDNS": "UNKNOWN"
+      },
+      "boundary": "Only instrumented processes and page routes; native/background or uninstrumented activity remains UNKNOWN. Missing or unpublished records never imply zero."
+    },
+    "nativeBrowserHTTP": "UNKNOWN",
+    "nativeBrowserDNS": "UNKNOWN"
+  },
+  "sourceComparison": {
+    "files": 312,
+    "fullDifferences": 0,
+    "e2eExpectedFixtureDifferences": [
+      "src/server/tutor/runtime-provider.ts",
+      "tests/e2e/generation-gate.spec.ts",
+      "tests/e2e/growth-observations.spec.ts",
+      "tests/e2e/m1.spec.ts",
+      "tests/e2e/m2.spec.ts",
+      "tests/e2e/m25.spec.ts",
+      "tests/e2e/m3.spec.ts",
+      "tests/e2e/m32.spec.ts",
+      "tests/e2e/m33.spec.ts",
+      "tests/e2e/m341.spec.ts",
+      "tests/e2e/navigation-drafts.spec.ts",
+      "tests/e2e/recommendation-continuity.spec.ts",
+      "tests/e2e/review-list-recovery.spec.ts",
+      "tests/e2e/review-navigation.spec.ts",
+      "tests/e2e/shell.spec.ts",
+      "tests/e2e/skill-intelligence.spec.ts",
+      "tests/e2e/training-continuity.spec.ts",
+      "tests/e2e/training-feedback.spec.ts"
+    ],
+    "productionAndMigrationsUnchanged": true
+  },
+  "historicalAudit": "UNRESOLVED; original FAIL records retained",
+  "initialFailures": [
+    {
+      "artifact": "/private/tmp/algopilot-r2a-full.log",
+      "status": "FAIL",
+      "reason": "New tool TypeScript extension, reducer and subprocess environment typing errors; fixed without tsconfig weakening"
+    },
+    {
+      "artifact": "/private/tmp/algopilot-r2a-targeted-final.log",
+      "status": "FAIL",
+      "reason": "Vitest/jsdom rewrote dynamic module URL to http scheme; ESM loader rejected before network; fixed with explicit local file URL"
+    }
+  ],
+  "boundary": "Only instrumented Node and browser page routes counted. Nested negative probes retain expected FAIL/UNKNOWN records. Supervisor/native bindings/browser background remain UNKNOWN. No remote authorization is issued."
+}

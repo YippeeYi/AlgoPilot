@@ -1,0 +1,123 @@
+{
+  "boundary": "LOCAL PGlite catalog only; no remote identity or execution proof",
+  "migrations": [
+    {
+      "version": "202610110001",
+      "file": "202610110001_m1_training.sql",
+      "sha256": "e0ae87a804f0dc14fda1d54b646ee29f4da8d0e4e9f9de48d154de8f027d4ca7"
+    },
+    {
+      "version": "202610110002",
+      "file": "202610110002_m2_tutor.sql",
+      "sha256": "d27691a0e3b0b3fcc6998c7fc5c120696c29b33fa2b94e7a900ccded5b8850d2"
+    },
+    {
+      "version": "202610110003",
+      "file": "202610110003_gemini_usage.sql",
+      "sha256": "0bc06c8305655f475f5ae893eec5d333714a257127d79cdbdaad3a1481881093"
+    },
+    {
+      "version": "202610120004",
+      "file": "202610120004_business_conflicts.sql",
+      "sha256": "7055e9c94fbbe93f50bfeec82b0324df382c4b9cfc13345fcbd74f0c651ec68f"
+    },
+    {
+      "version": "202610120005",
+      "file": "202610120005_ac_reviews.sql",
+      "sha256": "44c6f2b11943e1d3428ce7103cc6f2657dd2e9bf8dc5495db99e48ec28944c92"
+    },
+    {
+      "version": "202610120006",
+      "file": "202610120006_cf_catalog_plans.sql",
+      "sha256": "94817343f8a98ce8af1f5aa56762cf1f2a2e051e5efc4a1d1c00da4684e4af43"
+    },
+    {
+      "version": "202610140007",
+      "file": "202610140007_learning_recommendations.sql",
+      "sha256": "c50ed33ab82dda95530a2dea348396080f81a8d4a00c4da3a1471185b98bdd0c"
+    },
+    {
+      "version": "202610140008",
+      "file": "202610140008_recommendation_audit.sql",
+      "sha256": "3e7a99a920825d2d1f9ce99fbccc0b0bdd66248e65f7d375035335eea90e88c4"
+    },
+    {
+      "version": "202610140009",
+      "file": "202610140009_recommendation_fit.sql",
+      "sha256": "95b26bf784ed84858037a6e4762076d7d3cc762e6376273c6a1eb6480c2e4897"
+    },
+    {
+      "version": "202610150010",
+      "file": "202610150010_cf_official_evidence.sql",
+      "sha256": "5ca7c5cb6ddb31351d79ba6782fd51b2508310b2225be74cdd2985bbb5809184"
+    },
+    {
+      "version": "202610260011",
+      "file": "202610260011_review_retry_recovery.sql",
+      "sha256": "a2bdd2ccaf4b0d925fe37de59aa51c4e38f9d8f0de8bb2992ac5b4f567701e7d"
+    },
+    {
+      "version": "202610270012",
+      "file": "202610270012_tutor_retry_recovery.sql",
+      "sha256": "1358538fcf5b21615ca6f82f985ce2373230c3e996cf4c6ff6afafae96a2254a"
+    },
+    {
+      "version": "202610280013",
+      "file": "202610280013_recommendation_training_feedback.sql",
+      "sha256": "1b0e5b1cd20eebabd3afb0c786069e4c297b6ae0ea93e05ad1417fd107f31ca4"
+    }
+  ],
+  "prefixes": {
+    "202610150010": {
+      "sha256": "496044fdae363c35dc6d424763299aa299c6f8955268c2b0383c3f8e62677f7c",
+      "counts": {
+        "functions": 39,
+        "relations": 26,
+        "columns": 235,
+        "indexes": 63,
+        "constraints": 347,
+        "policies": 16,
+        "triggers": 3
+      }
+    },
+    "202610260011": {
+      "sha256": "35a3ffbb9da8d0bb0191f13d049a0ff332c83773abab8c8fb535cf7f5665bd3b",
+      "counts": {
+        "functions": 39,
+        "relations": 26,
+        "columns": 235,
+        "indexes": 63,
+        "constraints": 347,
+        "policies": 16,
+        "triggers": 3
+      }
+    },
+    "202610270012": {
+      "sha256": "3e9ed663cff4835c2d1c80e55c74ac40e905b82ed570e6c80f8fa21bf94cfaa3",
+      "counts": {
+        "functions": 39,
+        "relations": 26,
+        "columns": 235,
+        "indexes": 63,
+        "constraints": 347,
+        "policies": 16,
+        "triggers": 3
+      }
+    },
+    "202610280013": {
+      "sha256": "1945ab38ba3ca93d4ba38a06709506725bc3deb5ff504c42c180e8138bc1a872",
+      "counts": {
+        "functions": 42,
+        "relations": 27,
+        "columns": 246,
+        "indexes": 68,
+        "constraints": 362,
+        "policies": 16,
+        "triggers": 3
+      }
+    }
+  },
+  "serverVersion": "18.3",
+  "sourceHead": "dc5fee5b1e5380f6de3f77d601041b01218c8f64",
+  "catalogSqlSha256": "65d8c53d6b358175427fc0bedabbcb358d54eacb3e876b3323c028b0257dde63"
+}
