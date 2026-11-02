@@ -1,6 +1,6 @@
 # MVP 发布前缺口清单
 
-核查日期：2026-11-02。依据 DEVELOPMENT_PLAN.md v3.4、MILESTONES 与各阶段验收；本表不是发布批准，不自动执行任何真实环境操作。最新方案见 [现有项目复用评估](MVP_R2B_EXISTING_PROJECT_ASSESSMENT.md)，[R2A 准备](MVP_R2A_HOSTED_READINESS_VERIFICATION.md) 与 [R1 原生执行](MVP_R1_NATIVE_EXECUTION_VERIFICATION.md) 保留；此前 [R1 准备](MVP_R1_NATIVE_READINESS_VERIFICATION.md)、[R0 门禁](MVP_RELEASE_GATE_VERIFICATION.md) 和 [Review 列表恢复](M35_REVIEW_LIST_RECOVERY_VERIFICATION.md) 保留原始状态与失败证据。
+核查日期：2026-11-02。依据 DEVELOPMENT_PLAN.md v3.4、MILESTONES 与各阶段验收；本表不是发布批准，不自动执行任何真实环境操作。最新实际结果见 [R2B-0 只读核验](MVP_R2B0_READONLY_VERIFICATION.md)，[现有项目评估](MVP_R2B_EXISTING_PROJECT_ASSESSMENT.md)、[R2A 准备](MVP_R2A_HOSTED_READINESS_VERIFICATION.md) 与 [R1 原生执行](MVP_R1_NATIVE_EXECUTION_VERIFICATION.md) 保留；此前 [R1 准备](MVP_R1_NATIVE_READINESS_VERIFICATION.md)、[R0 门禁](MVP_RELEASE_GATE_VERIFICATION.md) 和 [Review 列表恢复](M35_REVIEW_LIST_RECOVERY_VERIFICATION.md) 保留原始状态与失败证据。
 
 ## 已实现并通过离线验收
 
@@ -13,7 +13,7 @@
 | 缺口 | 当前证据/状态 | 下一步与所需条件 |
 | --- | --- | --- |
 | P0-A：原生 PostgreSQL 多连接与 RLS | **PASS（本轮原生范围）**：Homebrew PostgreSQL 16.15，原 **20/20** 与 013 **14/14** 实际通过；独立 authenticated 后端、真实锁/事务、RLS/ACL、幂等/租约、001–013 与历史摘要均有证据。两阶段 Node 审计各 2/2 PASS，测试置于仅 loopback 系统沙箱；临时 trust 已替换为私有合成 SCRAM。原生进程完整流量/读取计数仍 UNKNOWN | 环境与正式执行授权已于本轮明确取得并使用，仅限新建本机合成库。软件保留且不启动常驻服务；后续真实用户/托管/模型依然独立审批，不能据此宣称 Supabase/JWT/多应用实例通过。原生失败及修复证据见执行报告 |
-| P0-B：托管结构、迁移与真实身份隔离 | **R2A 本地准备 PASS；R2B-0 BLOCKED / 托管 NOT_RUN**。负责人提出既有 `qmlsgwbiiqpbelgkgsdw` 为候选，按有真实数据的历史 main/PRODUCTION 保护；提供 Ref 未授权连接，当前 011–013/账本/ACL/恢复能力仍 UNKNOWN。原目录/ACL/四前缀/16 项矩阵复用 | 单独批准候选的身份/数据库目标及固定系统目录 SQL，只读后停。破坏性与双用户/故障优先转未来获批的本机完整 Supabase 栈，本地通过不替代托管。没有可靠备份/恢复证据不推荐对现有项目直接迁移；任何受控写入/配置/清理另批。preflight/生产免费门禁不降级，不自动 pull/push/repair/补账本 |
+| P0-B：托管结构、迁移与真实身份隔离 | **R2B-0 已实际只读核验，整体 BLOCKED / REVIEW_REQUIRED**。当前 Dashboard 确认目标 main/PRODUCTION、Primary database，PG17.11；Review/Tutor 有效定义不含 011/012 修复，013 新应用对象未观察到，账本 ABSENT。核心 39 函数匹配 010，但 16 张表/1 schema ACL 差异及额外 event_trigger 函数保留，完整前缀均 MISMATCH；普通 JWT/业务/多实例仍 NOT_RUN | 只读后已停止，不自动生成/执行迁移。先审阅差异/账本及本轮留存事故：原始目录结果曾默认暂存到 iCloud 文稿，现已移入私有目录、原本地路径消失，但同步 UNKNOWN，留存要求 FAIL。恢复与生产变更授权仍缺；本机完整 Supabase 待另批，不能替代托管身份/业务验收。preflight/免费模型门禁不降级，不自动 pull/push/repair/补账本 |
 | P0-C：免费模型资格和独立生成许可 | 可信免费资格 **BLOCKED**；B4 **NOT_RUN**；生产没有可信验证器/授权源，本地默认拒绝通过不证明账户免费 | 先建立可信、绑定项目/凭据且有期限的资格证据及独立当前授权，再按批准范围检查真实 Provider/网络/恢复/输出安全与质量、usage/费用。模型名、Flash、环境布尔、自签文件、历史预算不能放行；不能用生成试探资格，禁止付费回退 |
 
 前三项按数据持久化、身份隔离、AI 核心能力排序。带 Tutor/生成式 Review 的完整 MVP 不能仅凭离线 PASS 宣称已可发布。若计划提供明确禁用 AI 的有限试用版，应另行决定产品范围并向用户准确说明，不能自动降低现有完整验收标准。
@@ -36,4 +36,4 @@ R1 另有 1 次专项 fetch 被拒绝，阶段与调用点已关联到 TrainingF
 
 ## 执行边界
 
-R1 原生和 R2A 准备证据保留；受 Free 项目额度限制，现调整为现有项目的待批只读候选 + 待批本机完整 Supabase 栈。先审查本轮文档，再分别批准 R2B-0 或本机安装/运行，不把候选 Ref、历史授权或本机通过当作托管写入许可；不自动连接、迁移、招募、部署或进入 B4。
+R1/R2A 证据保留，现有项目本轮获批只读主查询已完成并停止。先审查 R2B-0 目录差异、缺账本与留存 FAIL/同步 UNKNOWN；任何补查、本机完整 Supabase 安装/运行、生产变更或数据处理均需后续范围。当前只读授权不延伸为业务写入、迁移、招募、部署或 B4。
