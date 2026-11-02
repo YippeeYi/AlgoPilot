@@ -1,6 +1,6 @@
 # MVP 发布前缺口清单
 
-核查日期：2026-10-30。依据 DEVELOPMENT_PLAN.md v3.4、MILESTONES 与各阶段验收；本表不是发布批准，不自动执行任何真实环境操作。最新原生准备/审计接线见 [MVP_R1_NATIVE_READINESS_VERIFICATION.md](MVP_R1_NATIVE_READINESS_VERIFICATION.md)；R0 三个 P0 清单与历史结论见 [MVP_RELEASE_GATE_VERIFICATION.md](MVP_RELEASE_GATE_VERIFICATION.md)，此前 [Review 列表与单记录恢复验收](M35_REVIEW_LIST_RECOVERY_VERIFICATION.md) 保留。
+核查日期：2026-11-02。依据 DEVELOPMENT_PLAN.md v3.4、MILESTONES 与各阶段验收；本表不是发布批准，不自动执行任何真实环境操作。最新真实原生执行见 [MVP_R1_NATIVE_EXECUTION_VERIFICATION.md](MVP_R1_NATIVE_EXECUTION_VERIFICATION.md)；此前 [R1 准备](MVP_R1_NATIVE_READINESS_VERIFICATION.md)、[R0 门禁](MVP_RELEASE_GATE_VERIFICATION.md) 和 [Review 列表恢复](M35_REVIEW_LIST_RECOVERY_VERIFICATION.md) 保留原始状态与失败证据。
 
 ## 已实现并通过离线验收
 
@@ -12,7 +12,7 @@
 
 | 缺口 | 当前证据/状态 | 下一步与所需条件 |
 | --- | --- | --- |
-| P0-A：原生 PostgreSQL 多连接与 RLS | **BLOCKED**；原 20 与新增独立 013 的 14 项均 **NOT_RUN**。R1 入口已接 lifecycle/阶段/根 PID/诊断关联，功能、Node 审计及 20/14 完整数独立判定；013 首次迁移前后核对历史摘要。原生进程流量/读取仍 UNKNOWN，不能把 Node PASS 当全部审计或 PGlite 当原生 | 用户提供四程序同版本且 >=16 的现成目录，并明确授权临时集群、001–013/重放负例、20+14 与清理后，按 R1 说明执行。维持不下载/安装/拉镜像/启动系统服务及不再搜索环境 |
+| P0-A：原生 PostgreSQL 多连接与 RLS | **PASS（本轮原生范围）**：Homebrew PostgreSQL 16.15，原 **20/20** 与 013 **14/14** 实际通过；独立 authenticated 后端、真实锁/事务、RLS/ACL、幂等/租约、001–013 与历史摘要均有证据。两阶段 Node 审计各 2/2 PASS，测试置于仅 loopback 系统沙箱；临时 trust 已替换为私有合成 SCRAM。原生进程完整流量/读取计数仍 UNKNOWN | 环境与正式执行授权已于本轮明确取得并使用，仅限新建本机合成库。软件保留且不启动常驻服务；后续真实用户/托管/模型依然独立审批，不能据此宣称 Supabase/JWT/多应用实例通过。原生失败及修复证据见执行报告 |
 | P0-B：托管结构、迁移与真实身份隔离 | 011–013 托管部署/验收未完成；001–010 有历史目录核验，但执行账本曾缺失，不能据此推断当前部署状态。当前目标实际状态 **UNKNOWN/NOT_RUN** | 先明确专用目标、只读核验与变更清单，再取得当前授权。真实签发 JWT、两用户 RLS/归属、Cookie 刷新、撤权时序、HMAC 配置一致性及多连接/多应用实例分别验收；不读取密钥、不自动 db push/db pull/repair 或补账本 |
 | P0-C：免费模型资格和独立生成许可 | 可信免费资格 **BLOCKED**；B4 **NOT_RUN**；生产没有可信验证器/授权源，本地默认拒绝通过不证明账户免费 | 先建立可信、绑定项目/凭据且有期限的资格证据及独立当前授权，再按批准范围检查真实 Provider/网络/恢复/输出安全与质量、usage/费用。模型名、Flash、环境布尔、自签文件、历史预算不能放行；不能用生成试探资格，禁止付费回退 |
 
@@ -36,4 +36,4 @@ R1 另有 1 次专项 fetch 被拒绝，阶段与调用点已关联到 TrainingF
 
 ## 执行边界
 
-优先补齐隔离数据库与专用托管验收的环境和授权，再处理真实免费资格及限定范围模型实验；客户端与授权的基础产品试用可按依赖并行安排。不要自动开启新的导航/草稿专项、招募评审或部署。先由人工审查本轮未提交变更，确认下一项验收范围。
+本轮本机隔离原生验收已完成。下一步先由人工审查本轮未提交变更，再明确专用托管验收的目标、环境和授权；真实免费资格及限定范围模型实验仍有独立门禁。客户端与获授权的基础产品试用可按依赖安排，不自动开启新专项、招募评审、托管操作或部署。

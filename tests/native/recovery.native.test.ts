@@ -3,9 +3,9 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } 
 import { randomUUID } from "node:crypto";
 import { writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
-import { PsqlConnection, literal as q, validateTarget, applyMigration, type NativeTarget } from "./psql";
+import { PsqlConnection, literal as q, validateTarget, applyMigration,attestNativeTarget,nativeSqlStateCounts, type NativeTarget } from "./psql";
 import { signTutorPayload } from "@/server/tutor/repository";
-import { sqlGenerationRepositories } from "../fixtures/generation-sql";
+import { sqlGenerationRepositories,serializeSqlRead } from "../fixtures/generation-sql";
 import { runTutor } from "@/server/tutor/orchestrator";
 import { runReview } from "@/server/review/orchestrator";
 import { readTutorConfig } from "@/server/tutor/config";
@@ -13,7 +13,7 @@ import { MockProvider, OpenAICompatibleProvider } from "@/server/tutor/provider"
 import { GenerationGateError, type GenerationPolicy } from "@/server/llm/execution-gate";
 
 type Kind = "tutor" | "review";
-type Receipt = { kind: Kind; resource: string; requestId: string; fingerprint: string };
+type Receipt = { kind: Kind; resource: string; requestId: string; fingerprint: string; codeHash?:string };
 type Reservation = { cached: boolean; leaseNonce?: string; requestId?: string; allowedLevel?: number };
 const secret = "bc".repeat(32), confirmation = "我确认本次为自报 AC，并授权将代码发送给配置的 AI Provider 进行完整复盘";
 const config = readTutorConfig({ LLM_PROVIDER: "openai-compatible", LLM_BASE_URL: "https://fixture.invalid/v1", LLM_MODEL: "fixture-native",
@@ -49,7 +49,7 @@ async function finishSql(r: Receipt, nonce: string, success = true, text = "immu
     [r.kind === "tutor" ? "sessionId" : "reviewId"]: r.resource, requestId: r.requestId, leaseNonce: nonce, success, usage: [],
     userMessage: "synthetic question", content: text, disclosureLevel: 0, verification: "not_applicable", thoughtRevision: 0, codeRevision: 0, promptVersion: "native/test",
     analysis: { ...analysis, summary: text }, model: "fixture-native" };
-  if (r.kind === "review") payload.codeHash = await admin.value(`select to_json(code_hash) from public.code_reviews where id=${q(r.resource)}`);
+  if (r.kind === "review") {if(!r.codeHash)throw Error('Native review fixture hash absent');payload.codeHash=r.codeHash;}
   return payload;
 }
 const finish = async (x: PsqlConnection, uid: string, r: Receipt, nonce: string, success = true, text?: string) => signed(x, uid, r.kind + "_finish", await finishSql(r, nonce, success, text));
@@ -59,11 +59,12 @@ async function session(x: PsqlConnection, uid: string) {
 async function receipt(kind: Kind, uid = alice, x = a): Promise<Receipt> {
   let resource = await session(x, uid);
   if (kind === "review") resource = await user(x, uid, () => x.value<string>(`select to_json(public.create_code_review(${q(JSON.stringify({ sessionId: resource, requestId: randomUUID(), code: "int main() { return 0; }", source: "paste", fileName: null, problemUrl: "", statement: "", submissionId: null, confirmation }))}::jsonb))`));
-  return { kind, resource, requestId: randomUUID(), fingerprint: "a".repeat(64) };
+  const codeHash=kind==='review'?await user(x,uid,()=>x.value<string>(`select to_json(code_hash) from public.code_reviews where id=${q(resource)}`)):undefined;
+  return { kind, resource, requestId: randomUUID(), fingerprint: "a".repeat(64),codeHash };
 }
 const row = (r: Receipt) => admin.value<{ status: string; lease_nonce: string; analysis?: unknown }>(`select to_jsonb(t) from public.${r.kind}_requests t where id=${q(r.requestId)}`);
 const count = (r: Receipt) => admin.value<number>(`select to_json(count(*)) from public.${r.kind}_requests where ${r.kind === "tutor" ? "session_id" : "review_id"}=${q(r.resource)}`);
-const expire = (r: Receipt) => admin.query(`update public.${r.kind}_requests set lease_until=clock_timestamp()-interval '1 second' where id=${q(r.requestId)}`);
+const expire = async (r: Receipt) => {await attestNativeTarget(admin,target);return admin.query(`update public.${r.kind}_requests set lease_until=clock_timestamp()-interval '1 second' where id=${q(r.requestId)}`);};
 async function waiting(x: PsqlConnection, holderPid: number) {
   const deadline = performance.now() + 1500;
   while (performance.now() < deadline) {
@@ -89,7 +90,7 @@ beforeAll(async () => {
   expect(await admin.value("select to_json(current_setting('data_directory'))")).toBe(target.directory);
   const roles = [];
   for (const x of [a, b, c]) {
-    const r = await x.value<Record<string, unknown>>("select json_build_object('pid',pg_backend_pid(),'current',current_user,'session',session_user,'superuser',r.rolsuper,'bypassrls',r.rolbypassrls,'isolation',current_setting('transaction_isolation'),'database',current_database(),'host',inet_server_addr()::text,'port',inet_server_port()) from pg_roles r where rolname=current_user");
+    const r = await x.value<Record<string, unknown>>("select json_build_object('pid',pg_backend_pid(),'current',current_user,'session',session_user,'superuser',r.rolsuper,'bypassrls',r.rolbypassrls,'isolation',current_setting('transaction_isolation'),'database',current_database(),'host',host(inet_server_addr()),'port',inet_server_port()) from pg_roles r where rolname=current_user");
     expect(r).toMatchObject({ current: "authenticated", session: "authenticated", superuser: false, bypassrls: false, isolation: "read committed", database: target.database, host: "127.0.0.1", port: target.port });
     pids.set(x, r.pid as number); roles.push(r);
   }
@@ -99,12 +100,14 @@ beforeAll(async () => {
   await admin.query(`insert into public.problems(id,platform,contest_id,problem_index,title,rating,tags,canonical_url,metadata_synced_at) values(${q(problem)},'codeforces',999999,'A','[SYNTHETIC] Native fixture',1200,'{}','https://codeforces.com/problemset/problem/999999/A',clock_timestamp())`);
 }, 30000);
 beforeEach(async () => {
+  await attestNativeTarget(admin,target);
   alice = randomUUID(); bob = randomUUID();
   await admin.query(`insert into auth.users values(${q(alice)},'a@fixture.invalid'),(${q(bob)},'b@fixture.invalid')`);
 });
 afterEach(async () => { for (const x of [a, b, c]) if (x) await x.query("rollback"); });
 afterAll(async () => {
   for (const x of clients) { try { await x.query("rollback"); } catch { /* already terminated backend */ } await x.close(); }
+  evidence.sqlStates=nativeSqlStateCounts;evidence.backendIds=[...pids.values()];
   if (target) await writeFile(join(dirname(target.directory), "native-state-evidence.json"), JSON.stringify(evidence, null, 2) + "\n");
 });
 
@@ -189,7 +192,7 @@ describe.each<Kind>(["tutor", "review"])("%s native state machine", kind => {
     const r = await receipt(kind), dying = connection(); const dyingPid = await pid(dying);
     await begin(dying, alice); await reserveInTransaction(dying, alice, r);
     const waiter = outcome(reserve(b, alice, r)); await waiting(b, dyingPid);
-    expect(await admin.value(`select to_json(pg_terminate_backend(${dyingPid}))`)).toBe(true);
+    await attestNativeTarget(admin,target);expect(await admin.value(`select to_json(pg_terminate_backend(${dyingPid}))`)).toBe(true);
     const granted = await waiter; expect(granted.code).toBe("00000"); expect(await count(r)).toBe(1);
     await expire(r); await expect(reserve(c, alice, r)).rejects.toMatchObject({ code: "AP006" });
     const fresh = { ...r, requestId: randomUUID() }, next = await reserve(c, alice, fresh); await finish(c, alice, fresh, next.leaseNonce!, false);
@@ -206,7 +209,7 @@ it("Tutor and Review concurrent admissions share one per-user lock and quota", a
   await expect(signed(c, alice, "tutor_reserve", { ...reservePayload({ ...t, requestId: randomUUID() }), dailyLimit: 1 })).rejects.toMatchObject({ code: "AP003" });
 });
 
-const repository = (x: PsqlConnection, uid: string) => sqlGenerationRepositories(<T,>(sql: string) => user(x, uid, () => x.value<T>(sql)), uid, secret);
+const repository = (x: PsqlConnection, uid: string) => sqlGenerationRepositories(serializeSqlRead(<T,>(sql: string) => user(x, uid, () => x.value<T>(sql))), uid, secret);
 describe.each<Kind>(["tutor", "review"])("%s gate + native orchestration", kind => {
   it("new denied concurrent calls create no receipts; completed cache survives denial and preserves history", async () => {
     const r = await receipt(kind), input = { requestId: r.requestId, message: "合成问题", action: "chat" as const, question: "合成问题" };

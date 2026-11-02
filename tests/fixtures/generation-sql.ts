@@ -7,6 +7,15 @@ import { tutorMessageSchema, tutorStateSchema } from "@/lib/validation/m2";
 import { reviewSchema, reviewResultSchema } from "@/lib/validation/review";
 const q = (s: string) => "'" + s.replaceAll("'", "''") + "'";
 export type SqlRead = <T = unknown>(sql: string) => Promise<T>;
+/** Queue whole transactions on one psql client, never across independent backends. */
+export function serializeSqlRead(read:SqlRead):SqlRead {
+  let tail:Promise<unknown>=Promise.resolve();
+  return <T,>(sql:string)=>{
+    const result=tail.then(()=>read<T>(sql));
+    tail=result.then(()=>undefined,()=>undefined);
+    return result;
+  };
+}
 export function sqlGenerationRepositories(read: SqlRead, uid: string, secret: string) {
   const rpc = (name: string, p: Record<string, unknown>) => {
     const signed = signTutorPayload(p, uid, secret);

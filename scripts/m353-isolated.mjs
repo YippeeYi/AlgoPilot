@@ -6,7 +6,7 @@ import { mkdtemp, mkdir, writeFile, readdir, realpath, access, copyFile, symlink
 import { constants } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { createServer } from 'node:net';
-import { PsqlConnection, nativeEnvironment, applyMigration } from '../tests/native/psql.ts';
+import { PsqlConnection, nativeEnvironment, applyMigration,attestNativeTarget,nativeTargetAssertionSql } from '../tests/native/psql.ts';
 import { runNativeNodePhase, nativeAuditBoundary, nativeHistorySql, nativeCaseCounts, readNativeTestSummary } from './native-node-audit.ts';
 import {collectOfflineAudit} from './offline-audit.ts';
 import {collectOfflineDiagnostics} from './offline-diagnostics.ts';
@@ -31,9 +31,7 @@ async function execute(file,args,env=plainEnv,options={}) {
   });
 }
 async function attest() {
-  const v=await admin.value(`select json_build_object('database',current_database(),'directory',current_setting('data_directory'),'host',inet_server_addr()::text,'port',inet_server_port(),'listen',current_setting('listen_addresses'),'role',current_user)`);
-  assert.deepEqual(v,{database:target.database,directory:target.directory,host:'127.0.0.1',port:target.port,listen:'127.0.0.1',role:'fixture_admin'});
-  return v;
+  return await attestNativeTarget(admin,target);
 }
 // Hash/count only. Never persist SQL inputs or row contents in the readiness report.
 async function historySnapshot() {
@@ -52,12 +50,22 @@ try {
   const port=await new Promise((resolve,reject)=>{const s=createServer();s.once('error',reject);s.listen(0,'127.0.0.1',()=>{const p=s.address().port;s.close(()=>resolve(p));});});
   target={bin,directory:join(temporary,'cluster'),port,database:'m353_'+randomBytes(8).toString('hex'),home:join(temporary,'home')};
   const env=nativeEnvironment(target);
-  assert.equal((await execute(join(bin,'initdb'),['-D',target.directory,'-U','fixture_admin','--auth-local=trust','--auth-host=trust','--encoding=UTF8','--no-locale'],env)).code,0);
-  assert.equal((await execute(join(bin,'pg_ctl'),['-D',target.directory,'-l',join(temporary,'postgres.log'),'-o',`-h 127.0.0.1 -p ${port} -k ${temporary} -c unix_socket_permissions=0700 -c max_connections=12 -c statement_timeout=8000`,'-w','start'],env)).code,0);pgStarted=true;
+  const password=randomBytes(32).toString('hex'),bootstrap=join(target.home,'bootstrap.fixture');
+  await writeFile(bootstrap,password+'\n',{flag:'wx',mode:0o600});
+  await writeFile(env.PGPASSFILE,['postgres',target.database].flatMap(db=>['fixture_admin','authenticated'].map(role=>`127.0.0.1:${port}:${db}:${role}:${password}`)).join('\n')+'\n',{flag:'wx',mode:0o600});
+  assert.equal((await execute(join(bin,'initdb'),['-D',target.directory,'-U','fixture_admin','--auth-local=scram-sha-256','--auth-host=scram-sha-256','--pwfile='+bootstrap,'--encoding=UTF8','--no-locale'],env)).code,0);
+  await rm(bootstrap);
+  const started=await execute(join(bin,'pg_ctl'),['-D',target.directory,'-l',join(temporary,'postgres.log'),'-o',`-h 127.0.0.1 -p ${port} -c unix_socket_directories='' -c max_connections=12 -c statement_timeout=8000 -c log_min_error_statement=panic -c log_error_verbosity=terse -c log_statement=none`,'-w','start'],env);
+  report.startupExitCode=started.code;assert.equal(started.code,0);pgStarted=true;
   // Bootstrap is the sole connection to postgres; every subsequent connection is to our random DB.
-  assert.equal((await execute(join(bin,'psql'),['-X','-v','ON_ERROR_STOP=1','-h','127.0.0.1','-p',String(port),'-U','fixture_admin','-d','postgres','-c',`create database ${target.database}`],env)).code,0);
+  assert.equal((await execute(join(bin,'psql'),['-X','-v','ON_ERROR_STOP=1','-h','127.0.0.1','-p',String(port),'-U','fixture_admin','-d','postgres','-c',nativeTargetAssertionSql(target,'postgres'),'-c',`create database ${target.database}`],env)).code,0);
   admin=new PsqlConnection(target,'fixture_admin');report.target=await attest();report.version=versions[0];
-  for(const sql of ["create role anon nologin nosuperuser nobypassrls", "create role authenticated login noinherit nosuperuser nobypassrls", "create schema auth", "create table auth.users(id uuid primary key,email text)", "create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$", "grant usage on schema auth to anon,authenticated", "grant execute on function auth.uid() to anon,authenticated"])await admin.query(sql);
+  for(const sql of ["create role anon nologin nosuperuser nobypassrls", `create role authenticated login noinherit nosuperuser nobypassrls password '${password}'`, "create schema auth", "create table auth.users(id uuid primary key,email text)", "create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$", "grant usage on schema auth to anon,authenticated", "grant execute on function auth.uid() to anon,authenticated"])await admin.query(sql);
+  await attest();
+  const noPassword=await execute(join(bin,'psql'),['-X','-w','-h','127.0.0.1','-p',String(port),'-U','fixture_admin','-d',target.database,'-c','select 1'],{...env,PGPASSFILE:'/dev/null'});
+  assert.notEqual(noPassword.code,0);
+  const hba=await admin.value("select json_agg(distinct auth_method) from pg_hba_file_rules where error is null and type in('local','host')");
+  assert.deepEqual(hba,['scram-sha-256']);report.authentication={method:'scram-sha-256',missingPasswordDenied:true,hba};
   // Seed before 006 through the old, still-authorized API, then prove 006–012 preserve it.
   const files=(await readdir(join(root,'supabase/migrations'))).filter(f=>/^\d{12}_.+\.sql$/.test(f)&&f.slice(0,12)<='202610270012').sort();
   assert.equal(files.length,12);
@@ -105,10 +113,14 @@ try {
 } finally {
   if(pgStarted){
     try {await attest();await admin.close();admin=undefined;
-      const stopped=await execute(join(target.bin,'pg_ctl'),['-D',target.directory,'-w','-m','immediate','stop'],nativeEnvironment(target));assert.equal(stopped.code,0);
+      const stopped=await execute(join(target.bin,'pg_ctl'),['-D',target.directory,'-w','-m','fast','stop'],nativeEnvironment(target));assert.equal(stopped.code,0);
+      const status=await execute(join(target.bin,'pg_ctl'),['-D',target.directory,'status'],nativeEnvironment(target));assert.equal(status.code,3);report.stopped=true;
       // Directory is exclusively created by this process, and the actual target was attested above.
       await rm(target.directory,{recursive:true});report.clusterRemoved=true;
     }catch{report.status='FAIL';report.cleanup='TARGET_OR_STOP_UNCONFIRMED: retained';process.exitCode=1;}
+  }
+  if(target&&(!pgStarted||report.clusterRemoved)){
+    await rm(join(target.home,'pgpass.fixture'),{force:true});await rm(join(target.home,'bootstrap.fixture'),{force:true});report.syntheticCredentialsRemoved=true;
   }
   await admin?.close();await writeFile(reportPath,JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report,null,2));
 }

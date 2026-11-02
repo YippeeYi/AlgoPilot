@@ -1,0 +1,952 @@
+{
+  "version": "r1-native-execution/1",
+  "date": "2026-11-02",
+  "baseline": "e280bfafa10fa9503c537c4fa4e2c1999ae27274",
+  "environment": {
+    "os": "macOS 27.2 (26B123)",
+    "architecture": "arm64",
+    "uid": 501,
+    "postgresVersion": "16.15",
+    "bin": "/opt/homebrew/Cellar/postgresql@16/16.15_1/bin",
+    "installationChanges": [
+      {
+        "name": "ca-certificates",
+        "before": [],
+        "after": [
+          "2026-10-20"
+        ]
+      },
+      {
+        "name": "icu4c@79",
+        "before": [],
+        "after": [
+          "79.1"
+        ]
+      },
+      {
+        "name": "krb5",
+        "before": [],
+        "after": [
+          "1.22.2_2"
+        ]
+      },
+      {
+        "name": "libunistring",
+        "before": [
+          "1.4.2"
+        ],
+        "after": [
+          "1.4.2",
+          "1.5"
+        ]
+      },
+      {
+        "name": "openssl@4",
+        "before": [],
+        "after": [
+          "4.1.0"
+        ]
+      },
+      {
+        "name": "postgresql@16",
+        "before": [],
+        "after": [
+          "16.15_1"
+        ]
+      },
+      {
+        "name": "readline",
+        "before": [],
+        "after": [
+          "8.3.6"
+        ]
+      }
+    ],
+    "installation": {
+      "formula": "homebrew/core/postgresql@16",
+      "version": "16.15_1",
+      "source": "https://formulae.brew.sh/formula/postgresql@16",
+      "bottleSha256": "31b8c98844e409376dc0fc7801e09f25c5c7b3c175c77b929ad9bb51aef3095d",
+      "bottleHashMatches": true,
+      "skipPostInstall": true,
+      "skipLink": true,
+      "downloaded": true,
+      "networkRequestCount": null,
+      "networkBytes": null,
+      "defaultDataDirectoryCreated": false,
+      "launchAgentCreated": false,
+      "sudo": false
+    }
+  },
+  "native": {
+    "artifact": "/private/tmp/algopilot-m353-native-vvj2HK/native-postgres.json",
+    "status": "PASS",
+    "original20": "PASS",
+    "incremental013": "PASS",
+    "nodeAuditStatus": "PASS",
+    "target": {
+      "database": "m353_b7f579c9107c8556",
+      "directory": "/private/tmp/algopilot-m353-native-vvj2HK/cluster",
+      "host": "127.0.0.1",
+      "port": 49972,
+      "listen": "127.0.0.1",
+      "role": "fixture_admin"
+    },
+    "authentication": {
+      "method": "scram-sha-256",
+      "missingPasswordDenied": true,
+      "hba": [
+        "scram-sha-256"
+      ]
+    },
+    "roles": [
+      {
+        "role": "anon",
+        "superuser": false,
+        "bypassrls": false,
+        "inherit": true,
+        "login": false
+      },
+      {
+        "role": "authenticated",
+        "superuser": false,
+        "bypassrls": false,
+        "inherit": false,
+        "login": true
+      }
+    ],
+    "migrations": [
+      "202610110001_m1_training.sql",
+      "202610110002_m2_tutor.sql",
+      "202610110003_gemini_usage.sql",
+      "202610120004_business_conflicts.sql",
+      "202610120005_ac_reviews.sql",
+      "202610120006_cf_catalog_plans.sql",
+      "202610140007_learning_recommendations.sql",
+      "202610140008_recommendation_audit.sql",
+      "202610140009_recommendation_fit.sql",
+      "202610150010_cf_official_evidence.sql",
+      "202610260011_review_retry_recovery.sql",
+      "202610270012_tutor_retry_recovery.sql",
+      "202610280013_recommendation_training_feedback.sql"
+    ],
+    "migrationHashes": [
+      {
+        "name": "202610110001_m1_training.sql",
+        "sha256": "e0ae87a804f0dc14fda1d54b646ee29f4da8d0e4e9f9de48d154de8f027d4ca7"
+      },
+      {
+        "name": "202610110002_m2_tutor.sql",
+        "sha256": "d27691a0e3b0b3fcc6998c7fc5c120696c29b33fa2b94e7a900ccded5b8850d2"
+      },
+      {
+        "name": "202610110003_gemini_usage.sql",
+        "sha256": "0bc06c8305655f475f5ae893eec5d333714a257127d79cdbdaad3a1481881093"
+      },
+      {
+        "name": "202610120004_business_conflicts.sql",
+        "sha256": "7055e9c94fbbe93f50bfeec82b0324df382c4b9cfc13345fcbd74f0c651ec68f"
+      },
+      {
+        "name": "202610120005_ac_reviews.sql",
+        "sha256": "44c6f2b11943e1d3428ce7103cc6f2657dd2e9bf8dc5495db99e48ec28944c92"
+      },
+      {
+        "name": "202610120006_cf_catalog_plans.sql",
+        "sha256": "94817343f8a98ce8af1f5aa56762cf1f2a2e051e5efc4a1d1c00da4684e4af43"
+      },
+      {
+        "name": "202610140007_learning_recommendations.sql",
+        "sha256": "c50ed33ab82dda95530a2dea348396080f81a8d4a00c4da3a1471185b98bdd0c"
+      },
+      {
+        "name": "202610140008_recommendation_audit.sql",
+        "sha256": "3e7a99a920825d2d1f9ce99fbccc0b0bdd66248e65f7d375035335eea90e88c4"
+      },
+      {
+        "name": "202610140009_recommendation_fit.sql",
+        "sha256": "95b26bf784ed84858037a6e4762076d7d3cc762e6376273c6a1eb6480c2e4897"
+      },
+      {
+        "name": "202610150010_cf_official_evidence.sql",
+        "sha256": "5ca7c5cb6ddb31351d79ba6782fd51b2508310b2225be74cdd2985bbb5809184"
+      },
+      {
+        "name": "202610260011_review_retry_recovery.sql",
+        "sha256": "a2bdd2ccaf4b0d925fe37de59aa51c4e38f9d8f0de8bb2992ac5b4f567701e7d"
+      },
+      {
+        "name": "202610270012_tutor_retry_recovery.sql",
+        "sha256": "1358538fcf5b21615ca6f82f985ce2373230c3e996cf4c6ff6afafae96a2254a"
+      },
+      {
+        "name": "202610280013_recommendation_training_feedback.sql",
+        "sha256": "1b0e5b1cd20eebabd3afb0c786069e4c297b6ae0ea93e05ad1417fd107f31ca4"
+      }
+    ],
+    "historyPreserved": true,
+    "history013": {
+      "before": {
+        "llm_usage": {
+          "md5": "857498fde2cab34aefcfb65ab4b92fca",
+          "rows": 1
+        },
+        "hint_events": {
+          "md5": "a41e8d68a17ef124f35f658679d7eb25",
+          "rows": 4
+        },
+        "code_reviews": {
+          "md5": "2dc11cebeef1eadd675777ae0374b031",
+          "rows": 11
+        },
+        "training_plans": {
+          "md5": "d751713988987e9331980363e24189ce",
+          "rows": 0
+        },
+        "tutor_messages": {
+          "md5": "e5ac50d547ba12b5bfedcda99395e1d5",
+          "rows": 8
+        },
+        "tutor_requests": {
+          "md5": "28686dbb3e44e8baa313d32689060370",
+          "rows": 13
+        },
+        "review_requests": {
+          "md5": "9a4f043809baf473c5171ae66aecd8a5",
+          "rows": 13
+        },
+        "thought_snapshots": {
+          "md5": "d751713988987e9331980363e24189ce",
+          "rows": 0
+        },
+        "training_sessions": {
+          "md5": "965f13078ff033218b2bef34d4483ae4",
+          "rows": 23
+        },
+        "training_plan_items": {
+          "md5": "d751713988987e9331980363e24189ce",
+          "rows": 0
+        },
+        "learning_preferences": {
+          "md5": "d751713988987e9331980363e24189ce",
+          "rows": 0
+        },
+        "tutor_authorizations": {
+          "md5": "e708351cd67a75e0d24f21b63913ad8f",
+          "rows": 10
+        },
+        "training_plan_sessions": {
+          "md5": "d751713988987e9331980363e24189ce",
+          "rows": 0
+        },
+        "recommendation_feedback": {
+          "md5": "d751713988987e9331980363e24189ce",
+          "rows": 0
+        }
+      },
+      "after": {
+        "llm_usage": {
+          "md5": "857498fde2cab34aefcfb65ab4b92fca",
+          "rows": 1
+        },
+        "hint_events": {
+          "md5": "a41e8d68a17ef124f35f658679d7eb25",
+          "rows": 4
+        },
+        "code_reviews": {
+          "md5": "2dc11cebeef1eadd675777ae0374b031",
+          "rows": 11
+        },
+        "training_plans": {
+          "md5": "d751713988987e9331980363e24189ce",
+          "rows": 0
+        },
+        "tutor_messages": {
+          "md5": "e5ac50d547ba12b5bfedcda99395e1d5",
+          "rows": 8
+        },
+        "tutor_requests": {
+          "md5": "28686dbb3e44e8baa313d32689060370",
+          "rows": 13
+        },
+        "review_requests": {
+          "md5": "9a4f043809baf473c5171ae66aecd8a5",
+          "rows": 13
+        },
+        "thought_snapshots": {
+          "md5": "d751713988987e9331980363e24189ce",
+          "rows": 0
+        },
+        "training_sessions": {
+          "md5": "965f13078ff033218b2bef34d4483ae4",
+          "rows": 23
+        },
+        "training_plan_items": {
+          "md5": "d751713988987e9331980363e24189ce",
+          "rows": 0
+        },
+        "learning_preferences": {
+          "md5": "d751713988987e9331980363e24189ce",
+          "rows": 0
+        },
+        "tutor_authorizations": {
+          "md5": "e708351cd67a75e0d24f21b63913ad8f",
+          "rows": 10
+        },
+        "training_plan_sessions": {
+          "md5": "d751713988987e9331980363e24189ce",
+          "rows": 0
+        },
+        "recommendation_feedback": {
+          "md5": "d751713988987e9331980363e24189ce",
+          "rows": 0
+        }
+      }
+    },
+    "stages": [
+      {
+        "phase": "native-state",
+        "status": "PASS",
+        "functionalStatus": "PASS",
+        "auditStatus": "PASS",
+        "rootObserved": true,
+        "phaseAssociated": true,
+        "testSummary": {
+          "state": "COLLECTED",
+          "expected": 20,
+          "counts": {
+            "numTotalTests": 20,
+            "numPassedTests": 20,
+            "numFailedTests": 0,
+            "numPendingTests": 0,
+            "numTodoTests": 0
+          },
+          "complete": true
+        },
+        "nodeAudit": {
+          "version": "offline-audit-collection/1",
+          "state": "COLLECTED",
+          "status": "PASS",
+          "started": 2,
+          "completed": 2,
+          "browserStarted": 0,
+          "browserCompleted": 0,
+          "issues": [],
+          "counters": {
+            "networkBlocked": 0,
+            "dnsBlocked": 0,
+            "credentialReadBlocked": 0,
+            "externalHTTP": 0,
+            "realDNS": 0,
+            "realCredentialReads": 0
+          },
+          "browser": {
+            "allowed": null,
+            "denied": null,
+            "completedAllowed": 0,
+            "completedDenied": 0,
+            "nativeHTTP": "UNKNOWN",
+            "nativeDNS": "UNKNOWN"
+          },
+          "boundary": "Only instrumented processes and page routes; native/background or uninstrumented activity remains UNKNOWN. Missing or unpublished records never imply zero."
+        },
+        "diagnosticState": "CORRELATED",
+        "diagnosticIssues": []
+      },
+      {
+        "phase": "native-feedback",
+        "status": "PASS",
+        "functionalStatus": "PASS",
+        "auditStatus": "PASS",
+        "rootObserved": true,
+        "phaseAssociated": true,
+        "testSummary": {
+          "state": "COLLECTED",
+          "expected": 14,
+          "counts": {
+            "numTotalTests": 14,
+            "numPassedTests": 14,
+            "numFailedTests": 0,
+            "numPendingTests": 0,
+            "numTodoTests": 0
+          },
+          "complete": true
+        },
+        "nodeAudit": {
+          "version": "offline-audit-collection/1",
+          "state": "COLLECTED",
+          "status": "PASS",
+          "started": 2,
+          "completed": 2,
+          "browserStarted": 0,
+          "browserCompleted": 0,
+          "issues": [],
+          "counters": {
+            "networkBlocked": 0,
+            "dnsBlocked": 0,
+            "credentialReadBlocked": 0,
+            "externalHTTP": 0,
+            "realDNS": 0,
+            "realCredentialReads": 0
+          },
+          "browser": {
+            "allowed": null,
+            "denied": null,
+            "completedAllowed": 0,
+            "completedDenied": 0,
+            "nativeHTTP": "UNKNOWN",
+            "nativeDNS": "UNKNOWN"
+          },
+          "boundary": "Only instrumented processes and page routes; native/background or uninstrumented activity remains UNKNOWN. Missing or unpublished records never imply zero."
+        },
+        "diagnosticState": "CORRELATED",
+        "diagnosticIssues": []
+      }
+    ],
+    "stateEvidence": {
+      "lockWaits": [
+        {
+          "wait": "Lock",
+          "blockers": [
+            52052
+          ]
+        },
+        {
+          "wait": "Lock",
+          "blockers": [
+            52052
+          ]
+        },
+        {
+          "wait": "Lock",
+          "blockers": [
+            52052
+          ]
+        },
+        {
+          "wait": "Lock",
+          "blockers": [
+            52052
+          ]
+        },
+        {
+          "wait": "Lock",
+          "blockers": [
+            52087
+          ]
+        },
+        {
+          "wait": "Lock",
+          "blockers": [
+            52052
+          ]
+        },
+        {
+          "wait": "Lock",
+          "blockers": [
+            52052
+          ]
+        },
+        {
+          "wait": "Lock",
+          "blockers": [
+            52052
+          ]
+        },
+        {
+          "wait": "Lock",
+          "blockers": [
+            52052
+          ]
+        },
+        {
+          "wait": "Lock",
+          "blockers": [
+            52089
+          ]
+        },
+        {
+          "wait": "Lock",
+          "blockers": [
+            52052
+          ]
+        }
+      ],
+      "backends": [
+        {
+          "pid": 52052,
+          "current": "authenticated",
+          "session": "authenticated",
+          "superuser": false,
+          "bypassrls": false,
+          "isolation": "read committed",
+          "database": "m353_b7f579c9107c8556",
+          "host": "127.0.0.1",
+          "port": 49972
+        },
+        {
+          "pid": 52053,
+          "current": "authenticated",
+          "session": "authenticated",
+          "superuser": false,
+          "bypassrls": false,
+          "isolation": "read committed",
+          "database": "m353_b7f579c9107c8556",
+          "host": "127.0.0.1",
+          "port": 49972
+        },
+        {
+          "pid": 52051,
+          "current": "authenticated",
+          "session": "authenticated",
+          "superuser": false,
+          "bypassrls": false,
+          "isolation": "read committed",
+          "database": "m353_b7f579c9107c8556",
+          "host": "127.0.0.1",
+          "port": 49972
+        }
+      ],
+      "boundary": "synthetic auth.uid claims; native authenticated LOGIN; no hosted JWT verification",
+      "sqlStates": {
+        "22012": 2,
+        "42501": 12,
+        "00000": 1116,
+        "AP004": 6,
+        "AP006": 8,
+        "P0002": 6,
+        "PT409": 4,
+        "55P03": 2,
+        "25P02": 2,
+        "AP003": 1
+      },
+      "backendIds": [
+        52052,
+        52053,
+        52051,
+        52087,
+        52089
+      ]
+    },
+    "feedbackEvidence": {
+      "backends": [
+        {
+          "pid": 52100,
+          "current": "authenticated",
+          "session": "authenticated",
+          "superuser": false,
+          "bypass": false,
+          "inherit": false,
+          "isolation": "read committed",
+          "database": "m353_b7f579c9107c8556",
+          "host": "127.0.0.1",
+          "port": 49972
+        },
+        {
+          "pid": 52099,
+          "current": "authenticated",
+          "session": "authenticated",
+          "superuser": false,
+          "bypass": false,
+          "inherit": false,
+          "isolation": "read committed",
+          "database": "m353_b7f579c9107c8556",
+          "host": "127.0.0.1",
+          "port": 49972
+        },
+        {
+          "pid": 52101,
+          "current": "authenticated",
+          "session": "authenticated",
+          "superuser": false,
+          "bypass": false,
+          "inherit": false,
+          "isolation": "read committed",
+          "database": "m353_b7f579c9107c8556",
+          "host": "127.0.0.1",
+          "port": 49972
+        }
+      ],
+      "locks": [
+        {
+          "wait": "Lock",
+          "blockers": [
+            52100
+          ]
+        },
+        {
+          "wait": "Lock",
+          "blockers": [
+            52100
+          ]
+        },
+        {
+          "wait": "Lock",
+          "blockers": [
+            52100
+          ]
+        },
+        {
+          "wait": "Lock",
+          "blockers": [
+            52100
+          ]
+        },
+        {
+          "wait": "Lock",
+          "blockers": [
+            52100
+          ]
+        }
+      ],
+      "boundary": "013 native independent LOGIN, synthetic claims; NOT hosted JWT or application instances",
+      "sqlStates": {
+        "23503": 1,
+        "23505": 2,
+        "23514": 1,
+        "42501": 3,
+        "00000": 371,
+        "PT409": 4,
+        "P0002": 3,
+        "42P07": 1
+      }
+    },
+    "stopped": true,
+    "clusterRemoved": true,
+    "syntheticCredentialsRemoved": true,
+    "boundary": {
+      "node": "Preloaded Node test roots, inherited forks and workers only; original B3 guard unchanged",
+      "nonNode": "Supervisor, PostgreSQL daemon, psql/initdb/pg_ctl and native bindings are not syscall/network instrumented",
+      "nativeHTTP": "UNKNOWN",
+      "nativeDNS": "UNKNOWN",
+      "nativeCredentialReads": "UNKNOWN",
+      "databaseTransport": "Native psql uses only the validated generated target and fixed loopback arguments; not a model transport"
+    },
+    "executedSourceHashes": [
+      {
+        "file": "scripts/m353-isolated.mjs",
+        "sha256": "e2c9c6e4c8cb856218024473e39bd09637905abe90b97035d4d29eb24f42c4f1"
+      },
+      {
+        "file": "scripts/native-node-audit.ts",
+        "sha256": "0decada5e1507fd9942d498e417dd83c372a9f91f86d84329b42a703cd027de3"
+      },
+      {
+        "file": "scripts/offline-audit.ts",
+        "sha256": "b607f6c49dfd03741608d54de248e95020f3aedcd7448d9c7f9d136c2f7756da"
+      },
+      {
+        "file": "scripts/offline-diagnostic-preload.cjs",
+        "sha256": "ef6c9d11943a28104d338c58c35d9a26703908d064337824b1fe68baf8ab005f"
+      },
+      {
+        "file": "scripts/offline-audit-lifecycle.cjs",
+        "sha256": "0c5d18f00352a3280daa8db7bfb60dab4da0d9f579be6bdce5d3b7d0f41aaf46"
+      },
+      {
+        "file": "scripts/offline-diagnostics.ts",
+        "sha256": "54ffb1cb694e0940af28837b958ed42896dacfea11de6d3093759001eb3374f8"
+      },
+      {
+        "file": "scripts/m353-b3-offline-guard.cjs",
+        "sha256": "d3ce1af7dc7225bd089d94fe052b8875e6c148864c6f5537abea89bfaa4c828a"
+      },
+      {
+        "file": "tests/native/psql.ts",
+        "sha256": "c26f742fbb66e608d470b72e8e298b358dbb7c15b84b50043d07a47e20789a5a"
+      },
+      {
+        "file": "tests/native/recovery.native.test.ts",
+        "sha256": "05354acd234f56c69c207111bceb9b88f65939e724afe3b7062aec2809d053ce"
+      },
+      {
+        "file": "tests/native/training-feedback.native.test.ts",
+        "sha256": "cc273e8ad9ee9aaad72999a34533157ef7a753895e469fff93027be68d16c43c"
+      },
+      {
+        "file": "tests/fixtures/generation-sql.ts",
+        "sha256": "73ef64cf987469993eb826d8e85fa2261d413327b09d2d8ffeb60b55e9583a6a"
+      },
+      {
+        "file": "vitest.native.config.ts",
+        "sha256": "0ade3c9f5c6f9bfdb3415b352d3787143bba52e6f7ce104b84af41d6c88c6393"
+      }
+    ]
+  },
+  "historicalAudit": "Original two UNKNOWN/FAIL and R1 extra FAIL remain; no retrospective attribution",
+  "hosted": "NOT_RUN",
+  "realModelAndB4": "NOT_RUN",
+  "regression": {
+    "artifact": "/var/folders/tw/b3ckg3250kd_tv1mh95l05740000gn/T/algopilot-replay-checks-Vx30vY/checks.json",
+    "unitAndIntegration": {
+      "passed": 862,
+      "failed": 0
+    },
+    "recommendations": {
+      "passed": 36,
+      "failed": 0
+    },
+    "stages": [
+      {
+        "phase": "lint",
+        "exitCode": 0,
+        "audit": {
+          "version": "offline-audit-collection/1",
+          "state": "COLLECTED",
+          "status": "PASS",
+          "started": 2,
+          "completed": 2,
+          "browserStarted": 0,
+          "browserCompleted": 0,
+          "issues": [],
+          "counters": {
+            "networkBlocked": 0,
+            "dnsBlocked": 0,
+            "credentialReadBlocked": 0,
+            "externalHTTP": 0,
+            "realDNS": 0,
+            "realCredentialReads": 0
+          },
+          "browser": {
+            "allowed": null,
+            "denied": null,
+            "completedAllowed": 0,
+            "completedDenied": 0,
+            "nativeHTTP": "UNKNOWN",
+            "nativeDNS": "UNKNOWN"
+          },
+          "boundary": "Only instrumented processes and page routes; native/background or uninstrumented activity remains UNKNOWN. Missing or unpublished records never imply zero."
+        },
+        "diagnosticState": "CORRELATED",
+        "diagnosticIssues": []
+      },
+      {
+        "phase": "typecheck",
+        "exitCode": 0,
+        "audit": {
+          "version": "offline-audit-collection/1",
+          "state": "COLLECTED",
+          "status": "PASS",
+          "started": 3,
+          "completed": 3,
+          "browserStarted": 0,
+          "browserCompleted": 0,
+          "issues": [],
+          "counters": {
+            "networkBlocked": 0,
+            "dnsBlocked": 0,
+            "credentialReadBlocked": 0,
+            "externalHTTP": 0,
+            "realDNS": 0,
+            "realCredentialReads": 0
+          },
+          "browser": {
+            "allowed": null,
+            "denied": null,
+            "completedAllowed": 0,
+            "completedDenied": 0,
+            "nativeHTTP": "UNKNOWN",
+            "nativeDNS": "UNKNOWN"
+          },
+          "boundary": "Only instrumented processes and page routes; native/background or uninstrumented activity remains UNKNOWN. Missing or unpublished records never imply zero."
+        },
+        "diagnosticState": "CORRELATED",
+        "diagnosticIssues": []
+      },
+      {
+        "phase": "targeted",
+        "exitCode": 0,
+        "audit": {
+          "version": "offline-audit-collection/1",
+          "state": "COLLECTED",
+          "status": "PASS",
+          "started": 40,
+          "completed": 40,
+          "browserStarted": 0,
+          "browserCompleted": 0,
+          "issues": [],
+          "counters": {
+            "networkBlocked": 0,
+            "dnsBlocked": 0,
+            "credentialReadBlocked": 0,
+            "externalHTTP": 0,
+            "realDNS": 0,
+            "realCredentialReads": 0
+          },
+          "browser": {
+            "allowed": null,
+            "denied": null,
+            "completedAllowed": 0,
+            "completedDenied": 0,
+            "nativeHTTP": "UNKNOWN",
+            "nativeDNS": "UNKNOWN"
+          },
+          "boundary": "Only instrumented processes and page routes; native/background or uninstrumented activity remains UNKNOWN. Missing or unpublished records never imply zero."
+        },
+        "diagnosticState": "CORRELATED",
+        "diagnosticIssues": []
+      },
+      {
+        "phase": "test",
+        "exitCode": 0,
+        "audit": {
+          "version": "offline-audit-collection/1",
+          "state": "COLLECTED",
+          "status": "PASS",
+          "started": 106,
+          "completed": 106,
+          "browserStarted": 0,
+          "browserCompleted": 0,
+          "issues": [],
+          "counters": {
+            "networkBlocked": 0,
+            "dnsBlocked": 0,
+            "credentialReadBlocked": 0,
+            "externalHTTP": 0,
+            "realDNS": 0,
+            "realCredentialReads": 0
+          },
+          "browser": {
+            "allowed": null,
+            "denied": null,
+            "completedAllowed": 0,
+            "completedDenied": 0,
+            "nativeHTTP": "UNKNOWN",
+            "nativeDNS": "UNKNOWN"
+          },
+          "boundary": "Only instrumented processes and page routes; native/background or uninstrumented activity remains UNKNOWN. Missing or unpublished records never imply zero."
+        },
+        "diagnosticState": "CORRELATED",
+        "diagnosticIssues": []
+      },
+      {
+        "phase": "recommendations",
+        "exitCode": 0,
+        "audit": {
+          "version": "offline-audit-collection/1",
+          "state": "COLLECTED",
+          "status": "PASS",
+          "started": 10,
+          "completed": 10,
+          "browserStarted": 0,
+          "browserCompleted": 0,
+          "issues": [],
+          "counters": {
+            "networkBlocked": 0,
+            "dnsBlocked": 0,
+            "credentialReadBlocked": 0,
+            "externalHTTP": 0,
+            "realDNS": 0,
+            "realCredentialReads": 0
+          },
+          "browser": {
+            "allowed": null,
+            "denied": null,
+            "completedAllowed": 0,
+            "completedDenied": 0,
+            "nativeHTTP": "UNKNOWN",
+            "nativeDNS": "UNKNOWN"
+          },
+          "boundary": "Only instrumented processes and page routes; native/background or uninstrumented activity remains UNKNOWN. Missing or unpublished records never imply zero."
+        },
+        "diagnosticState": "CORRELATED",
+        "diagnosticIssues": []
+      },
+      {
+        "phase": "build",
+        "exitCode": 0,
+        "audit": {
+          "version": "offline-audit-collection/1",
+          "state": "COLLECTED",
+          "status": "PASS",
+          "started": 34,
+          "completed": 34,
+          "browserStarted": 0,
+          "browserCompleted": 0,
+          "issues": [],
+          "counters": {
+            "networkBlocked": 0,
+            "dnsBlocked": 0,
+            "credentialReadBlocked": 0,
+            "externalHTTP": 0,
+            "realDNS": 0,
+            "realCredentialReads": 0
+          },
+          "browser": {
+            "allowed": null,
+            "denied": null,
+            "completedAllowed": 0,
+            "completedDenied": 0,
+            "nativeHTTP": "UNKNOWN",
+            "nativeDNS": "UNKNOWN"
+          },
+          "boundary": "Only instrumented processes and page routes; native/background or uninstrumented activity remains UNKNOWN. Missing or unpublished records never imply zero."
+        },
+        "diagnosticState": "CORRELATED",
+        "diagnosticIssues": []
+      }
+    ]
+  },
+  "e2e": {
+    "artifact": "/var/folders/tw/b3ckg3250kd_tv1mh95l05740000gn/T/algopilot-gate-e2e-bhKt07/e2e-audits-ZbosK1/checks.json",
+    "passed": 136,
+    "failed": 0,
+    "buildExitCode": 0,
+    "exitCode": 0,
+    "audit": {
+      "version": "offline-audit-collection/1",
+      "state": "COLLECTED",
+      "status": "PASS",
+      "started": 55,
+      "completed": 55,
+      "browserStarted": 12,
+      "browserCompleted": 12,
+      "issues": [],
+      "counters": {
+        "networkBlocked": 0,
+        "dnsBlocked": 0,
+        "credentialReadBlocked": 0,
+        "externalHTTP": 0,
+        "realDNS": 0,
+        "realCredentialReads": 0
+      },
+      "browser": {
+        "allowed": 9695,
+        "denied": 0,
+        "completedAllowed": 9695,
+        "completedDenied": 0,
+        "nativeHTTP": "UNKNOWN",
+        "nativeDNS": "UNKNOWN"
+      },
+      "boundary": "Only instrumented processes and page routes; native/background or uninstrumented activity remains UNKNOWN. Missing or unpublished records never imply zero."
+    },
+    "nativeBrowserHTTP": "UNKNOWN",
+    "nativeBrowserDNS": "UNKNOWN"
+  },
+  "cleanup": {
+    "finalClusterRemoved": true,
+    "finalCredentialFilesRemoved": true,
+    "processCheckNoPostgres": true,
+    "finalPortNoListener": true,
+    "failedBootstrapM4QJD5": {
+      "artifact": "/private/tmp/algopilot-m353-native-M4QJD5/cleanup-verification.json",
+      "stopped": true,
+      "removed": true
+    },
+    "failedInitializationM5B2PM": {
+      "path": "/private/tmp/algopilot-m353-native-m5B2PM/cluster",
+      "status": "STOPPED_RETAINED",
+      "reason": "Startup failed before SQL attestation; retain failure evidence, no random test database created",
+      "pgCtlStatus": 3
+    }
+  },
+  "sourceVerification": {
+    "fullFiles": 307,
+    "fullDifferences": 0,
+    "nativeFiles": 12,
+    "nativeDifferences": 0,
+    "e2eExpectedProviderFixture": true,
+    "e2eExpectedSpecImports": 17,
+    "productionAndMigrationsUnchanged": true
+  }
+}

@@ -3,7 +3,7 @@ import {beforeAll,beforeEach,afterAll,afterEach,it,expect} from 'vitest';
 import {randomUUID} from 'node:crypto';
 import {writeFile} from 'node:fs/promises';
 import {dirname,join} from 'node:path';
-import {PsqlConnection,validateTarget,literal as q,applyMigration,type NativeTarget} from './psql';
+import {PsqlConnection,validateTarget,literal as q,applyMigration,attestNativeTarget,nativeSqlStateCounts,type NativeTarget} from './psql';
 import {signTutorPayload} from '@/server/tutor/repository';
 import {trainingFeedbackSchema} from '@/lib/validation/training-feedback';
 import {nativeHistorySql} from '../../scripts/native-node-audit';
@@ -13,7 +13,7 @@ type Choice={sessionId:string|null;resumed:boolean};
 const secret='e1'.repeat(32);
 let target:NativeTarget,admin:PsqlConnection,a:PsqlConnection,b:PsqlConnection,c:PsqlConnection;
 let owner:string,other:string,problems:string[];
-const evidence:{backends:unknown[];locks:unknown[];boundary:string}={backends:[],locks:[],boundary:'013 native independent LOGIN, synthetic claims; NOT hosted JWT or application instances'};
+const evidence:{backends:unknown[];locks:unknown[];boundary:string;sqlStates?:Record<string,number>}={backends:[],locks:[],boundary:'013 native independent LOGIN, synthetic claims; NOT hosted JWT or application instances'};
 async function begin(x:PsqlConnection,uid=owner){await x.query('begin isolation level read committed');await x.query(`set local request.jwt.claim.sub=${q(uid)}`);}
 async function user<T>(x:PsqlConnection,uid:string,fn:()=>Promise<T>){await begin(x,uid);try{const v=await fn();await x.query('commit');return v;}catch(e){await x.query('rollback');throw e;}}
 const outcome=<T,>(p:Promise<T>)=>p.then(value=>({code:'00000',value}), (e:{code?:string})=>({code:e.code??'CLIENT_FAILURE',value:undefined}));
@@ -44,7 +44,7 @@ beforeAll(async()=>{
   expect(await admin.value("select to_json(current_setting('data_directory'))")).toBe(target.directory);
   a=new PsqlConnection(target,'authenticated');b=new PsqlConnection(target,'authenticated');c=new PsqlConnection(target,'authenticated');
   for(const x of [a,b,c]){
-    const role=await x.value<{pid:number;current:string;session:string;superuser:boolean;bypass:boolean;inherit:boolean;isolation:string;database:string;host:string;port:number}>("select json_build_object('pid',pg_backend_pid(),'current',current_user,'session',session_user,'superuser',rolsuper,'bypass',rolbypassrls,'inherit',rolinherit,'isolation',current_setting('transaction_isolation'),'database',current_database(),'host',inet_server_addr()::text,'port',inet_server_port()) from pg_roles where rolname=current_user");
+    const role=await x.value<{pid:number;current:string;session:string;superuser:boolean;bypass:boolean;inherit:boolean;isolation:string;database:string;host:string;port:number}>("select json_build_object('pid',pg_backend_pid(),'current',current_user,'session',session_user,'superuser',rolsuper,'bypass',rolbypassrls,'inherit',rolinherit,'isolation',current_setting('transaction_isolation'),'database',current_database(),'host',host(inet_server_addr()),'port',inet_server_port()) from pg_roles where rolname=current_user");
     expect(role).toMatchObject({current:'authenticated',session:'authenticated',superuser:false,bypass:false,inherit:false,isolation:'read committed',database:target.database,host:'127.0.0.1',port:target.port});
     pids.set(x,role.pid);evidence.backends.push(role);
   }
@@ -57,10 +57,11 @@ beforeAll(async()=>{
     await admin.query(`insert into public.problems(id,platform,contest_id,problem_index,title,rating,tags,canonical_url,metadata_synced_at) values(${q(id)},'codeforces',999990+${i},'R1','[SYNTHETIC] native 013',1400,'{}','https://codeforces.com/problemset/problem/'||(999990+${i})||'/R1',clock_timestamp())`);
   }
 },30000);
-beforeEach(async()=>{owner=randomUUID();other=randomUUID();await admin.query(`insert into auth.users(id) values(${q(owner)}),(${q(other)})`);});
+beforeEach(async()=>{await attestNativeTarget(admin,target);owner=randomUUID();other=randomUUID();await admin.query(`insert into auth.users(id) values(${q(owner)}),(${q(other)})`);});
 afterEach(async()=>{for(const x of [a,b,c])if(x)await x.query('rollback');});
 afterAll(async()=>{
   for(const x of [a,b,c,admin])if(x){try{await x.query('rollback');}catch{ /* Connection may already be closed after a failure. */ }await x.close();}
+  evidence.sqlStates=nativeSqlStateCounts;
   if(target)await writeFile(join(dirname(target.directory),'native-013-evidence.json'),JSON.stringify(evidence,null,2)+'\n');
 });
 
@@ -110,7 +111,7 @@ it('different runs concurrently choose the same problem without a second source 
 });
 it('restores legacy training without changing its draft, revisions, status or creating historical provenance',async()=>{
   const id=await user(a,owner,()=>a.value<string>(`select to_json(id) from public.start_cf_session(${q(JSON.stringify({problemId:problems[0],requestId:randomUUID()}))}::jsonb)`));
-  await user(a,owner,()=>a.query(`select public.save_training_draft(${q(id)},'thought','synthetic preserved draft',0)`));
+  await user(a,owner,()=>a.query(`select to_jsonb(public.save_training_draft(${q(id)},'thought','synthetic preserved draft',0))`));
   const snapshot=()=>admin.value(`select to_jsonb(s) from public.training_sessions s where id=${q(id)}`),before=await snapshot();
   expect((await read()).items).toEqual([]);
   const item=(await record([problems[0]!])).items[0]!;expect(await choose(item.id,b)).toEqual({sessionId:id,resumed:true});
@@ -135,7 +136,7 @@ it('rolled-back start releases the receipt and all training writes for the waiti
 });
 it.each(['solved_self_reported','unsolved','not_recorded'])('training result %s is read separately from official evidence; receipt replay keeps history',async result=>{
   const item=(await record([problems[0]!])).items[0]!,selected=await choose(item.id);
-  await user(a,owner,()=>a.query(`select public.transition_training_session(${q(selected.sessionId!)},'finish',1,${q(result)})`));
+  await user(a,owner,()=>a.query(`select to_jsonb(public.transition_training_session(${q(selected.sessionId!)},'finish',1,${q(result)}))`));
   expect((await read()).items[0]).toMatchObject({outcome:result,official:'disabled',sessionStatus:'completed'});
   expect(await choose(item.id,b)).toEqual({sessionId:selected.sessionId,resumed:true});
   expect(await count('public.training_sessions')).toBe(1);
@@ -151,6 +152,6 @@ it('stale preference revision rejects a new choice without partial attribution',
 it('bare 013 replay is rejected atomically and preserves schema, ACL and all existing history',async()=>{
   const definitions=()=>admin.value("select jsonb_agg(jsonb_build_object('name',oid::regprocedure::text,'hash',md5(pg_get_functiondef(oid)),'acl',proacl) order by oid) from pg_proc where pronamespace='public'::regnamespace");
   const before={rows:await admin.value(nativeHistorySql),functions:await definitions()};
-  await expect(applyMigration(target,join(dirname(target.directory),'workspace/supabase/migrations/202610280013_recommendation_training_feedback.sql'))).rejects.toThrow('Isolated migration failed');
+  await expect(applyMigration(target,join(dirname(target.directory),'workspace/supabase/migrations/202610280013_recommendation_training_feedback.sql'))).rejects.toMatchObject({message:'Isolated migration failed',code:'42P07'});
   expect({rows:await admin.value(nativeHistorySql),functions:await definitions()}).toEqual(before);
 });

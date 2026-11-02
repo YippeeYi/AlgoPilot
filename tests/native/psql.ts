@@ -3,12 +3,16 @@
 import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import { dirname, join, resolve } from "node:path";
+import assert from "node:assert/strict";
 
 export class SqlStateError extends Error {
   code: string;
   constructor(code: string) { super(`Isolated PostgreSQL SQLSTATE ${code}`); this.code = code; }
 }
 export const literal = (value: string) => "'" + value.replaceAll("'", "''") + "'";
+// Only actual framed SQLSTATEs; never SQL, rows, passwords or connection strings.
+export const nativeSqlStateCounts:Record<string,number>={};
+export const psqlDiagnosticState=(text:string)=>text.match(/:\s*([A-Z0-9]{5})\s*$/m)?.[1];
 export type NativeTarget = { bin: string; directory: string; port: number; database: string; home: string };
 export function validateTarget(target: NativeTarget) {
   if (!Number.isSafeInteger(target.port) || target.port < 1024 || target.port > 65535 ||
@@ -20,8 +24,23 @@ export function validateTarget(target: NativeTarget) {
 export function nativeEnvironment(target: NativeTarget) {
   validateTarget(target);
   return { PATH: "/usr/bin:/bin", HOME: target.home, TMPDIR: dirname(target.directory),
-    LC_ALL: "C", NODE_ENV: "test" as const, PSQLRC: "/dev/null", PGPASSFILE: "/dev/null", PGCONNECT_TIMEOUT: "3",
+    LC_ALL: "C", NODE_ENV: "test" as const, PSQLRC: "/dev/null", PGPASSFILE: join(target.home,"pgpass.fixture"), PGCONNECT_TIMEOUT: "3",
     PGAPPNAME: "algopilot-m353-isolated", PGSSLMODE: "disable" };
+}
+
+export function nativeTargetAssertionSql(target:NativeTarget,database=target.database) {
+  validateTarget(target);
+  if(database!==target.database&&database!=='postgres')throw Error('Unsafe bootstrap database');
+  return `do $$ begin if current_database()<>${literal(database)} or current_setting('data_directory')<>${literal(target.directory)}
+    or host(inet_server_addr())<>'127.0.0.1' or inet_server_port()<>${target.port}
+    or current_setting('listen_addresses')<>'127.0.0.1' or current_user<>'fixture_admin'
+    then raise exception 'ISOLATED_TARGET_MISMATCH' using errcode='23514'; end if; end $$`;
+}
+export async function attestNativeTarget(connection:PsqlConnection,target:NativeTarget) {
+  validateTarget(target);
+  const value=await connection.value("select json_build_object('database',current_database(),'directory',current_setting('data_directory'),'host',host(inet_server_addr()),'port',inet_server_port(),'listen',current_setting('listen_addresses'),'role',current_user)");
+  assert.deepEqual(value,{database:target.database,directory:target.directory,host:'127.0.0.1',port:target.port,listen:'127.0.0.1',role:'fixture_admin'});
+  return value;
 }
 
 /** Framing is on stdout, including SQLSTATE, so stdout/stderr ordering cannot hide an error. */
@@ -37,6 +56,23 @@ export class PsqlFrame {
     if (match.index + match[0].length !== this.buffer.length) throw Error("Unexpected SQL output after frame");
     return { code: match[1]!, lines: this.buffer.slice(0, match.index).split(/\r?\n/).filter(Boolean) };
   }
+}
+
+/** PostgreSQL json_agg(composite) can contain formatting newlines inside one row. */
+export function parsePsqlRows(lines:string[]):unknown[] {
+  const rows:unknown[]=[];let buffer:string[]=[],depth=0,quoted=false,escaped=false;
+  for(const line of lines){
+    buffer.push(line);
+    for(const char of line){
+      if(quoted){if(escaped)escaped=false;else if(char==='\\')escaped=true;else if(char==='"')quoted=false;}
+      else if(char==='"')quoted=true;
+      else if(char==='['||char==='{')depth++;
+      else if(char===']'||char==='}') {if(--depth<0)throw Error('Non-JSON isolated SQL result');}
+    }
+    if(!depth&&!quoted){try{rows.push(JSON.parse(buffer.join('\n')));}catch{throw Error('Non-JSON isolated SQL result');}buffer=[];}
+  }
+  if(buffer.length)throw Error('Incomplete isolated JSON row');
+  return rows;
 }
 export class PsqlConnection {
   private child: ChildProcessWithoutNullStreams;
@@ -58,9 +94,10 @@ export class PsqlConnection {
         const result = this.pending.frame.feed(chunk.toString());
         if (!result) return;
         const pending = this.pending; this.pending = undefined; clearTimeout(pending.timer);
+        nativeSqlStateCounts[result.code]=(nativeSqlStateCounts[result.code]??0)+1;
         if (result.code !== "00000") pending.reject(new SqlStateError(result.code));
         else {
-          try { pending.resolve(result.lines.map(line => JSON.parse(line))); }
+          try { pending.resolve(parsePsqlRows(result.lines)); }
           catch { pending.reject(Error("Non-JSON isolated SQL result")); }
         }
       } catch { this.fail(Error("Isolated SQL framing failed")); this.child.kill(); }
@@ -102,8 +139,14 @@ export async function applyMigration(target: NativeTarget, file: string) {
   if (dirname(resolve(file)) !== workspace || !/^\d{12}_.+\.sql$/.test(file.split("/").at(-1)!))
     throw Error("Migration outside private test copy");
   await new Promise<void>((resolve, reject) => {
-    const child = spawn(join(target.bin, "psql"), ["-X", "-v", "ON_ERROR_STOP=1", "-h", "127.0.0.1", "-p", String(target.port), "-U", "fixture_admin", "-d", target.database, "-f", file], { env: nativeEnvironment(target), stdio: "ignore" });
+    const child = spawn(join(target.bin, "psql"), ["-X", "-v", "ON_ERROR_STOP=1","-v","VERBOSITY=sqlstate", "-h", "127.0.0.1", "-p", String(target.port), "-U", "fixture_admin", "-d", target.database, "-c",nativeTargetAssertionSql(target),"-f", file], { env: nativeEnvironment(target), stdio: ['ignore','ignore','pipe'] });
+    let diagnostic='';child.stderr?.on('data',chunk=>{if(diagnostic.length<4096)diagnostic+=String(chunk).slice(0,4096-diagnostic.length);});
     child.once("error", () => reject(Error("Isolated migration process unavailable")));
-    child.once("exit", code => code === 0 ? resolve() : reject(Error("Isolated migration failed")));
+    child.once("close", code => {
+      if(code===0){resolve();return;}
+      const sqlState=psqlDiagnosticState(diagnostic);
+      if(sqlState)nativeSqlStateCounts[sqlState]=(nativeSqlStateCounts[sqlState]??0)+1;
+      reject(Object.assign(Error('Isolated migration failed'),sqlState?{code:sqlState}:{}));
+    });
   });
 }
